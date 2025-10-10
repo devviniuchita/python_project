@@ -240,7 +240,6 @@ site/
 # -----------------------------------
 # These contain sensitive information and should never be committed
 
-.env.*
 secrets.json
 *.secrets.json
 user-secrets.json
@@ -337,9 +336,9 @@ celerybeat.pid
 *.index
 *.meta
 *.data-*
-*.faiss
 *.ann
 *.hnsw
+
 .huggingface/
 transformers/
 tokenizers/
@@ -478,3 +477,7 @@ migration-storybook.log
 # END OF FILE
 # ===========================================
 docs/T-13_IMPLEMENTATION_REPORT.md
+
+# FAISS
+!index.pkl
+!banco_faiss/
