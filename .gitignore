@@ -1,0 +1,480 @@
+# ===========================================
+# MODERN PYTHON PROJECT GITIGNORE - 2025
+# ===========================================
+# Generated: 2025-01-10
+# Strategy: Ignore everything (*) then explicitly allow what should be committed
+# ===========================================
+
+# ------------------
+# IGNORE EVERYTHING BY DEFAULT
+# ------------------
+*
+
+# ------------------
+# FORCE INCLUDE - ESSENTIAL PROJECT FILES
+# ------------------
+# These files and directories are explicitly allowed to be committed
+
+# Core project files
+!.gitignore
+!README.md
+!requirements.txt
+!pyproject.toml
+!.env.example
+
+# Source code (src-layout)
+!src/
+!src/**
+!src/**/*.py
+
+# Tests
+!tests/
+!tests/**
+!tests/**/*.py
+
+# Documentation
+!docs/
+!docs/**
+!docs/**/*.md
+!docs/**/*.pdf
+
+# Scripts
+!scripts/
+!scripts/**
+!scripts/**/*.py
+
+# GitHub workflows (essential for CI/CD)
+!.github/
+!.github/workflows/
+!.github/workflows/**
+!.github/workflows/**/*.yml
+!.github/workflows/**/*.yaml
+
+# -----------------------------------
+# ESSENTIAL PYTHON PACKAGE FILES (__init__.py)
+# -----------------------------------
+# These __init__.py files are essential for the Python package structure
+
+# Core package structure
+!src/__init__.py
+!src/core/__init__.py
+!src/core/domain/__init__.py
+!src/core/services/__init__.py
+!src/core/repositories/__init__.py
+!src/features/__init__.py
+!src/features/conversation/__init__.py
+!src/features/rag/__init__.py
+!src/features/reranking/__init__.py
+!src/infrastructure/__init__.py
+!src/infrastructure/config/__init__.py
+!src/infrastructure/database/__init__.py
+!src/infrastructure/logging/__init__.py
+!src/infrastructure/external/__init__.py
+!src/shared/__init__.py
+!src/shared/types/__init__.py
+!src/shared/utils/__init__.py
+
+# Test package structure
+!tests/__init__.py
+!tests/unit/__init__.py
+!tests/integration/__init__.py
+!tests/e2e/__init__.py
+
+# Documentation package
+!docs/__init__.py
+!docs/api/__init__.py
+!docs/guides/__init__.py
+
+# Scripts package
+!scripts/__init__.py
+
+# GitHub workflows
+!.github/workflows/__init__.py
+
+# -----------------------------------
+# PROJECT DATA AND ASSETS
+# -----------------------------------
+# Keep essential project data and assets
+
+# FAISS vector database (project data)
+!src/infrastructure/database/banco_faiss/
+!src/infrastructure/database/banco_faiss/**
+!src/infrastructure/database/banco_faiss/index.faiss
+!src/infrastructure/database/banco_faiss/index.pkl
+
+# Documentation assets
+!docs/Perceptron.pdf
+
+# -----------------------------------
+# DEVELOPMENT TOOLS - IGNORE
+# -----------------------------------
+# These directories contain development tools and should be ignored
+
+# Cursor AI development system
+.cursor/
+.cursor/**
+**/.cursor/
+
+# Todo2 task management
+.todo2/
+.todo2/**
+**/.todo2/
+
+# Other development tools
+.trae/
+.rag/
+.cursorrules
+.cursorignore
+.copilotignore
+
+# IDE configurations (ignore user-specific)
+.vscode/settings.json
+.idea/
+*.iml
+
+# AI development rules (ignore personal configurations)
+.cursor/rules/todo2*.mdc
+.cursor/rules/todo2-overview.mdc
+.cursor/rules/todo2.mdc
+.cursor/mcp.json
+.cursor/mcp-local.json
+.cursor/rules/byterover-rules.mdc
+
+# GitHub personal directories
+.github/chatmodes/
+.github/copilot-rules/
+.github/memory-system/
+
+# -----------------------------------
+# BUILD AND ARTIFACTS - IGNORE
+# -----------------------------------
+# These are generated files and should be ignored
+
+# Python bytecode and cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Distribution and packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Testing and coverage
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+test-results/
+coverage-reports/
+
+# Virtual environments
+.env
+.venv/
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE cache and settings
+.python-version
+pyrightconfig.json
+*.swp
+*.swo
+*~
+.spyderproject
+.spyproject
+.ropeproject
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+pytype/
+.black
+.isort.cfg
+
+# Documentation builds
+docs/_build/
+docs/build/
+site/
+
+# Jupyter
+.ipynb_checkpoints
+*.ipynb_checkpoints
+
+# -----------------------------------
+# SECURITY AND SECRETS - IGNORE
+# -----------------------------------
+# These contain sensitive information and should never be committed
+
+.env.*
+secrets.json
+*.secrets.json
+user-secrets.json
+current_token.txt
+tmp_token.txt
+*_token.txt
+working_token.txt
+TEST_TOKEN.sh
+*.db
+*.sqlite
+*.sqlite3
+*.pfx
+*.p12
+*.key
+*.pem
+*.crt
+*.cer
+
+# -----------------------------------
+# DEVELOPMENT AND DEBUG - IGNORE
+# -----------------------------------
+# These are development artifacts and should be ignored
+
+# Logs and monitoring
+*.log
+logs/
+monitoring/
+debug.log
+error.log
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+.tmp/
+temp/
+tmp/
+.tmp/
+
+# Development artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+*.cover
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.lnk
+
+# -----------------------------------
+# FRAMEWORK AND LIBRARY SPECIFIC - IGNORE
+# -----------------------------------
+# Framework generated files
+
+# Django
+local_settings.py
+db.sqlite3
+
+# Flask
+instance/
+.webassets-cache
+
+# Scrapy
+.scrapy
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath
+*.sage.py
+
+# AI/ML specific
+*.pkl
+*.model
+*.h5
+*.pb
+*.tflite
+*.onnx
+*.bin
+*.ckpt
+*.index
+*.meta
+*.data-*
+*.faiss
+*.ann
+*.hnsw
+.huggingface/
+transformers/
+tokenizers/
+mlruns/
+.lightning/
+.wandb/
+.tensorboard/
+runs/
+
+# -----------------------------------
+# DEPLOYMENT AND CLOUD - IGNORE
+# -----------------------------------
+# Deployment artifacts
+
+dist/
+build/
+*.egg-info/
+*.whl
+*.tar.gz
+*.zip
+*.deb
+*.rpm
+
+# Deployment configurations
+deploy-azure.*
+**/PublishProfiles/
+*.pubxml*
+*.PublishSettings
+publish-profile*.xml
+new-publish-profile.xml
+
+# Cloud providers
+.azure/
+.aws/
+.vercel/
+.netlify/
+.dockerignore
+docker-compose.override.yml
+
+# Performance analysis
+.lighthouseci/
+*.lighthouseci.json
+
+# -----------------------------------
+# FRAMEWORK SPECIFIC FILES - IGNORE
+# -----------------------------------
+# Application configuration files (may contain secrets)
+
+application.properties
+application.yml
+application.yaml
+application-*.yml
+application-*.yaml
+
+# Scripts and batch files
+run-app.bat
+run-dev.cmd
+setup-mongo-user.ps1
+*.bat
+*.cmd
+
+# Project specific files
+nul
+.classpath
+.classpath.json
+.project
+.project.json
+testsprite_tests/
+web.config.backup
+*.config.backup
+*.orig
+
+# Images and assets (ignore development ones)
+Pag. comunidade.png
+
+# -----------------------------------
+# DEVELOPMENT SCRIPTS - SELECTIVE IGNORE
+# -----------------------------------
+# Ignore personal development scripts but keep essential ones
+
+scripts/analyze_jwt.py
+scripts/debug_auth.py
+scripts/test_jwt_correct.py
+scripts/generate_test_token.py
+scripts/get_fresh_token.py
+scripts/extract_token.py
+
+# Keep essential scripts
+!scripts/migrate_imports.py
+!scripts/run_threshold_tests.py
+!scripts/validate_logging.py
+!scripts/benchmark_reranking.py
+!scripts/chat.py
+!scripts/recreate_faiss.py
+
+# -----------------------------------
+# DEVELOPMENT ONLY DOCS - IGNORE
+# -----------------------------------
+# Ignore development-specific documentation
+
+docs/CI-CD-VERCEL.md
+docs/ci-vercel-check.md
+FASTMCP_CLOUD_SETUP.md
+CHANGELOG_LATEST_VERSIONS.md
+FASTMCP_CLOUD_DEPENDENCIES.md
+FORCE_REDEPLOY.md
+FASTMCP_CLOUD_TOKEN_FIX.md
+Tasklist.md
+
+# -----------------------------------
+# TESTING TOOLS - IGNORE
+# -----------------------------------
+# Ignore testing framework artifacts
+
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+test-*.js
+test-format.js
+test-results/
+tests-examples/
+
+# MongoDB Compass generated files
+playground*.mongodb.js
+playground*.mongodb
+*.mongodb.js
+*.mongodb
+
+# Storybook
+*storybook.log
+storybook-static
+storybook.log
+migration-storybook.log
+
+# -----------------------------------
+# END OF FILE
+# ===========================================
+docs/T-13_IMPLEMENTATION_REPORT.md
