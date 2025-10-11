@@ -1,0 +1,128 @@
+# CODEOWNERS - Definição de Revisores de Código
+#
+# Formato: <pattern> <owner1> <owner2> ...
+# Owners podem ser: @username, @org/team-name, ou email
+#
+# Mais informações: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# ============================================
+# ARQUIVOS LEGAIS E DE GOVERNANÇA
+# ============================================
+# Requerem aprovação do mantenedor principal
+
+/LICENSE @devviniuchita
+/NOTICE @devviniuchita
+/CITATION.cff @devviniuchita
+/CODE_OF_CONDUCT.md @devviniuchita
+/SECURITY.md @devviniuchita
+/CONTRIBUTING.md @devviniuchita
+
+# ============================================
+# CONFIGURAÇÕES DE PROTEÇÃO DE COPYRIGHT
+# ============================================
+
+# Developer Certificate of Origin
+/.github/DCO @devviniuchita
+
+# GitHub Actions - Copyright Protection
+/.github/workflows/copyright-check.yml @devviniuchita
+/.github/workflows/dco-check.yml @devviniuchita
+/.github/workflows/detect-copies.yml @devviniuchita
+
+# Git Hooks
+/.githooks/ @devviniuchita
+/.githooks/pre-commit @devviniuchita
+/.githooks/commit-msg @devviniuchita
+
+# Scripts de Proteção
+/scripts/add_copyright_headers.py @devviniuchita
+
+# Documentação de Proteção
+/docs/COPYRIGHT_PROTECTION.md @devviniuchita
+/docs/GPG_SIGNING.md @devviniuchita
+/docs/SETUP_CHECKLIST.md @devviniuchita
+/docs/COPYRIGHT_QUICK_REFERENCE.md @devviniuchita
+
+# ============================================
+# CONFIGURAÇÕES DE CI/CD
+# ============================================
+
+/.github/workflows/ @devviniuchita
+
+# ============================================
+# CÓDIGO-FONTE PRINCIPAL
+# ============================================
+
+# Core RAG system
+/src/core/ @devviniuchita
+/src/core/reranker.py @devviniuchita
+/src/core/llm.py @devviniuchita
+/src/core/retriever.py @devviniuchita
+/src/core/rag_chain.py @devviniuchita
+
+# Integrations
+/src/integrations/ @devviniuchita
+/src/integrations/langsmith_integration.py @devviniuchita
+
+# Configuration
+/src/config/ @devviniuchita
+/src/config/settings.py @devviniuchita
+
+# Utils
+/src/utils/ @devviniuchita
+
+# ============================================
+# TESTES
+# ============================================
+
+# Testes críticos
+/tests/unit/test_reranker.py @devviniuchita
+/tests/integration/ @devviniuchita
+/tests/e2e/ @devviniuchita
+
+# Configuração de testes
+/tests/conftest.py @devviniuchita
+/pytest.ini @devviniuchita
+
+# ============================================
+# CONFIGURAÇÕES DE PROJETO
+# ============================================
+
+/pyproject.toml @devviniuchita
+/requirements.txt @devviniuchita
+/requirements-dev.txt @devviniuchita
+/.env.example @devviniuchita
+
+# ============================================
+# DOCUMENTAÇÃO
+# ============================================
+
+# Documentação principal
+/README.md @devviniuchita
+
+# Outros documentos
+/docs/ @devviniuchita
+
+# ============================================
+# CONFIGURAÇÕES DO REPOSITÓRIO
+# ============================================
+
+/.gitignore @devviniuchita
+/.gitattributes @devviniuchita
+/.editorconfig @devviniuchita
+
+# ============================================
+# NOTAS
+# ============================================
+#
+# 1. Este arquivo define quem deve revisar alterações em arquivos específicos
+# 2. Pull Requests que modificam arquivos listados requerem aprovação dos owners
+# 3. Owners são notificados automaticamente quando PRs são criados
+# 4. Para modificar este arquivo, é necessário aprovação de @devviniuchita
+#
+# Copyright (c) 2025 Python RAG Project Team
+# SPDX-License-Identifier: MIT
+# Author: Vinícius Uchita <viniciusuchita@gmail.com>
+#
+# Project Watermark: PRAG-2025-VU-v1.0
+# Digital Signature: 8f3c9d2e1a4b7f6c5e9d8a3b2c1f4e7d

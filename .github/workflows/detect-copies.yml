@@ -1,0 +1,158 @@
+name: Detect Unauthorized Copies
+
+on:
+  schedule:
+    # Run every Monday at 9 AM UTC
+    - cron: "0 9 * * 1"
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  detect-copies:
+    runs-on: ubuntu-latest
+    name: Search for Potential Copies
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Search GitHub for unique watermarks
+        id: search
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Searching for unique project identifiers..."
+
+          # Unique watermarks to search for (these should be in your code)
+          WATERMARKS=(
+            "PRAG-2025-VU-v1.0"
+            "8f3c9d2e1a4b7f6c5e9d8a3b2c1f4e7d"
+            "Python RAG Project Team"
+          )
+
+          FOUND_REPOS=()
+
+          for watermark in "${WATERMARKS[@]}"; do
+            echo ""
+            echo "Searching for: $watermark"
+
+            # Search GitHub code
+            RESULTS=$(gh search code "$watermark" --limit 20 --json repository,url)
+
+            if [ "$RESULTS" != "[]" ]; then
+              echo "Found potential matches!"
+              echo "$RESULTS" | jq -r '.[] | "\(.repository.nameWithOwner) - \(.url)"'
+
+              # Extract repository names
+              REPOS=$(echo "$RESULTS" | jq -r '.[].repository.nameWithOwner')
+              FOUND_REPOS+=($REPOS)
+            else
+              echo "No matches found."
+            fi
+          done
+
+          # Remove duplicates and exclude our own repo
+          UNIQUE_REPOS=$(printf '%s\n' "${FOUND_REPOS[@]}" | sort -u | grep -v "${{ github.repository }}" || true)
+
+          if [ -n "$UNIQUE_REPOS" ]; then
+            echo ""
+            echo "⚠️ POTENTIAL UNAUTHORIZED COPIES DETECTED:"
+            echo "$UNIQUE_REPOS"
+            echo ""
+            echo "repos<<EOF" >> $GITHUB_OUTPUT
+            echo "$UNIQUE_REPOS" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+            echo "found=true" >> $GITHUB_OUTPUT
+          else
+            echo ""
+            echo "✅ No unauthorized copies detected."
+            echo "found=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create issue if copies found
+        if: steps.search.outputs.found == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const repos = `${{ steps.search.outputs.repos }}`;
+            const repoList = repos.split('\n').filter(r => r.trim() !== '');
+
+            const issueTitle = '🚨 Potential Unauthorized Copy Detected';
+            const issueBody = `## ⚠️ Unauthorized Copy Detection Alert
+
+            Our automated scanning has detected potential unauthorized copies of this project.
+
+            ### 📍 Detected Repositories:
+
+            ${repoList.map(repo => `- https://github.com/${repo}`).join('\n')}
+
+            ### 🔍 Next Steps:
+
+            1. **Verify Attribution**: Check if the detected repositories properly attribute this project
+            2. **Check License Compliance**: Verify if MIT License terms are being followed
+            3. **Review NOTICE file**: Confirm if NOTICE requirements are met
+            4. **Assess Impact**: Determine if this is a legitimate fork/derivative or unauthorized copy
+
+            ### ⚖️ Legal Options:
+
+            If attribution/license requirements are not met:
+
+            1. **Contact Repository Owner**: Politely request proper attribution
+            2. **GitHub DMCA**: File a DMCA takedown if copyright is violated
+            3. **Legal Action**: Consult with IP lawyer for serious violations
+
+            ### 📋 Required Attribution (MIT License):
+
+            - ✅ LICENSE file must be included
+            - ✅ Copyright notices must be preserved
+            - ✅ NOTICE file should be included (recommended)
+
+            ### 📧 Contact Information:
+
+            For licensing questions: viniciusuchita@gmail.com
+
+            ---
+
+            **Detection Date**: ${new Date().toISOString()}
+            **Workflow Run**: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            `;
+
+            // Check if issue already exists
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'copyright-violation'
+            });
+
+            const existingIssue = issues.data.find(issue =>
+              issue.title.includes('Unauthorized Copy Detected')
+            );
+
+            if (existingIssue) {
+              // Update existing issue
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existingIssue.number,
+                body: `### 🔄 New Detection (${new Date().toISOString()})\n\n${issueBody}`
+              });
+            } else {
+              // Create new issue
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: issueTitle,
+                body: issueBody,
+                labels: ['copyright-violation', 'needs-review']
+              });
+            }
+
+      - name: Send notification
+        if: steps.search.outputs.found == 'true'
+        run: |
+          echo "::notice title=Copyright Alert::Potential unauthorized copies detected. Check the created issue for details."

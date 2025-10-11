@@ -1,0 +1,84 @@
+name: DCO Check
+
+on:
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  dco-check:
+    runs-on: ubuntu-latest
+    name: Developer Certificate of Origin
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get PR Commits
+        id: commits
+        uses: tim-actions/get-pr-commits@master
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check DCO
+        uses: tim-actions/dco@master
+        with:
+          commits: ${{ steps.commits.outputs.commits }}
+
+      - name: Comment on PR if DCO missing
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const message = `## ⚠️ DCO Sign-off Required
+
+            This pull request is missing the Developer Certificate of Origin (DCO) sign-off.
+
+            ### What is DCO?
+
+            The DCO is a lightweight way for contributors to certify that they wrote or otherwise have the right to submit the code they are contributing to the project.
+
+            ### How to fix this?
+
+            You need to add a \`Signed-off-by\` line to your commits. There are two ways to do this:
+
+            #### Option 1: Sign-off new commits (recommended)
+
+            \`\`\`bash
+            # For new commits, use the -s flag
+            git commit -s -m "Your commit message"
+            \`\`\`
+
+            #### Option 2: Amend existing commits
+
+            \`\`\`bash
+            # For the last commit
+            git commit --amend --signoff
+
+            # For multiple commits, rebase interactively
+            git rebase -i HEAD~<number-of-commits> --signoff
+
+            # Force push (required after amending/rebasing)
+            git push --force-with-lease
+            \`\`\`
+
+            #### Option 3: Use the DCO app
+
+            Comment \`/signoff\` on this PR and the DCO app will automatically sign-off all commits.
+
+            ### What does signing-off mean?
+
+            By signing off, you certify that you have the right to contribute this code under the project's MIT License and that you agree to the [Developer Certificate of Origin](https://developercertificate.org/).
+
+            ### Need help?
+
+            If you have questions, please reach out to the maintainers or check our [CONTRIBUTING.md](${context.payload.repository.html_url}/blob/main/CONTRIBUTING.md).
+            `;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: message
+            });

@@ -44,12 +44,19 @@ Criar um **sistema RAG completo e escalável** com:
 
 Antes de contribuir, conheça nossas políticas:
 
-| Documento                | Descrição                                       | Link                                     |
-| ------------------------ | ----------------------------------------------- | ---------------------------------------- |
-| **🤝 Código de Conduta** | Padrões de comportamento respeitoso e inclusivo | [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) |
-| **🔒 Segurança**         | Reporte vulnerabilidades de forma responsável   | [SECURITY.md](SECURITY.md)               |
-| **📄 Licença**           | MIT License - uso livre com atribuição          | [LICENSE](LICENSE)                       |
-| **📋 TODO2 System**      | Sistema de gerenciamento de tarefas do projeto  | `.todo2/state.todo2.json`                |
+### 📋 Documentos de Governança
+
+| Documento                    | Descrição                                          | Link                                                         |
+| ---------------------------- | -------------------------------------------------- | ------------------------------------------------------------ |
+| **🤝 Código de Conduta**     | Padrões de comportamento respeitoso e inclusivo    | [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)                     |
+| **🔒 Segurança**             | Reporte vulnerabilidades de forma responsável      | [SECURITY.md](SECURITY.md)                                   |
+| **📄 Licença**               | MIT License - uso livre com atribuição             | [LICENSE](LICENSE)                                           |
+| **📜 NOTICE**                | Requisitos de atribuição Apache-style obrigatórios | [NOTICE](NOTICE)                                             |
+| **📚 CITATION.cff**          | Como citar este projeto academicamente             | [CITATION.cff](CITATION.cff)                                 |
+| **✍️ DCO**                   | Developer Certificate of Origin v1.1               | [.github/DCO](.github/DCO)                                   |
+| **🛡️ Proteção de Copyright** | Guia completo de proteção e licenciamento          | [docs/COPYRIGHT_PROTECTION.md](docs/COPYRIGHT_PROTECTION.md) |
+| **🔐 Assinatura GPG**        | Como assinar commits com GPG                       | [docs/GPG_SIGNING.md](docs/GPG_SIGNING.md)                   |
+| **📋 TODO2 System**          | Sistema de gerenciamento de tarefas do projeto     | `.todo2/state.todo2.json`                                    |
 
 **Pontos Importantes**:
 
@@ -57,6 +64,103 @@ Antes de contribuir, conheça nossas políticas:
 - 🔒 **Segurança**: Reporte vulnerabilidades via canais privados
 - 📋 **Workflow**: Use TODO2 para rastrear progresso de tarefas
 - ✅ **Quality**: Todos os PRs passam por code review obrigatório
+- ✍️ **DCO**: Todos os commits DEVEM ter Developer Certificate of Origin sign-off
+
+### ✍️ Developer Certificate of Origin (DCO) - OBRIGATÓRIO
+
+**Este projeto requer DCO sign-off em TODOS os commits.**
+
+#### 🎯 O que é DCO?
+
+O Developer Certificate of Origin é uma certificação leve que confirma que você:
+
+1. ✅ **Criou a contribuição** ou tem direito de submetê-la sob a licença do projeto
+2. ✅ **Entende e concorda** que a contribuição seja pública e permanente
+3. ✅ **Tem direitos legais** para fazer a contribuição sob a licença MIT
+4. ✅ **Aceita** que o projeto pode redistribuir seu código sob a licença MIT
+
+Texto completo do DCO: [.github/DCO](.github/DCO)
+
+#### 📝 Como Fazer Sign-off
+
+**Método 1: Flag `-s` no commit** (Recomendado)
+
+```bash
+# Fazer commit com DCO sign-off
+git commit -s -m "feat: adicionar nova funcionalidade"
+
+# Isso adiciona automaticamente:
+# Signed-off-by: Seu Nome <seu.email@exemplo.com>
+```
+
+**Método 2: Amend em commit já feito**
+
+```bash
+# Adicionar sign-off ao último commit
+git commit --amend --signoff
+
+# Adicionar sign-off e manter mensagem
+git commit --amend --signoff --no-edit
+```
+
+**Método 3: Rebase para múltiplos commits**
+
+```bash
+# Adicionar sign-off em múltiplos commits
+git rebase HEAD~3 --signoff
+
+# Forçar push (necessário após rebase)
+git push --force-with-lease
+```
+
+#### ⚙️ Configurar Git Automaticamente
+
+```bash
+# Configurar nome e email (usado no sign-off)
+git config --global user.name "Seu Nome"
+git config --global user.email "seu.email@exemplo.com"
+
+# Criar alias para commit com sign-off automático
+git config --global alias.cs 'commit -s'
+
+# Agora use: git cs -m "sua mensagem"
+```
+
+#### ✅ Verificar Sign-off
+
+```bash
+# Ver último commit com sign-off
+git log -1
+
+# Verificar se tem "Signed-off-by:"
+git log --format='%h %s%n%b' -1
+```
+
+#### 🚫 O que Acontece Sem DCO?
+
+- ❌ **GitHub Action falhará**: `dco-check.yml` bloqueia PRs sem DCO
+- ❌ **PR não será aceito**: Revisor solicitará correção
+- ❌ **CI/CD bloqueado**: Pipeline não prosseguirá
+
+#### 🛠️ Git Hooks Automáticos
+
+O projeto possui hooks que validam DCO:
+
+```bash
+# Ativar hooks locais (recomendado)
+git config core.hooksPath .githooks
+chmod +x .githooks/*  # Linux/macOS
+
+# Hooks disponíveis:
+# - .githooks/commit-msg: Valida DCO e formato Conventional Commits
+# - .githooks/pre-commit: Valida copyright headers e formata código
+```
+
+#### 📚 Recursos Adicionais
+
+- **DCO Oficial**: [developercertificate.org](https://developercertificate.org/)
+- **Linux Foundation DCO**: [GitHub Apps](https://github.com/apps/dco)
+- **Nosso DCO**: [.github/DCO](.github/DCO)
 
 ---
 
@@ -144,25 +248,35 @@ source venv/bin/activate  # Windows: venv\Scripts\activate
 # 6. Instale dependências
 pip install -r requirements.txt
 
-# 7. Faça suas alterações seguindo padrões do projeto
+# 7. Ative git hooks (IMPORTANTE!)
+git config core.hooksPath .githooks
+chmod +x .githooks/*  # Linux/macOS
 
-# 8. Execute testes
+# 8. Adicione copyright headers em arquivos novos
+python scripts/add_copyright_headers.py src/ --dry-run
+python scripts/add_copyright_headers.py src/  # Aplicar
+
+# 9. Faça suas alterações seguindo padrões do projeto
+
+# 10. Execute testes
 pytest tests/
 python scripts/run_threshold_tests.py
 
-# 9. Formate código
+# 11. Formate código
 black src/ tests/
 isort src/ tests/
 flake8 src/ tests/
 
-# 10. Commit com mensagem semântica
-git commit -m "feat: adicionar clustering semântico ao reranker"
+# 12. Commit com DCO sign-off (OBRIGATÓRIO!)
+git commit -s -m "feat: adicionar clustering semântico ao reranker"
 
-# 11. Push para seu fork
+# 13. Push para seu fork
 git push origin feature/nome-da-feature
 
-# 12. Abra Pull Request no GitHub
+# 14. Abra Pull Request no GitHub
 ```
+
+**📝 Nota Importante**: O passo 12 usa `-s` para DCO sign-off. Sem isso, o PR será rejeitado!
 
 ### 📚 Melhorando Documentação
 
@@ -508,6 +622,53 @@ Estamos comprometidos em fornecer um ambiente acolhedor. Leia nosso [Código de 
 | Ajude novatos                    | Assédio ou bullying              |
 | Foque no melhor para a comunidade | Ataques pessoais                |
 | Mostre empatia                   | Compartilhar informações privadas |
+
+---
+
+## 📚 Ferramentas e Padrões Utilizados
+
+Este projeto segue padrões reconhecidos da indústria e utiliza ferramentas modernas:
+
+### 🔧 Ferramentas de Desenvolvimento
+
+<div align="center">
+
+| Ferramenta | Descrição | Documentação |
+|------------|-----------|--------------|
+| **Black** | Formatador automático de código Python (PEP 8) | [black.readthedocs.io](https://black.readthedocs.io/) |
+| **isort** | Organizador inteligente de imports | [pycqa.github.io/isort](https://pycqa.github.io/isort/) |
+| **flake8** | Linter para verificação de estilo | [flake8.pycqa.org](https://flake8.pycqa.org/) |
+| **mypy** | Type checker estático para Python | [mypy-lang.org](https://mypy-lang.org/) |
+| **pytest** | Framework de testes robusto | [docs.pytest.org](https://docs.pytest.org/) |
+| **pre-commit** | Framework para git hooks | [pre-commit.com](https://pre-commit.com/) |
+
+</div>
+
+### 📋 Padrões e Convenções
+
+<div align="center">
+
+| Padrão | Descrição | Link Oficial |
+|--------|-----------|--------------|
+| **Conventional Commits** | Especificação para mensagens de commit | [conventionalcommits.org](https://www.conventionalcommits.org/) |
+| **Google Python Style Guide** | Guia de estilo para docstrings e código | [google.github.io/styleguide/pyguide.html](https://google.github.io/styleguide/pyguide.html) |
+| **Semantic Versioning** | Versionamento semântico (MAJOR.MINOR.PATCH) | [semver.org](https://semver.org/) |
+| **Keep a Changelog** | Formato de changelog | [keepachangelog.com](https://keepachangelog.com/) |
+| **Contributor Covenant** | Código de conduta padrão | [contributor-covenant.org](https://www.contributor-covenant.org/) |
+
+</div>
+
+### 🏗️ Arquitetura e Design
+
+- **src-layout**: [setuptools.pypa.io/en/latest/userguide/package_discovery.html](https://setuptools.pypa.io/en/latest/userguide/package_discovery.html)
+- **Clean Architecture**: Martin, Robert C. - "Clean Architecture: A Craftsman's Guide to Software Structure and Design"
+- **SOLID Principles**: [wikipedia.org/wiki/SOLID](https://en.wikipedia.org/wiki/SOLID)
+
+### 📖 Referências Python
+
+- **PEP 8 - Style Guide**: [peps.python.org/pep-0008](https://peps.python.org/pep-0008/)
+- **PEP 484 - Type Hints**: [peps.python.org/pep-0484](https://peps.python.org/pep-0484/)
+- **PEP 257 - Docstring Conventions**: [peps.python.org/pep-0257](https://peps.python.org/pep-0257/)
 
 ---
 

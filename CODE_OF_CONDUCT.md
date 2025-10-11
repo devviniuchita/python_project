@@ -73,6 +73,19 @@ Este Código de Conduta é adaptado do [Contributor Covenant](https://www.contri
 
 ---
 
+## 🔗 Documentação Relacionada
+
+Para uma visão completa da governança e práticas do projeto, consulte:
+
+- 📚 **[CONTRIBUTING.md](CONTRIBUTING.md)** - Guia de contribuição, workflow e DCO
+- 🔒 **[SECURITY.md](SECURITY.md)** - Política de segurança e relato de vulnerabilidades
+- 📜 **[LICENSE](LICENSE)** - Termos de licença MIT
+- 📋 **[NOTICE](NOTICE)** - Requisitos de atribuição de copyright
+- ✍️ **[DCO](.github/DCO)** - Developer Certificate of Origin
+- 🛡️ **[COPYRIGHT_PROTECTION.md](docs/COPYRIGHT_PROTECTION.md)** - Sistema de proteção de copyright
+
+---
+
 **Criado**: Janeiro 2025
 **Última Atualização**: Janeiro 2025
 **Status**: Ativo e Obrigatório

@@ -1,0 +1,56 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: Python RAG Project
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Vinícius
+    family-names: Uchita
+    email: viniciusuchita@gmail.com
+    orcid: "https://orcid.org/0000-0000-0000-0000"
+    affiliation: Python RAG Project Team
+identifiers:
+  - type: url
+    value: "https://github.com/devviniuchita/python_project"
+    description: GitHub Repository
+repository-code: "https://github.com/devviniuchita/python_project"
+url: "https://github.com/devviniuchita/python_project"
+abstract: >-
+  Sistema RAG de Classe Enterprise com Reranking Semântico,
+  Logging Estruturado e Observabilidade LangSmith.
+
+  Inclui busca vetorial FAISS, cross-encoder BGE para
+  reranking, orquestração LangGraph, integração completa
+  com LangSmith para observabilidade e logging estruturado
+  com Structlog.
+keywords:
+  - RAG
+  - Retrieval-Augmented Generation
+  - LangChain
+  - LangGraph
+  - LangSmith
+  - FAISS
+  - BGE
+  - Reranking
+  - NLP
+  - Python
+  - Machine Learning
+  - Semantic Search
+  - Vector Database
+  - Observability
+license: MIT
+version: 1.0.0
+date-released: "2025-01-10"
+preferred-citation:
+  type: software
+  authors:
+    - given-names: Vinícius
+      family-names: Uchita
+      email: viniciusuchita@gmail.com
+  title: "Python RAG Project: Enterprise-Grade RAG System"
+  year: 2025
+  url: "https://github.com/devviniuchita/python_project"

@@ -37,15 +37,39 @@
 !docs/**
 !docs/**/*.md
 !docs/**/*.pdf
-!LICENSE
+!CITATIONS_ADDED.md
 !CONTRIBUTING.md
 !CODE_OF_CONDUCT.md
 !SECURITY.md
+!LICENSE
+!NOTICE
+!CODEOWNERS
+!CITATION.cff
+
+# Documentation
+!docs/
+!docs/**
+!docs/**/*.md
+!docs/**/*.pdf
+
+# Copyright and legal documentation
+!docs/COPYRIGHT_PROTECTION.md
+!docs/GPG_SIGNING.md
+!IMPLEMENTATION_SUMMARY.md
 
 # Scripts
 !scripts/
 !scripts/**
 !scripts/**/*.py
+!scripts/add_copyright_headers.py
+
+# Developer Certificate of Origin
+!.github/DCO
+
+# Git hooks for copyright and DCO
+!.githooks/
+!.githooks/pre-commit
+!.githooks/commit-msg
 
 # GitHub workflows (essential for CI/CD)
 !.github/
@@ -54,9 +78,10 @@
 !.github/workflows/**/*.yml
 !.github/workflows/**/*.yaml
 
-# -----------------------------------
-# ESSENTIAL PYTHON PACKAGE FILES (__init__.py)
-# -----------------------------------
+# Copyright protection workflows
+!.github/workflows/copyright-check.yml
+!.github/workflows/dco-check.yml
+!.github/workflows/detect-copies.yml
 # These __init__.py files are essential for the Python package structure
 
 # Core package structure

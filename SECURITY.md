@@ -142,10 +142,55 @@ _Seja o primeiro a contribuir para nossa segurança!_
 
 ## 📜 Conformidade e Certificações
 
-- ✅ Seguimos as diretrizes **OWASP Top 10**
-- ✅ Aderimos ao **CWE/SANS Top 25**
-- ✅ Implementamos **Secure SDLC** practices
-- ✅ Realizamos **dependency scanning** automatizado
+Este projeto segue os padrões de segurança reconhecidos pela indústria:
+
+- ✅ **[OWASP Top 10](https://owasp.org/www-project-top-ten/)**: Seguimos as diretrizes de segurança de aplicações web da Open Web Application Security Project
+- ✅ **[CWE/SANS Top 25](https://cwe.mitre.org/top25/)**: Aderimos às práticas para evitar as vulnerabilidades mais perigosas de software
+- ✅ **[Secure SDLC](https://owasp.org/www-project-integration-standards/)**: Implementamos práticas de desenvolvimento seguro em todo o ciclo de vida
+- ✅ **Dependency Scanning**: Realizamos varredura automatizada de dependências com ferramentas como `pip-audit` e `safety`
+
+### 🔗 Recursos de Segurança
+
+- **OWASP Foundation**: [owasp.org](https://owasp.org/)
+- **CWE (Common Weakness Enumeration)**: [cwe.mitre.org](https://cwe.mitre.org/)
+- **NIST Cybersecurity Framework**: [nist.gov/cyberframework](https://www.nist.gov/cyberframework)
+- **GitHub Security Best Practices**: [docs.github.com/security](https://docs.github.com/en/code-security)
+
+### 🛡️ Recursos de Copyright e Proteção Intelectual
+
+Este projeto implementa um **sistema robusto de 4 camadas** para proteção de copyright e propriedade intelectual:
+
+**Documentação de Proteção**:
+
+- 📚 **[COPYRIGHT_PROTECTION.md](docs/COPYRIGHT_PROTECTION.md)** - Documentação completa do sistema de 4 camadas
+- 🔐 **[GPG_SIGNING.md](docs/GPG_SIGNING.md)** - Guia de assinatura GPG para commits e tags
+- ✅ **[SETUP_CHECKLIST.md](docs/SETUP_CHECKLIST.md)** - Checklist de configuração de proteção
+- 📖 **[COPYRIGHT_QUICK_REFERENCE.md](docs/COPYRIGHT_QUICK_REFERENCE.md)** - Referência rápida para contribuidores
+
+**Automação e Verificação**:
+
+- 🤖 **[copyright-check.yml](.github/workflows/copyright-check.yml)** - Workflow que verifica headers de copyright em todos os arquivos
+- ✍️ **[dco-check.yml](.github/workflows/dco-check.yml)** - Workflow que valida assinaturas DCO em commits
+- 🔍 **[detect-copies.yml](.github/workflows/detect-copies.yml)** - Workflow que detecta duplicação não autorizada de código
+
+**Proteção Local**:
+
+- 🪝 **[.githooks/pre-commit](.githooks/pre-commit)** - Hook que adiciona headers de copyright antes de cada commit
+- ✅ **[.githooks/commit-msg](.githooks/commit-msg)** - Hook que valida mensagens de commit e DCO sign-off
+
+**Requisitos Legais**:
+
+- 📜 **[NOTICE](NOTICE)** - Atribuição obrigatória de copyright (Apache-style)
+- ✍️ **[DCO](.github/DCO)** - Developer Certificate of Origin v1.1
+- 📖 **[CITATION.cff](CITATION.cff)** - Citação acadêmica padronizada (CFF 1.2.0)
+
+**⚠️ Importante**: Todas as contribuições devem incluir:
+
+1. **Headers de copyright** em arquivos de código
+2. **DCO sign-off** em todos os commits (`git commit -s`)
+3. **Conformidade** com os termos da [LICENSE](LICENSE) e [NOTICE](NOTICE)
+
+Para mais detalhes, consulte [CONTRIBUTING.md](CONTRIBUTING.md) (seção "Developer Certificate of Origin").
 
 ---
 

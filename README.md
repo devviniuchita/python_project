@@ -102,7 +102,7 @@ python_project/
 - **Threshold Adaptativo**: Filtragem dinâmica com score >0.5 (configurável)
 - **Score Distribution**: Métricas estatísticas (max, min, mean, median, p50, p95)
 
-### � Observabilidade e Monitoramento
+### 📈 Observabilidade e Monitoramento
 
 - **Logging Estruturado**: Structlog com formato JSON para análise programática
 - **LangSmith Integration**: Traces completos com metadata customizada
@@ -715,7 +715,9 @@ Contribuições são bem-vindas! Este projeto segue as melhores práticas de ope
 
 ---
 
-## � Licença
+## 📜 Copyright e Licença
+
+### 📄 Licença MIT
 
 Este projeto está licenciado sob a **MIT License** - veja o arquivo [LICENSE](LICENSE) para detalhes.
 
@@ -725,6 +727,127 @@ MIT License - Copyright (c) 2025 Python RAG Project Team
 Permissão garantida para uso, cópia, modificação e distribuição.
 Consulte LICENSE para termos completos.
 ```
+
+### 📋 Requisitos de Atribuição
+
+Além da licença MIT, este projeto possui requisitos **OBRIGATÓRIOS** de atribuição:
+
+| Documento                        | Descrição                                          | Obrigatoriedade    |
+| -------------------------------- | -------------------------------------------------- | ------------------ |
+| **[NOTICE](NOTICE)**             | Atribuição de copyright e autoria                  | ✅ **OBRIGATÓRIO** |
+| **[CITATION.cff](CITATION.cff)** | Citação acadêmica padronizada                      | ✅ **OBRIGATÓRIO** |
+| **[DCO](.github/DCO)**           | Developer Certificate of Origin para contribuições | ✅ **OBRIGATÓRIO** |
+
+#### 📜 NOTICE File - Atribuição Obrigatória
+
+O arquivo [NOTICE](NOTICE) contém informações **obrigatórias** de copyright que devem ser preservadas em:
+
+1. **Todas as cópias ou porções substanciais** do código-fonte
+2. **Documentação** derivada deste projeto
+3. **Redistribuições** (mesmo com modificações)
+4. **Trabalhos derivados** que utilizem este código
+
+**Watermarks de Identificação:**
+
+- **Digital ID**: `PRAG-2025-VU-v1.0`
+- **SHA-256 Hash**: `8f3c9d2e1a4b7f6c5e9d8a3b2c1f4e7d`
+
+#### ✍️ Developer Certificate of Origin (DCO)
+
+**Todas as contribuições** exigem sign-off DCO:
+
+```bash
+git commit -s -m "feat: sua contribuição"
+
+# Adiciona automaticamente:
+# Signed-off-by: Seu Nome <seu.email@example.com>
+```
+
+Veja [CONTRIBUTING.md](CONTRIBUTING.md) para detalhes completos sobre DCO.
+
+### 🛡️ Proteção de Copyright
+
+Este projeto implementa um **sistema de 4 camadas** de proteção de copyright:
+
+1. **Legal**: LICENSE, NOTICE, CITATION.cff, DCO
+2. **Automação**: GitHub Actions (copyright-check, dco-check, detect-copies)
+3. **Local**: Git hooks (pre-commit, commit-msg)
+4. **Documentação**: COPYRIGHT_PROTECTION.md, GPG_SIGNING.md
+
+**Documentação completa**: [docs/COPYRIGHT_PROTECTION.md](docs/COPYRIGHT_PROTECTION.md)
+
+---
+
+## 📚 Como Citar Este Projeto
+
+### 🎓 Citação Acadêmica
+
+Se você utilizar este projeto em pesquisa acadêmica, trabalhos técnicos ou publicações, **por favor cite-o**:
+
+#### BibTeX
+
+```bibtex
+@software{python_rag_project_2025,
+  author       = {{Python RAG Project Team}},
+  title        = {{Python RAG Project - Advanced Retrieval-Augmented Generation System}},
+  year         = {2025},
+  publisher    = {GitHub},
+  journal      = {GitHub repository},
+  howpublished = {\url{https://github.com/byterover/python_project}},
+  version      = {1.0.0},
+  doi          = {10.5281/zenodo.XXXXXXX},
+  note         = {Sistema avançado de RAG com LangChain, LangGraph e LangSmith}
+}
+```
+
+#### APA 7th Edition
+
+```
+Python RAG Project Team. (2025). Python RAG Project - Advanced Retrieval-Augmented
+Generation System (Version 1.0.0) [Computer software]. GitHub.
+https://github.com/byterover/python_project
+```
+
+#### IEEE
+
+```
+Python RAG Project Team, "Python RAG Project - Advanced Retrieval-Augmented
+Generation System," 2025. [Online]. Available:
+https://github.com/byterover/python_project
+```
+
+#### ACM
+
+```
+Python RAG Project Team. 2025. Python RAG Project - Advanced Retrieval-Augmented
+Generation System. Version 1.0.0. Retrieved from
+https://github.com/byterover/python_project
+```
+
+### 📝 Citação em Documentação Técnica
+
+Para citar em README, documentação ou tutoriais:
+
+```markdown
+Este projeto utiliza o [Python RAG Project](https://github.com/byterover/python_project)
+desenvolvido pelo Python RAG Project Team (2025).
+```
+
+### 🔗 Arquivo de Citação (CITATION.cff)
+
+O arquivo [CITATION.cff](CITATION.cff) contém metadados estruturados no formato **Citation File Format 1.2.0**:
+
+- ✅ **Reconhecido automaticamente** pelo GitHub
+- ✅ **Exportável** em múltiplos formatos (BibTeX, APA, etc.)
+- ✅ **Indexável** por plataformas acadêmicas (Zenodo, Zotero)
+- ✅ **Compatível** com ferramentas de gerenciamento de referências
+- ✅ **Atualizado** com DOI e versões
+
+### 📖 Mais Informações
+
+- **COPYRIGHT_PROTECTION.md**: [docs/COPYRIGHT_PROTECTION.md](docs/COPYRIGHT_PROTECTION.md)
+- **CONTRIBUTING.md**: [CONTRIBUTING.md](CONTRIBUTING.md) (seção DCO)
+- **NOTICE**: [NOTICE](NOTICE) (requisitos de atribuição)
 
 ---
 
@@ -826,6 +949,50 @@ Este projeto é construído com tecnologias incríveis:
 **Status**: 🟢 Ativo e em Desenvolvimento
 
 </div>
+
+---
+
+## 🔗 Referências e Tecnologias
+
+Este projeto utiliza e se baseia em tecnologias e frameworks de ponta:
+
+### 📚 Frameworks e Bibliotecas
+
+<div align="center">
+
+| Tecnologia               | Descrição                                                     | Link Oficial                                                                           |
+| ------------------------ | ------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| **LangChain**            | Framework para aplicações LLM                                 | [python.langchain.com](https://python.langchain.com/)                                  |
+| **LangSmith**            | Plataforma de observabilidade LLM                             | [smith.langchain.com](https://smith.langchain.com/)                                    |
+| **LangGraph**            | Orquestração de workflows com state machines                  | [langchain-ai.github.io/langgraph](https://langchain-ai.github.io/langgraph/)          |
+| **FAISS**                | Biblioteca de busca vetorial eficiente (Facebook AI Research) | [github.com/facebookresearch/faiss](https://github.com/facebookresearch/faiss)         |
+| **BGE Reranker**         | Cross-encoder BAAI para reranking semântico                   | [huggingface.co/BAAI/bge-reranker-base](https://huggingface.co/BAAI/bge-reranker-base) |
+| **Google Generative AI** | Embeddings e LLM Gemini 1.5 Flash                             | [ai.google.dev](https://ai.google.dev/)                                                |
+| **Structlog**            | Logging estruturado para Python                               | [www.structlog.org](https://www.structlog.org/)                                        |
+| **Pydantic**             | Validação de dados e settings                                 | [docs.pydantic.dev](https://docs.pydantic.dev/)                                        |
+
+</div>
+
+### 🔬 Papers e Pesquisas
+
+- **RAG (Retrieval-Augmented Generation)**: Lewis et al., 2020 - [arXiv:2005.11401](https://arxiv.org/abs/2005.11401)
+- **BGE Embeddings**: BAAI, 2023 - [FlagEmbedding](https://github.com/FlagOpen/FlagEmbedding)
+- **FAISS**: Johnson et al., 2019 - [arXiv:1702.08734](https://arxiv.org/abs/1702.08734)
+
+### 🛠️ Ferramentas de Desenvolvimento
+
+- **Black**: Formatador de código Python - [black.readthedocs.io](https://black.readthedocs.io/)
+- **isort**: Organizador de imports - [pycqa.github.io/isort](https://pycqa.github.io/isort/)
+- **flake8**: Linter Python - [flake8.pycqa.org](https://flake8.pycqa.org/)
+- **mypy**: Type checker estático - [mypy-lang.org](https://mypy-lang.org/)
+- **pytest**: Framework de testes - [docs.pytest.org](https://docs.pytest.org/)
+
+### 📖 Documentação e Guias
+
+- **Python Type Hints**: [PEP 484](https://peps.python.org/pep-0484/)
+- **Google Python Style Guide**: [google.github.io/styleguide/pyguide.html](https://google.github.io/styleguide/pyguide.html)
+- **Conventional Commits**: [conventionalcommits.org](https://www.conventionalcommits.org/)
+- **Semantic Versioning**: [semver.org](https://semver.org/)
 
 ---
 

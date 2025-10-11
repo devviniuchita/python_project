@@ -1,0 +1,69 @@
+Python RAG Project
+Copyright (c) 2025 Python RAG Project Team
+Copyright (c) 2025 Vinícius Uchita
+
+This product includes software developed by the Python RAG Project Team.
+
+Licensed under the MIT License (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    https://opensource.org/licenses/MIT
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+================================================================================
+
+ATTRIBUTION REQUIREMENTS:
+
+1. Any redistribution or derivative work MUST include this NOTICE file.
+2. Any redistribution or derivative work MUST retain all copyright notices.
+3. Any redistribution or derivative work MUST include the LICENSE file.
+4. Any public use (including SaaS, websites, APIs) MUST provide attribution
+   in a visible location (e.g., "Powered by Python RAG Project").
+
+================================================================================
+
+THIRD-PARTY COMPONENTS:
+
+This software includes the following third-party components:
+
+- LangChain (MIT License)
+  Copyright (c) LangChain, Inc.
+  https://github.com/langchain-ai/langchain
+
+- LangGraph (MIT License)
+  Copyright (c) LangChain, Inc.
+  https://github.com/langchain-ai/langgraph
+
+- FAISS (MIT License)
+  Copyright (c) Facebook, Inc. and its affiliates.
+  https://github.com/facebookresearch/faiss
+
+- BGE Models (MIT License)
+  Copyright (c) Beijing Academy of Artificial Intelligence (BAAI)
+  https://github.com/FlagOpen/FlagEmbedding
+
+- Structlog (Apache License 2.0 / MIT dual-licensed)
+  Copyright (c) Hynek Schlawack and contributors
+  https://github.com/hynek/structlog
+
+================================================================================
+
+DETECTION NOTICE:
+
+This software contains digital watermarks for copyright protection.
+Unauthorized removal or modification of these watermarks is prohibited.
+
+Project Identifier: PRAG-2025-VU-v1.0
+Digital Signature: 8f3c9d2e1a4b7f6c5e9d8a3b2c1f4e7d
+
+================================================================================
+
+For questions about licensing or attribution requirements, contact:
+Email: viniciusuchita@gmail.com
+GitHub: https://github.com/devviniuchita/python_project
