@@ -37,6 +37,10 @@
 !docs/**
 !docs/**/*.md
 !docs/**/*.pdf
+!LICENSE
+!CONTRIBUTING.md
+!CODE_OF_CONDUCT.md
+!SECURITY.md
 
 # Scripts
 !scripts/
