@@ -21,6 +21,8 @@
 !requirements.txt
 !pyproject.toml
 !.env.example
+!PROJECT_STRUCTURE.md
+!REORGANIZATION_SUMMARY.md
 
 # Source code (src-layout)
 !src/
@@ -62,6 +64,7 @@
 !scripts/**
 !scripts/**/*.py
 !scripts/add_copyright_headers.py
+!scripts/README.md
 
 # Developer Certificate of Origin
 !.github/DCO
