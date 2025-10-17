@@ -174,8 +174,11 @@
 
 # GitHub personal directories
 .github/chatmodes/
-.github/copilot-rules/
 .github/memory-system/
+
+# GitHub copilot rules - ALLOWED (enterprise standards)
+!.github/copilot-rules/
+!.github/copilot-rules/*.md
 
 # -----------------------------------
 # BUILD AND ARTIFACTS - IGNORE
