@@ -7,53 +7,64 @@ Este diretório contém scripts utilitários para manutenção, automação e do
 ## 📋 Scripts Disponíveis
 
 ### 1️⃣ **add_copyright_headers.py** 📝
+
 Adiciona headers de copyright automaticamente em arquivos do projeto.
 
 **Uso**:
+
 ```bash
 python scripts/add_copyright_headers.py
 ```
 
 **O que faz**:
+
 - ✅ Varre todos os arquivos `.py` do projeto
 - ✅ Adiciona header de copyright conforme o padrão do projeto
 - ✅ Respeita arquivos que já possuem copyright
 - ✅ Integra com a **Camada 3** do sistema de proteção
 
 **Requisitos**:
+
 - Python 3.8+
 
 **Integração**:
+
 - Executado automaticamente pelo git hook `.githooks/pre-commit`
 - Pode ser executado manualmente a qualquer hora
 
 ---
 
 ### 2️⃣ **generate_tree.py** 🌳
+
 Gera uma visualização em Markdown da arquitetura completa do projeto.
 
 **Uso**:
+
 ```bash
 python scripts/generate_tree.py
 ```
 
 **O que faz**:
+
 - ✅ Cria árvore visual da estrutura de pastas
 - ✅ Inclui ícones para melhor visualização
 - ✅ Mostra tamanho de arquivos
-- ✅ Ignora pastas desnecessárias (.git, __pycache__, .venv, etc.)
+- ✅ Ignora pastas desnecessárias (.git, **pycache**, .venv, etc.)
 - ✅ Gera markdown com legendas
 - ✅ Cria/atualiza `PROJECT_STRUCTURE.md`
 
 **Saída**:
+
 ```
 PROJECT_STRUCTURE.md  # Visualização completa da arquitetura
 ```
 
 **Requisitos**:
+
 - Python 3.8+
 
 **Quando usar**:
+
 - Após modificações significativas na estrutura de pastas
 - Para documentar nova organização
 - Para compartilhar com o time a estrutura atualizada
@@ -61,9 +72,11 @@ PROJECT_STRUCTURE.md  # Visualização completa da arquitetura
 ---
 
 ### 3️⃣ **benchmark_reranking.py** 📊
+
 Testes de benchmark para o módulo de re-ranking.
 
 **Uso**:
+
 ```bash
 python scripts/benchmark_reranking.py
 ```
@@ -73,9 +86,11 @@ python scripts/benchmark_reranking.py
 ---
 
 ### 4️⃣ **chat.py** 💬
+
 Script interativo para testar conversas com o sistema RAG.
 
 **Uso**:
+
 ```bash
 python scripts/chat.py
 ```
@@ -85,9 +100,11 @@ python scripts/chat.py
 ---
 
 ### 5️⃣ **migrate_imports.py** 🔄
+
 Script para migração de imports e refatoração de código.
 
 **Uso**:
+
 ```bash
 python scripts/migrate_imports.py
 ```
@@ -95,9 +112,11 @@ python scripts/migrate_imports.py
 ---
 
 ### 6️⃣ **recreate_faiss.py** 🗄️
+
 Recria o índice FAISS do banco de dados vetorial.
 
 **Uso**:
+
 ```bash
 python scripts/recreate_faiss.py
 ```
@@ -107,9 +126,11 @@ python scripts/recreate_faiss.py
 ---
 
 ### 7️⃣ **run_threshold_tests.py** 🎯
+
 Executa testes com diferentes thresholds de relevância.
 
 **Uso**:
+
 ```bash
 python scripts/run_threshold_tests.py
 ```
@@ -121,16 +142,19 @@ python scripts/run_threshold_tests.py
 ## 🎯 Como Executar Scripts
 
 ### Via Terminal Direto:
+
 ```bash
 cd C:/Users/ADMIN/Desktop/python_project
 python scripts/generate_tree.py
 ```
 
 ### Via VSCode:
+
 1. Abra o terminal integrado (`Ctrl + `` `)
 2. Execute: `python scripts/nome_do_script.py`
 
 ### Via Git Hooks (Automático):
+
 ```bash
 # Alguns scripts executam automaticamente
 git commit  # Dispara pre-commit hook
@@ -220,6 +244,6 @@ Ao criar um novo script:
 
 ---
 
-**Última atualização**: 17 de Outubro de 2025  
-**Versão**: 1.0.0  
+**Última atualização**: 17 de Outubro de 2025
+**Versão**: 1.0.0
 **Status**: ✅ Active

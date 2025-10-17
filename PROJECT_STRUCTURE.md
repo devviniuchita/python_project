@@ -182,9 +182,11 @@ tests/
 ## � Scripts Utilitários (scripts/)
 
 ### 📄 **add_copyright_headers.py**
+
 Adiciona headers de copyright automaticamente em arquivos do projeto.
 
 **Uso**:
+
 ```bash
 python scripts/add_copyright_headers.py
 ```
@@ -192,9 +194,11 @@ python scripts/add_copyright_headers.py
 **Função**: Garante que todos os arquivos de código possuem headers de copyright conforme configurado.
 
 ### 📄 **generate_tree.py**
+
 Gera uma visualização em Markdown da arquitetura completa do projeto.
 
 **Uso**:
+
 ```bash
 python scripts/generate_tree.py
 ```
@@ -202,9 +206,10 @@ python scripts/generate_tree.py
 **Saída**: Cria/atualiza `PROJECT_STRUCTURE.md` com a árvore de diretórios formatada.
 
 **Funcionalidades**:
+
 - ✅ Gera árvore visual com ícones
 - ✅ Mostra tamanho de arquivos
-- ✅ Ignora pastas desnecessárias (.git, __pycache__, .venv, etc.)
+- ✅ Ignora pastas desnecessárias (.git, **pycache**, .venv, etc.)
 - ✅ Cria markdown com legendas
 
 ---
