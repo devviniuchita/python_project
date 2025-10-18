@@ -16,7 +16,7 @@ from src.config.settings import settings
 from src.features.reranking.reranker import rerank_documents, reset_reranker
 
 
-def test_basic_tracing():
+def test_basic_tracing() -> None:
     """Test basic @traceable decorator functionality."""
     print("\n" + "=" * 80)
     print("TEST 1: Basic Tracing")
@@ -38,10 +38,10 @@ def test_basic_tracing():
     print(f"\nQuery: {query}")
     print(f"Documents: {len(documents)}")
 
-    reranked = rerank_documents(query, documents, top_n=3)
+    top3 = rerank_documents(query, documents, top_n=3)
 
     print("\nReranked top 3:")
-    for i, doc in enumerate(reranked, 1):
+    for i, doc in enumerate(top3, 1):
         print(f"  {i}. {doc[:60]}...")
 
     print("\n✓ Basic tracing test complete")
@@ -52,7 +52,7 @@ def test_basic_tracing():
     print("       - 'Load BGE Reranker Model' (child)")
 
 
-def test_custom_metadata():
+def test_custom_metadata() -> None:
     """Test custom metadata attachment."""
     print("\n" + "=" * 80)
     print("TEST 2: Custom Metadata")
@@ -70,7 +70,7 @@ def test_custom_metadata():
     print(f"\nQuery: {query}")
     print(f"Threshold: {settings.reranker_score_threshold}")
 
-    reranked = rerank_documents(query, documents, top_n=3)
+    rerank_documents(query, documents, top_n=3)
 
     print("\n✓ Custom metadata test complete")
     print("  → Check LangSmith trace for metadata fields:")
@@ -82,7 +82,7 @@ def test_custom_metadata():
     print("     - score_distribution (max, min, mean, median, p50, p95)")
 
 
-def test_threshold_filtering():
+def test_threshold_filtering() -> None:
     """Test threshold filtering with edge cases."""
     print("\n" + "=" * 80)
     print("TEST 3: Threshold Filtering Edge Cases")
@@ -128,7 +128,7 @@ def test_threshold_filtering():
     print("\n✓ Threshold filtering test complete")
 
 
-def test_sampling_configuration():
+def test_sampling_configuration() -> None:
     """Test sampling rate configuration."""
     print("\n" + "=" * 80)
     print("TEST 4: Sampling Configuration")
@@ -152,7 +152,7 @@ def test_sampling_configuration():
     print("     LANGSMITH_TRACE_SAMPLE_RATE=0.1  # 10% sampling")
 
 
-def test_latency_breakdown():
+def test_latency_breakdown() -> None:
     """Test latency tracking."""
     print("\n" + "=" * 80)
     print("TEST 5: Latency Breakdown")
@@ -170,7 +170,7 @@ def test_latency_breakdown():
     ]
 
     print("\nExecuting reranking with latency tracking...")
-    reranked = rerank_documents(query, documents, top_n=2)
+    rerank_documents(query, documents, top_n=2)
 
     print("\n✓ Latency breakdown test complete")
     print("  → Check LangSmith trace for timing:")

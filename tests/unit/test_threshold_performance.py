@@ -22,7 +22,7 @@ from src.features.reranking.reranker import rerank_documents
 class TestThresholdPerformance:
     """Performance testing for threshold system."""
 
-    def test_large_dataset_performance(self):
+    def test_large_dataset_performance(self) -> None:
         """Test performance with large document sets."""
         # Generate large synthetic dataset
         n_docs = 1000
@@ -69,7 +69,7 @@ class TestThresholdPerformance:
 
         print(f"✅ PASS - Large dataset performance: {execution_time:.3f}")
 
-    def test_memory_usage_monitoring(self):
+    def test_memory_usage_monitoring(self) -> None:
         """Test memory usage during threshold processing."""
         process = psutil.Process()
 
@@ -106,7 +106,7 @@ class TestThresholdPerformance:
 
         print(f"✅ PASS - Memory usage acceptable: +{memory_increase:.1f}MB")
 
-    def test_concurrent_threshold_processing(self):
+    def test_concurrent_threshold_processing(self) -> None:
         """Test concurrent processing of multiple threshold operations."""
         n_concurrent = 10
         n_docs_per_query = 100
@@ -167,7 +167,7 @@ class TestThresholdPerformance:
 
         print(f"✅ PASS - Concurrent processing: {total_time:.3f}s")
 
-    def test_scalability_with_increasing_dataset_size(self):
+    def test_scalability_with_increasing_dataset_size(self) -> None:
         """Test scalability as dataset size increases."""
         dataset_sizes = [50, 100, 200, 500, 1000]
         query = "quantum computing algorithms"
@@ -186,6 +186,7 @@ class TestThresholdPerformance:
                 mock_get_reranker.return_value = mock_reranker
 
                 result = rerank_documents(query, documents, top_n=min(25, n_docs))
+                assert result is not None
 
             end_time = time.time()
             execution_time = end_time - start_time
@@ -216,7 +217,7 @@ class TestThresholdPerformance:
 class TestThresholdStressTesting:
     """Stress testing for edge cases and extreme scenarios."""
 
-    def test_extreme_threshold_values(self):
+    def test_extreme_threshold_values(self) -> None:
         """Test behavior with extreme threshold values."""
         n_docs = 100
         documents = [f"Document {i}" for i in range(n_docs)]
@@ -251,7 +252,7 @@ class TestThresholdStressTesting:
 
         print("✅ PASS - Extreme threshold values handled correctly")
 
-    def test_empty_and_minimal_inputs(self):
+    def test_empty_and_minimal_inputs(self) -> None:
         """Test behavior with minimal and empty inputs."""
         test_cases = [
             ([], "Should handle empty document list"),

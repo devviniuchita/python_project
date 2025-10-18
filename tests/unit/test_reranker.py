@@ -13,12 +13,13 @@ Tests cover:
 from unittest.mock import MagicMock, patch
 
 import pytest
+from langchain_core.documents import Document
 
 
 class TestRerankerInitialization:
     """Test reranker initialization and lazy loading."""
 
-    def test_reranker_disabled_returns_none(self):
+    def test_reranker_disabled_returns_none(self) -> None:
         """Test that get_reranker returns None when disabled."""
         with patch("reranker.settings") as mock_settings:
             mock_settings.reranker_enabled = False
@@ -30,7 +31,7 @@ class TestRerankerInitialization:
             assert result is None
             print("✅ PASS - Reranker returns None when disabled")
 
-    def test_reranker_lazy_loading_singleton(self):
+    def test_reranker_lazy_loading_singleton(self) -> None:
         """Test that reranker uses lazy loading singleton pattern."""
         with patch("reranker.settings") as mock_settings:
             mock_settings.reranker_enabled = True
@@ -56,7 +57,7 @@ class TestRerankerInitialization:
 
                 print("✅ PASS - Lazy loading singleton pattern works correctly")
 
-    def test_reset_reranker_forces_reload(self):
+    def test_reset_reranker_forces_reload(self) -> None:
         """Test that reset_reranker forces model reload."""
         # This test is skipped to avoid actual model loading
         # The reset function works correctly in practice
@@ -67,7 +68,7 @@ class TestRerankerInitialization:
 class TestRerankerTopNFiltering:
     """Test top-N document filtering."""
 
-    def test_rerank_reduces_to_top_n(self, sample_documents, sample_query):
+    def test_rerank_reduces_to_top_n(self, sample_documents, sample_query) -> None:
         """Test that reranking reduces documents to top_n."""
         with patch("reranker.settings") as mock_settings:
             mock_settings.reranker_enabled = True
@@ -90,7 +91,7 @@ class TestRerankerTopNFiltering:
                     f"✅ PASS - Reduced {len(sample_documents)} → {len(result)} documents"
                 )
 
-    def test_top_n_none_uses_default(self, sample_documents, sample_query):
+    def test_top_n_none_uses_default(self, sample_documents, sample_query) -> None:
         """Test that top_n=None uses default from settings."""
         with patch("reranker.settings") as mock_settings:
             mock_settings.reranker_enabled = True
@@ -114,7 +115,9 @@ class TestRerankerTopNFiltering:
 class TestRerankerDocumentConversion:
     """Test string ↔ Document conversion."""
 
-    def test_string_to_document_conversion(self, sample_documents, sample_query):
+    def test_string_to_document_conversion(
+        self, sample_documents, sample_query
+    ) -> None:
         """Test that strings are correctly converted to Document objects."""
         with patch("reranker.settings") as mock_settings:
             mock_settings.reranker_enabled = True
@@ -144,7 +147,9 @@ class TestRerankerDocumentConversion:
 
                 print("✅ PASS - Strings converted to Document objects correctly")
 
-    def test_document_to_string_conversion(self, sample_documents, sample_query):
+    def test_document_to_string_conversion(
+        self, sample_documents, sample_query
+    ) -> None:
         """Test that Document objects are converted back to strings."""
         with patch("reranker.settings") as mock_settings:
             mock_settings.reranker_enabled = True
@@ -177,7 +182,9 @@ class TestRerankerDocumentConversion:
 class TestRerankerErrorHandling:
     """Test error handling and graceful fallback."""
 
-    def test_reranker_none_returns_originals(self, sample_documents, sample_query):
+    def test_reranker_none_returns_originals(
+        self, sample_documents, sample_query
+    ) -> None:
         """Test that rerank_documents returns originals when reranker is None."""
         with patch("reranker.get_reranker") as mock_get_reranker:
             mock_get_reranker.return_value = None
@@ -190,7 +197,7 @@ class TestRerankerErrorHandling:
             assert result == sample_documents
             print("✅ PASS - Returns original documents when reranker is None")
 
-    def test_empty_documents_returns_empty(self, sample_query):
+    def test_empty_documents_returns_empty(self, sample_query) -> None:
         """Test that empty document list returns empty list."""
         with patch("reranker.settings") as mock_settings:
             mock_settings.reranker_enabled = True
@@ -211,7 +218,7 @@ class TestRerankerErrorHandling:
 
     def test_exception_during_reranking_returns_originals(
         self, sample_documents, sample_query
-    ):
+    ) -> None:
         """Test graceful fallback when exception occurs during reranking."""
         with patch("reranker.settings") as mock_settings:
             mock_settings.reranker_enabled = True
@@ -236,7 +243,9 @@ class TestRerankerErrorHandling:
 class TestRerankerDisabledBehavior:
     """Test behavior when reranker is disabled."""
 
-    def test_disabled_reranker_returns_originals(self, sample_documents, sample_query):
+    def test_disabled_reranker_returns_originals(
+        self, sample_documents, sample_query
+    ) -> None:
         """Test that disabled reranker returns original documents unchanged."""
         with patch("reranker.settings") as mock_settings:
             mock_settings.reranker_enabled = False

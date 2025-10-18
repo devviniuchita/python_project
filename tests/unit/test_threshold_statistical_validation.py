@@ -16,15 +16,15 @@ from sklearn.metrics import auc, precision_recall_curve, roc_curve
 class TestThresholdStatisticalValidation:
     """Statistical validation of threshold scoring system."""
 
-    def test_roc_curve_analysis_for_threshold_optimization(self):
+    def test_roc_curve_analysis_for_threshold_optimization(self) -> None:
         """Test ROC curve analysis to find optimal threshold."""
-        # Generate synthetic relevance scores and ground truth
-        np.random.seed(42)
+        # Generate synthetic relevance scores and ground truth using a Generator
+        rng = np.random.default_rng(42)
         n_samples = 1000
 
         # Simulate relevance scores (higher = more relevant)
-        relevant_scores = np.random.normal(0.8, 0.1, n_samples // 2)
-        irrelevant_scores = np.random.normal(0.3, 0.15, n_samples // 2)
+        relevant_scores = rng.normal(0.8, 0.1, n_samples // 2)
+        irrelevant_scores = rng.normal(0.3, 0.15, n_samples // 2)
 
         all_scores = np.concatenate([relevant_scores, irrelevant_scores])
         ground_truth = np.concatenate(
@@ -51,15 +51,15 @@ class TestThresholdStatisticalValidation:
             f"✅ PASS - ROC analysis identifies optimal threshold: {youden_threshold:.3f}"
         )
 
-    def test_precision_recall_curve_analysis(self):
+    def test_precision_recall_curve_analysis(self) -> None:
         """Test precision-recall curve for threshold evaluation."""
-        # Generate imbalanced dataset (more irrelevant documents)
-        np.random.seed(42)
+        # Generate imbalanced dataset (more irrelevant documents) using Generator
+        rng = np.random.default_rng(42)
         n_relevant = 100
         n_irrelevant = 900
 
-        relevant_scores = np.random.normal(0.7, 0.15, n_relevant)
-        irrelevant_scores = np.random.normal(0.2, 0.1, n_irrelevant)
+        relevant_scores = rng.normal(0.7, 0.15, n_relevant)
+        irrelevant_scores = rng.normal(0.2, 0.1, n_irrelevant)
 
         all_scores = np.concatenate([relevant_scores, irrelevant_scores])
         ground_truth = np.concatenate([np.ones(n_relevant), np.zeros(n_irrelevant)])
@@ -84,28 +84,25 @@ class TestThresholdStatisticalValidation:
             f"✅ PASS - PR curve analysis identifies balanced threshold: {best_threshold:.3f}"
         )
 
-    def test_threshold_confidence_intervals(self):
+    def test_threshold_confidence_intervals(self) -> None:
         """Test statistical confidence intervals for threshold decisions."""
-        np.random.seed(42)
+        # Use Generator for bootstrap sampling and base scores
+        rng = np.random.default_rng(42)
 
         # Bootstrap sampling for confidence intervals
         n_bootstrap = 1000
         sample_size = 200
 
         # Generate base relevance scores
-        relevant_scores = np.random.normal(0.75, 0.12, 100)
-        irrelevant_scores = np.random.normal(0.25, 0.08, 100)
+        relevant_scores = rng.normal(0.75, 0.12, 100)
+        irrelevant_scores = rng.normal(0.25, 0.08, 100)
 
         bootstrap_thresholds = []
 
         for _ in range(n_bootstrap):
             # Sample with replacement
-            rel_sample = np.random.choice(
-                relevant_scores, sample_size // 2, replace=True
-            )
-            irrel_sample = np.random.choice(
-                irrelevant_scores, sample_size // 2, replace=True
-            )
+            rel_sample = rng.choice(relevant_scores, sample_size // 2, replace=True)
+            irrel_sample = rng.choice(irrelevant_scores, sample_size // 2, replace=True)
 
             scores = np.concatenate([rel_sample, irrel_sample])
             ground_truth = np.concatenate(
@@ -141,7 +138,7 @@ class TestThresholdStatisticalValidation:
 class TestThresholdPerformanceMetrics:
     """Performance metrics for threshold system."""
 
-    def test_threshold_discriminative_power(self):
+    def test_threshold_discriminative_power(self) -> None:
         """Test that threshold effectively discriminates relevant vs irrelevant docs."""
         # Create clearly separable score distributions
         relevant_scores = [0.9, 0.85, 0.8, 0.75, 0.7]  # High relevance
@@ -163,7 +160,7 @@ class TestThresholdPerformanceMetrics:
                 for gt, pred in zip(ground_truth, predictions)
                 if gt == 1 and pred == 1
             )
-            tn = sum(
+            _ = sum(
                 1
                 for gt, pred in zip(ground_truth, predictions)
                 if gt == 0 and pred == 0
@@ -202,13 +199,15 @@ class TestThresholdPerformanceMetrics:
 
         print("✅ PASS - All thresholds show good discriminative power")
 
-    def test_threshold_robustness_to_score_distribution(self):
+    def test_threshold_robustness_to_score_distribution(self) -> None:
         """Test threshold robustness across different score distributions."""
+        # Use RNG-based generators to avoid legacy rng usage warnings
+        rng = np.random.default_rng(42)
         distributions = [
-            ("normal", lambda: np.random.normal(0.5, 0.2, 100)),
-            ("skewed_right", lambda: np.random.beta(2, 5, 100) * 0.8 + 0.1),
-            ("skewed_left", lambda: np.random.beta(5, 2, 100) * 0.8 + 0.1),
-            ("uniform", lambda: np.random.uniform(0.1, 0.9, 100)),
+            ("normal", lambda rng=rng: rng.normal(0.5, 0.2, 100)),
+            ("skewed_right", lambda rng=rng: rng.beta(2, 5, 100) * 0.8 + 0.1),
+            ("skewed_left", lambda rng=rng: rng.beta(5, 2, 100) * 0.8 + 0.1),
+            ("uniform", lambda rng=rng: rng.uniform(0.1, 0.9, 100)),
         ]
 
         for dist_name, score_gen in distributions:
@@ -236,15 +235,15 @@ class TestThresholdPerformanceMetrics:
 class TestThresholdOptimization:
     """Automated threshold optimization testing."""
 
-    def test_automated_threshold_tuning(self):
+    def test_automated_threshold_tuning(self) -> None:
         """Test automated threshold selection using F1 optimization."""
-        # Generate synthetic data with known optimal threshold
-        np.random.seed(42)
+        # Use Generator for reproducible random draws
+        rng = np.random.default_rng(42)
         n_samples = 500
 
         # Optimal threshold around 0.6
-        relevant_scores = np.random.normal(0.75, 0.1, n_samples // 2)
-        irrelevant_scores = np.random.normal(0.25, 0.1, n_samples // 2)
+        relevant_scores = rng.normal(0.75, 0.1, n_samples // 2)
+        irrelevant_scores = rng.normal(0.25, 0.1, n_samples // 2)
 
         all_scores = np.concatenate([relevant_scores, irrelevant_scores])
         ground_truth = np.concatenate(
