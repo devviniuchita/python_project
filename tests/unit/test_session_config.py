@@ -2,9 +2,9 @@
 
 from uuid import uuid4
 
-from src.core.models.session import SessionConfig
 from pydantic import ValidationError
 
+from src.core.models.session import SessionConfig
 
 print("=" * 80)
 print("SESSIONCONFIG PYDANTIC VALIDATION TESTS")
@@ -14,7 +14,7 @@ print("=" * 80)
 print("\n[Test 1] Valid SessionConfig:")
 try:
     config = SessionConfig(thread_id=uuid4(), max_turns=10, memory_window=6)
-    print(f"✅ PASS - SessionConfig created successfully")
+    print("✅ PASS - SessionConfig created successfully")
     print(f"   thread_id: {config.thread_id}")
     print(f"   max_turns: {config.max_turns}")
     print(f"   memory_window: {config.memory_window}")
@@ -28,8 +28,8 @@ try:
     config = SessionConfig(
         thread_id="12345678-1234-1234-1234-123456789012", max_turns=5
     )
-    print(f"✅ PASS - UUID converted from string")
-    print(f"   Input: str")
+    print("✅ PASS - UUID converted from string")
+    print("   Input: str")
     print(f"   Output: {type(config.thread_id).__name__}")
     print(f"   Value: {config.thread_id}")
 except Exception as e:
@@ -60,9 +60,9 @@ try:
     original_max = config.max_turns
     config.max_turns = 20  # Should raise ValidationError
     print("❌ FAIL - Should have raised ValidationError for frozen field")
-except ValidationError as e:
+except ValidationError:
     print("✅ PASS - ValidationError raised for frozen instance")
-    print(f"   Error: Instance is frozen")
+    print("   Error: Instance is frozen")
 
 # Test 6: Default values
 print("\n[Test 6] Default values:")

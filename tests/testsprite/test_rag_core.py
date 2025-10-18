@@ -7,8 +7,7 @@ Tests for document retrieval and reranking functionality in the RAG system.
 """
 
 from typing import List
-from unittest.mock import MagicMock
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import numpy as np
 import pytest

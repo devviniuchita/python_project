@@ -18,17 +18,11 @@ SUPORTADO:
 """
 
 import enum
-import json
-import os
 import subprocess
 import sys
-
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict
-from typing import List
-from typing import Optional
-from typing import Tuple
+from typing import List, Optional, Tuple
 
 
 class FileType(enum.Enum):
@@ -79,7 +73,7 @@ Digital Signature: 8f3c9d2e1a4b7f6c5e9d8a3b2c1f4e7d
 '''
 
     # Shell
-    SHELL_HEADER = '''#!/bin/bash
+    SHELL_HEADER = """#!/bin/bash
 # {docstring}
 #
 # Copyright (c) 2025 Python RAG Project Team
@@ -91,9 +85,9 @@ Digital Signature: 8f3c9d2e1a4b7f6c5e9d8a3b2c1f4e7d
 #
 # Project Watermark: PRAG-2025-VU-v1.0
 # Digital Signature: 8f3c9d2e1a4b7f6c5e9d8a3b2c1f4e7d
-'''
+"""
 
-    SHELL_NOSHEBANG_HEADER = '''# {docstring}
+    SHELL_NOSHEBANG_HEADER = """# {docstring}
 #
 # Copyright (c) 2025 Python RAG Project Team
 # SPDX-License-Identifier: MIT
@@ -104,10 +98,10 @@ Digital Signature: 8f3c9d2e1a4b7f6c5e9d8a3b2c1f4e7d
 #
 # Project Watermark: PRAG-2025-VU-v1.0
 # Digital Signature: 8f3c9d2e1a4b7f6c5e9d8a3b2c1f4e7d
-'''
+"""
 
     # YAML
-    YAML_HEADER = '''# {docstring}
+    YAML_HEADER = """# {docstring}
 #
 # Copyright (c) 2025 Python RAG Project Team
 # SPDX-License-Identifier: MIT
@@ -118,10 +112,10 @@ Digital Signature: 8f3c9d2e1a4b7f6c5e9d8a3b2c1f4e7d
 #
 # Project Watermark: PRAG-2025-VU-v1.0
 # Digital Signature: 8f3c9d2e1a4b7f6c5e9d8a3b2c1f4e7d
-'''
+"""
 
     # Markdown
-    MARKDOWN_HEADER = '''<!-- {docstring}
+    MARKDOWN_HEADER = """<!-- {docstring}
 
 Copyright (c) 2025 Python RAG Project Team
 SPDX-License-Identifier: MIT
@@ -133,10 +127,10 @@ See LICENSE file for full license details.
 Project Watermark: PRAG-2025-VU-v1.0
 Digital Signature: 8f3c9d2e1a4b7f6c5e9d8a3b2c1f4e7d
 -->
-'''
+"""
 
     # JSON
-    JSON_LICENSE_HEADER = '''{
+    JSON_LICENSE_HEADER = """{
   "copyright": "Copyright (c) 2025 Python RAG Project Team",
   "license": "MIT",
   "spdx": "SPDX-License-Identifier: MIT",
@@ -146,7 +140,7 @@ Digital Signature: 8f3c9d2e1a4b7f6c5e9d8a3b2c1f4e7d
   "signature": "8f3c9d2e1a4b7f6c5e9d8a3b2c1f4e7d",
   "note": "{docstring}"
 }
-'''
+"""
 
 
 # Copyright header template - DEPRECATED (mantido para compatibilidade)
@@ -184,7 +178,7 @@ def has_shebang(content: str) -> bool:
 
 def extract_docstring_from_content(content: str, file_type: FileType) -> str:
     """Extrai docstring existente do arquivo conforme tipo."""
-    lines = content.strip().split('\n')
+    lines = content.strip().split("\n")
 
     if not lines:
         return f"{file_type.value} file"
@@ -224,7 +218,7 @@ def _extract_python_docstring(lines: List[str]) -> str:
             docstring_lines = []
             for i in range(start_idx + 1, len(lines)):
                 if quote in lines[i]:
-                    return '\n'.join(docstring_lines).strip()
+                    return "\n".join(docstring_lines).strip()
                 docstring_lines.append(lines[i])
 
     return "Python module"
@@ -242,7 +236,7 @@ def _extract_shell_docstring(lines: List[str]) -> str:
         elif line:
             break
 
-    return ' '.join(docstring_lines) if docstring_lines else "Shell script"
+    return " ".join(docstring_lines) if docstring_lines else "Shell script"
 
 
 def _extract_yaml_description(lines: List[str]) -> str:
@@ -290,7 +284,7 @@ def add_copyright_header(
         return False
 
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             content = f.read()
     except UnicodeDecodeError:
         print(f"[SKIP] {file_path} (encoding issue)")
@@ -316,7 +310,7 @@ def add_copyright_header(
     new_content = _remove_old_header(content, file_type)
 
     # Construct final content
-    final_content = header + '\n' + new_content.lstrip('\n')
+    final_content = header + "\n" + new_content.lstrip("\n")
 
     # In verify mode, just report non-compliance
     if verify_mode:
@@ -328,7 +322,7 @@ def add_copyright_header(
         return True
 
     # Write new content
-    with open(file_path, 'w', encoding='utf-8') as f:
+    with open(file_path, "w", encoding="utf-8") as f:
         f.write(final_content)
 
     print(f"[DONE] {file_path} - Added {file_type.value} copyright header")
@@ -372,7 +366,7 @@ def _get_header_for_type(
 
 def _remove_old_header(content: str, file_type: FileType) -> str:
     """Remove cabeçalho copyright antigo."""
-    lines = content.split('\n')
+    lines = content.split("\n")
 
     if file_type == FileType.PYTHON:
         return _remove_python_header(lines)
@@ -418,7 +412,7 @@ def _remove_python_header(lines: List[str]) -> str:
     while start_idx < len(lines) and not lines[start_idx].strip():
         start_idx += 1
 
-    return '\n'.join(lines[start_idx:])
+    return "\n".join(lines[start_idx:])
 
 
 def _remove_shell_header(lines: List[str]) -> str:
@@ -443,7 +437,7 @@ def _remove_shell_header(lines: List[str]) -> str:
         else:
             start_idx += 1
 
-    return '\n'.join(lines[start_idx:])
+    return "\n".join(lines[start_idx:])
 
 
 def _remove_comment_header(lines: List[str], comment_char: str) -> str:
@@ -461,7 +455,7 @@ def _remove_comment_header(lines: List[str], comment_char: str) -> str:
         else:
             break
 
-    return '\n'.join(lines[start_idx:])
+    return "\n".join(lines[start_idx:])
 
 
 def process_directory(
@@ -486,27 +480,27 @@ def process_directory(
     """
     if exclude_patterns is None:
         exclude_patterns = [
-            '__pycache__',
-            '.git',
-            '.venv',
-            'venv',
-            'env',
-            '.pytest_cache',
-            '.mypy_cache',
-            'htmlcov',
-            'dist',
-            'build',
-            '*.egg-info',
+            "__pycache__",
+            ".git",
+            ".venv",
+            "venv",
+            "env",
+            ".pytest_cache",
+            ".mypy_cache",
+            "htmlcov",
+            "dist",
+            "build",
+            "*.egg-info",
         ]
 
     # Padrões de arquivo padrão
     if file_types is None:
-        file_types = ['.py', '.sh', '.yml', '.yaml', '.md']
+        file_types = [".py", ".sh", ".yml", ".yaml", ".md"]
 
     total = 0
     modified = 0
 
-    for file_path in directory.rglob('*'):
+    for file_path in directory.rglob("*"):
         # Skip directories
         if file_path.is_dir():
             continue
@@ -566,47 +560,47 @@ def main():
     import argparse
 
     parser = argparse.ArgumentParser(
-        description='Adicionar/verificar cabeçalhos de copyright em arquivos (suporta .py, .sh, .yml, .md)',
+        description="Adicionar/verificar cabeçalhos de copyright em arquivos (suporta .py, .sh, .yml, .md)",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog='''
+        epilog="""
 Exemplos:
   %(prog)s .                                    # Adiciona headers em todos os arquivos
   %(prog)s . --dry-run                          # Simula sem modificar
   %(prog)s . --verify                           # Apenas verifica conformidade
   %(prog)s . --file-types .py .sh .yml          # Apenas estes tipos
   %(prog)s . --exclude tests docs --dry-run     # Exclui diretórios
-        ''',
+        """,
     )
     parser.add_argument(
-        'directory',
-        nargs='?',
-        default='.',
-        help='Diretório para processar (padrão: diretório atual)',
+        "directory",
+        nargs="?",
+        default=".",
+        help="Diretório para processar (padrão: diretório atual)",
     )
     parser.add_argument(
-        '--dry-run', action='store_true', help='Simular sem modificar arquivos'
+        "--dry-run", action="store_true", help="Simular sem modificar arquivos"
     )
     parser.add_argument(
-        '--verify',
-        action='store_true',
-        help='Apenas verificar conformidade (nunca modifica)',
+        "--verify",
+        action="store_true",
+        help="Apenas verificar conformidade (nunca modifica)",
     )
     parser.add_argument(
-        '--file-types',
-        nargs='+',
+        "--file-types",
+        nargs="+",
         default=None,
-        help='Extensões a processar (ex: .py .sh .yml .md) - padrão: .py .sh .yml .yaml .md',
+        help="Extensões a processar (ex: .py .sh .yml .md) - padrão: .py .sh .yml .yaml .md",
     )
     parser.add_argument(
-        '--exclude', nargs='+', help='Padrões adicionais para excluir (ex: tests docs)'
+        "--exclude", nargs="+", help="Padrões adicionais para excluir (ex: tests docs)"
     )
     parser.add_argument(
-        '--verbose', action='store_true', help='Modo verboso com mais detalhes'
+        "--verbose", action="store_true", help="Modo verboso com mais detalhes"
     )
     parser.add_argument(
-        '--reuse-check',
-        action='store_true',
-        help='Validar com REUSE Tool após processar (requer: pip install reuse)',
+        "--reuse-check",
+        action="store_true",
+        help="Validar com REUSE Tool após processar (requer: pip install reuse)",
     )
 
     args = parser.parse_args()
@@ -619,11 +613,11 @@ Exemplos:
 
     print(f"[*] Processando: {directory}")
     if args.verify:
-        print(f"[MODE] VERIFICAÇÃO (conformidade read-only)")
+        print("[MODE] VERIFICAÇÃO (conformidade read-only)")
     elif args.dry_run:
-        print(f"[MODE] DRY-RUN (simulando)")
+        print("[MODE] DRY-RUN (simulando)")
     else:
-        print(f"[MODE] MODIFICAÇÃO (aplicando mudanças)")
+        print("[MODE] MODIFICAÇÃO (aplicando mudanças)")
     print()
 
     exclude = args.exclude if args.exclude else None
@@ -642,7 +636,7 @@ Exemplos:
     )
 
     print()
-    print(f"[SUMMARY] Resumo:")
+    print("[SUMMARY] Resumo:")
     print(f"   Total de arquivos: {total}")
     if args.verify:
         print(f"   Arquivos não-conformes: {modified}")
@@ -674,5 +668,5 @@ Exemplos:
             print(f"[FAIL] {message}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

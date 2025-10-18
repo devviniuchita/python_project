@@ -4,23 +4,21 @@ Each node is a function that receives state and returns updated state
 """
 
 import os
-
 from typing import List
 
-from src.infrastructure.config.settings import settings
 from langchain.prompts import ChatPromptTemplate
 from langchain_community.vectorstores import FAISS
 from langchain_core.documents import Document
-from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
 from langsmith import traceable
 from reranker import get_reranker
-from src.core.domain.state import RAGState
 
+from src.core.domain.state import RAGState
+from src.infrastructure.config.settings import settings
 
 # Initialize components
 embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
-db_path = 'banco_faiss'
+db_path = "banco_faiss"
 llm = ChatGoogleGenerativeAI(model=settings.llm_model, temperature=0)
 
 

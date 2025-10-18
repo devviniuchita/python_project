@@ -4,18 +4,15 @@ Handles context analysis, follow-up detection, and question expansion
 """
 
 import os
+from typing import Any, Dict
 
-from typing import Any
-from typing import Dict
-
-from src.infrastructure.config.settings import settings
 from langchain.prompts import ChatPromptTemplate
-from langchain_core.messages import AIMessage
-from langchain_core.messages import HumanMessage
+from langchain_core.messages import AIMessage, HumanMessage
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langsmith import traceable
-from src.core.domain.state import ConversationalRAGState
 
+from src.core.domain.state import ConversationalRAGState
+from src.infrastructure.config.settings import settings
 
 # Initialize LLM
 llm = ChatGoogleGenerativeAI(model=settings.llm_model, temperature=0)
@@ -70,7 +67,7 @@ def analyze_context(state: ConversationalRAGState) -> Dict[str, Any]:
         "- Usa demonstrativos (este, esse, aquele)\n"
         "- Referencia implicitamente o tópico anterior\n"
         "- Pede mais detalhes sobre resposta anterior\n"
-        "- Usa \"E...?\", \"Mas...\", \"Também...\"\n\n"
+        '- Usa "E...?", "Mas...", "Também..."\n\n'
         "Responda APENAS 'sim' (é follow-up) ou 'não' (pergunta nova):"
     )
 

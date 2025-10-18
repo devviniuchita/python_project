@@ -5,15 +5,11 @@ Provides reusable fixtures for document retrieval, LLM mocking, conversation
 state management, and test data generation.
 """
 
-from typing import Any
-from typing import Dict
-from typing import List
-from unittest.mock import MagicMock
-from unittest.mock import patch
+from typing import Any, Dict, List
+from unittest.mock import MagicMock, patch
 
 import numpy as np
 import pytest
-
 
 # ============================================================================
 # DOCUMENT & RETRIEVAL FIXTURES

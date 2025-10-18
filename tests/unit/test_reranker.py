@@ -10,10 +10,8 @@ Tests cover:
 - Error handling (graceful fallback)
 """
 
-from unittest.mock import MagicMock
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
-import numpy as np
 import pytest
 
 
@@ -22,7 +20,7 @@ class TestRerankerInitialization:
 
     def test_reranker_disabled_returns_none(self):
         """Test that get_reranker returns None when disabled."""
-        with patch('reranker.settings') as mock_settings:
+        with patch("reranker.settings") as mock_settings:
             mock_settings.reranker_enabled = False
 
             from reranker import get_reranker
@@ -34,16 +32,15 @@ class TestRerankerInitialization:
 
     def test_reranker_lazy_loading_singleton(self):
         """Test that reranker uses lazy loading singleton pattern."""
-        with patch('reranker.settings') as mock_settings:
+        with patch("reranker.settings") as mock_settings:
             mock_settings.reranker_enabled = True
             mock_settings.reranker_model = "BAAI/bge-reranker-base"
 
-            with patch('reranker.CrossEncoderReranker') as MockReranker:
+            with patch("reranker.CrossEncoderReranker") as MockReranker:
                 mock_instance = MagicMock()
                 MockReranker.return_value = mock_instance
 
-                from reranker import get_reranker
-                from reranker import reset_reranker
+                from reranker import get_reranker, reset_reranker
 
                 # Reset to ensure clean state
                 reset_reranker()
@@ -72,11 +69,11 @@ class TestRerankerTopNFiltering:
 
     def test_rerank_reduces_to_top_n(self, sample_documents, sample_query):
         """Test that reranking reduces documents to top_n."""
-        with patch('reranker.settings') as mock_settings:
+        with patch("reranker.settings") as mock_settings:
             mock_settings.reranker_enabled = True
             mock_settings.reranker_score_threshold = 0.0
 
-            with patch('reranker.get_reranker') as mock_get_reranker:
+            with patch("reranker.get_reranker") as mock_get_reranker:
                 # Mock reranker that returns first top_n documents
                 mock_reranker = MagicMock()
                 mock_reranker.compress_documents = lambda docs, query: docs[:3]
@@ -95,12 +92,12 @@ class TestRerankerTopNFiltering:
 
     def test_top_n_none_uses_default(self, sample_documents, sample_query):
         """Test that top_n=None uses default from settings."""
-        with patch('reranker.settings') as mock_settings:
+        with patch("reranker.settings") as mock_settings:
             mock_settings.reranker_enabled = True
             mock_settings.reranker_top_n = 5
             mock_settings.reranker_score_threshold = 0.0
 
-            with patch('reranker.get_reranker') as mock_get_reranker:
+            with patch("reranker.get_reranker") as mock_get_reranker:
                 mock_reranker = MagicMock()
                 mock_reranker.top_n = 5
                 mock_reranker.compress_documents = lambda docs, query: docs[:5]
@@ -119,11 +116,11 @@ class TestRerankerDocumentConversion:
 
     def test_string_to_document_conversion(self, sample_documents, sample_query):
         """Test that strings are correctly converted to Document objects."""
-        with patch('reranker.settings') as mock_settings:
+        with patch("reranker.settings") as mock_settings:
             mock_settings.reranker_enabled = True
             mock_settings.reranker_score_threshold = 0.0
 
-            with patch('reranker.get_reranker') as mock_get_reranker:
+            with patch("reranker.get_reranker") as mock_get_reranker:
                 mock_reranker = MagicMock()
 
                 # Capture what's passed to compress_documents
@@ -149,11 +146,11 @@ class TestRerankerDocumentConversion:
 
     def test_document_to_string_conversion(self, sample_documents, sample_query):
         """Test that Document objects are converted back to strings."""
-        with patch('reranker.settings') as mock_settings:
+        with patch("reranker.settings") as mock_settings:
             mock_settings.reranker_enabled = True
             mock_settings.reranker_score_threshold = 0.0
 
-            with patch('reranker.get_reranker') as mock_get_reranker:
+            with patch("reranker.get_reranker") as mock_get_reranker:
                 mock_reranker = MagicMock()
 
                 # Return Document objects
@@ -182,7 +179,7 @@ class TestRerankerErrorHandling:
 
     def test_reranker_none_returns_originals(self, sample_documents, sample_query):
         """Test that rerank_documents returns originals when reranker is None."""
-        with patch('reranker.get_reranker') as mock_get_reranker:
+        with patch("reranker.get_reranker") as mock_get_reranker:
             mock_get_reranker.return_value = None
 
             from reranker import rerank_documents
@@ -195,13 +192,13 @@ class TestRerankerErrorHandling:
 
     def test_empty_documents_returns_empty(self, sample_query):
         """Test that empty document list returns empty list."""
-        with patch('reranker.settings') as mock_settings:
+        with patch("reranker.settings") as mock_settings:
             mock_settings.reranker_enabled = True
             mock_settings.reranker_model = "BAAI/bge-reranker-base"
             mock_settings.reranker_score_threshold = 0.0
 
             # Don't load actual model for empty documents
-            with patch('reranker.get_reranker') as mock_get_reranker:
+            with patch("reranker.get_reranker") as mock_get_reranker:
                 mock_reranker = MagicMock()
                 mock_get_reranker.return_value = mock_reranker
 
@@ -216,11 +213,11 @@ class TestRerankerErrorHandling:
         self, sample_documents, sample_query
     ):
         """Test graceful fallback when exception occurs during reranking."""
-        with patch('reranker.settings') as mock_settings:
+        with patch("reranker.settings") as mock_settings:
             mock_settings.reranker_enabled = True
             mock_settings.reranker_score_threshold = 0.0
 
-            with patch('reranker.get_reranker') as mock_get_reranker:
+            with patch("reranker.get_reranker") as mock_get_reranker:
                 mock_reranker = MagicMock()
                 # Simulate error during compression
                 mock_reranker.compress_documents.side_effect = Exception("Model error")
@@ -241,7 +238,7 @@ class TestRerankerDisabledBehavior:
 
     def test_disabled_reranker_returns_originals(self, sample_documents, sample_query):
         """Test that disabled reranker returns original documents unchanged."""
-        with patch('reranker.settings') as mock_settings:
+        with patch("reranker.settings") as mock_settings:
             mock_settings.reranker_enabled = False
 
             from reranker import rerank_documents

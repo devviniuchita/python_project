@@ -84,6 +84,51 @@ check_file() {
     fi
 }
 
+# Normalize TLS / CA environment variables to avoid pip/pre-commit failures
+# - Unset SSL_CERT_FILE / REQUESTS_CA_BUNDLE / PIP_CERT when they point to
+#   non-existent files (common cause when OS or third-party installers set a
+#   broken path like a PostgreSQL bundle that doesn't exist on the developer
+#   machine).
+# - If the activated Python already has certifi installed, point SSL vars to
+#   certifi.where() so subprocesses (pip, pre-commit virtualenvs) inherit a
+#   valid CA bundle.
+normalize_ssl_cert_envs() {
+    # If an env var points to a non-existing file, unset it to allow the
+    # system default CAs to be used.
+    if [ -n "$SSL_CERT_FILE" ] && [ ! -f "$SSL_CERT_FILE" ]; then
+        print_warning "Detected SSL_CERT_FILE=$SSL_CERT_FILE which does not exist. Unsetting to allow pip to use system CAs."
+        unset SSL_CERT_FILE
+    fi
+    if [ -n "$REQUESTS_CA_BUNDLE" ] && [ ! -f "$REQUESTS_CA_BUNDLE" ]; then
+        print_warning "Detected REQUESTS_CA_BUNDLE=$REQUESTS_CA_BUNDLE which does not exist. Unsetting."
+        unset REQUESTS_CA_BUNDLE
+    fi
+    if [ -n "$PIP_CERT" ] && [ ! -f "$PIP_CERT" ]; then
+        print_warning "Detected PIP_CERT=$PIP_CERT which does not exist. Unsetting."
+        unset PIP_CERT
+    fi
+
+    # If certifi is already available in the activated Python, use it to set
+    # SSL_CERT_FILE / REQUESTS_CA_BUNDLE for the current shell so child
+    # processes (pip, pre-commit) will inherit a valid CA bundle.
+    CERT_PATH=$(python - <<'PY'
+try:
+    import certifi
+    print(certifi.where())
+except Exception:
+    pass
+PY
+)
+
+    if [ -n "$CERT_PATH" ]; then
+        export SSL_CERT_FILE="$CERT_PATH"
+        export REQUESTS_CA_BUNDLE="$CERT_PATH"
+        print_success "Using certifi CA bundle at $CERT_PATH"
+    else
+        print_info "certifi not found in the activated Python. If network installs fail, run: pip install certifi and re-run this script."
+    fi
+}
+
 ################################################################################
 # Validation Phase
 ################################################################################
@@ -152,6 +197,10 @@ source "${VENV_DIR}/bin/activate" 2>/dev/null || \
     error_exit "Failed to activate virtual environment"
 print_success "Virtual environment activated"
 
+# Normalize TLS/CA environment before any pip operations to avoid failures
+print_info "Verificando variáveis SSL/TLS e certifi para garantir que o pip funcione..."
+normalize_ssl_cert_envs
+
 ################################################################################
 # Dependency Installation
 ################################################################################
@@ -162,6 +211,19 @@ print_header "Installing Project Dependencies"
 print_info "Upgrading pip, setuptools, and wheel..."
 python -m pip install --upgrade pip setuptools wheel -q
 print_success "pip, setuptools, and wheel upgraded"
+
+# Try to ensure certifi is available so we can point SSL_CERT_FILE to a
+# known-good CA bundle. If this installation fails, we warn (it may be due
+# to an upstream TLS/CA issue) but continue so the developer can follow the
+# troubleshooting steps documented in docs/TROUBLESHOOT_PRECOMMIT_TLS.md.
+print_info "Garantindo que 'certifi' esteja presente (usado para CA bundle)..."
+if python -m pip install --upgrade certifi -q; then
+    print_success "certifi instalado/atualizado"
+    # Re-run normalization now that certifi may be available.
+    normalize_ssl_cert_envs
+else
+    print_warning "Falha ao instalar 'certifi'. Se houver erro de TLS, veja docs/TROUBLESHOOT_PRECOMMIT_TLS.md"
+fi
 
 # Check for requirements files
 if [ -f "$REQUIREMENTS_FILE" ]; then

@@ -8,10 +8,8 @@ Tests for conversation state management and context tracking.
 """
 
 from datetime import datetime
-from typing import Any
-from typing import Dict
-from unittest.mock import MagicMock
-from unittest.mock import call
+from typing import Any, Dict
+from unittest.mock import MagicMock, call
 
 import pytest
 

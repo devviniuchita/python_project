@@ -1,81 +1,4 @@
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-0222222222222000
-2
-3
-03
-.,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,003
-0003
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-2415"""
-Simple validation script for structured logging.
+"""Simple validation script for structured logging.
 
 Tests:
 1. Logger initialization
@@ -85,15 +8,12 @@ Tests:
 5. Exception logging
 """
 
-import json
 import sys
 
-from structlog.contextvars import bind_contextvars
-from structlog.contextvars import clear_contextvars
-from utils.logger import configure_logging
+from structlog.contextvars import bind_contextvars, clear_contextvars
 from utils.logger import get_logger
 
-1
+
 def test_basic_logging():
     """Test basic logging functionality."""
     print("\n" + "=" * 80)
@@ -144,8 +64,8 @@ def test_exception_logging():
 
     try:
         # Simulate an error
-        result = 1 / 0
-    except ZeroDivisionError as e:
+        _ = 1 / 0
+    except ZeroDivisionError:
         logger.error(
             "division_error",
             operation="divide",
@@ -228,13 +148,16 @@ def main():
     print("=" * 80)
 
     # Show configuration
-    from config.settings import settings
+    try:
+        from config.settings import settings
 
-    print(f"\nConfiguration:")
-    print(f"  - LOG_LEVEL: {settings.log_level}")
-    print(f"  - LOG_FORMAT: {settings.log_format}")
-    print(f"  - Is TTY: {sys.stderr.isatty()}")
-    print()
+        print("\nConfiguration:")
+        print(f"  - LOG_LEVEL: {settings.log_level}")
+        print(f"  - LOG_FORMAT: {settings.log_format}")
+        print(f"  - Is TTY: {sys.stderr.isatty()}")
+        print()
+    except Exception:
+        print("  - Could not load settings; running in test mode")
 
     # Run tests
     test_basic_logging()

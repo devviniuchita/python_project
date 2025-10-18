@@ -8,8 +8,7 @@ Tests cover:
 - Logging and error handling
 """
 
-from unittest.mock import MagicMock
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import numpy as np
 import pytest
@@ -38,12 +37,12 @@ class TestThresholdFiltering:
 
     def test_threshold_zero_no_filtering(self, sample_documents, sample_query):
         """Test that threshold=0.0 does not filter any documents."""
-        with patch('reranker.settings') as mock_settings:
+        with patch("reranker.settings") as mock_settings:
             mock_settings.reranker_enabled = True
             mock_settings.reranker_score_threshold = 0.0
             mock_settings.reranker_top_n = 3
 
-            with patch('reranker.get_reranker') as mock_get_reranker:
+            with patch("reranker.get_reranker") as mock_get_reranker:
                 # Mock reranker with scores
                 mock_reranker = MagicMock()
                 mock_scores = np.array([0.95, 0.72, 0.31, 0.12, 0.05])
@@ -64,12 +63,12 @@ class TestThresholdFiltering:
 
     def test_threshold_medium_filters_low_scores(self, sample_documents, sample_query):
         """Test that threshold=0.5 filters documents with scores < 0.5."""
-        with patch('reranker.settings') as mock_settings:
+        with patch("reranker.settings") as mock_settings:
             mock_settings.reranker_enabled = True
             mock_settings.reranker_score_threshold = 0.5
             mock_settings.reranker_top_n = 5
 
-            with patch('reranker.get_reranker') as mock_get_reranker:
+            with patch("reranker.get_reranker") as mock_get_reranker:
                 mock_reranker = MagicMock()
                 # Scores: 0.95, 0.72, 0.31, 0.12, 0.05
                 # Threshold 0.5 should keep only first 2
@@ -89,12 +88,12 @@ class TestThresholdFiltering:
 
     def test_threshold_high_returns_at_least_one(self, sample_documents, sample_query):
         """Test that threshold=1.0 returns at least 1 document (fallback)."""
-        with patch('reranker.settings') as mock_settings:
+        with patch("reranker.settings") as mock_settings:
             mock_settings.reranker_enabled = True
             mock_settings.reranker_score_threshold = 1.0
             mock_settings.reranker_top_n = 5
 
-            with patch('reranker.get_reranker') as mock_get_reranker:
+            with patch("reranker.get_reranker") as mock_get_reranker:
                 mock_reranker = MagicMock()
                 # All scores below threshold
                 mock_scores = np.array([0.95, 0.72, 0.31, 0.12, 0.05])
@@ -114,12 +113,12 @@ class TestThresholdFiltering:
 
     def test_threshold_boundary_exact_match(self, sample_documents, sample_query):
         """Test that documents with score == threshold are kept."""
-        with patch('reranker.settings') as mock_settings:
+        with patch("reranker.settings") as mock_settings:
             mock_settings.reranker_enabled = True
             mock_settings.reranker_score_threshold = 0.72
             mock_settings.reranker_top_n = 5
 
-            with patch('reranker.get_reranker') as mock_get_reranker:
+            with patch("reranker.get_reranker") as mock_get_reranker:
                 mock_reranker = MagicMock()
                 # Score 0.72 exactly matches threshold
                 mock_scores = np.array([0.95, 0.72, 0.31, 0.12, 0.05])
@@ -142,12 +141,12 @@ class TestScoreOrdering:
 
     def test_documents_sorted_by_score_descending(self, sample_documents, sample_query):
         """Test that documents are sorted by score (highest first)."""
-        with patch('reranker.settings') as mock_settings:
+        with patch("reranker.settings") as mock_settings:
             mock_settings.reranker_enabled = True
             mock_settings.reranker_score_threshold = 0.0
             mock_settings.reranker_top_n = 5
 
-            with patch('reranker.get_reranker') as mock_get_reranker:
+            with patch("reranker.get_reranker") as mock_get_reranker:
                 mock_reranker = MagicMock()
                 # Scores in random order
                 mock_scores = np.array([0.31, 0.95, 0.12, 0.72, 0.05])
@@ -172,7 +171,7 @@ class TestEdgeCases:
 
     def test_empty_document_list_returns_empty(self, sample_query):
         """Test that empty document list returns empty result."""
-        with patch('reranker.settings') as mock_settings:
+        with patch("reranker.settings") as mock_settings:
             mock_settings.reranker_enabled = True
 
             from reranker import rerank_documents
@@ -184,7 +183,7 @@ class TestEdgeCases:
 
     def test_reranker_disabled_returns_original(self, sample_documents, sample_query):
         """Test that disabled reranker returns original documents."""
-        with patch('reranker.settings') as mock_settings:
+        with patch("reranker.settings") as mock_settings:
             mock_settings.reranker_enabled = False
 
             from reranker import rerank_documents
@@ -199,11 +198,11 @@ class TestEdgeCases:
         self, sample_documents, sample_query
     ):
         """Test graceful fallback when scoring fails."""
-        with patch('reranker.settings') as mock_settings:
+        with patch("reranker.settings") as mock_settings:
             mock_settings.reranker_enabled = True
             mock_settings.reranker_top_n = 3
 
-            with patch('reranker.get_reranker') as mock_get_reranker:
+            with patch("reranker.get_reranker") as mock_get_reranker:
                 mock_reranker = MagicMock()
                 # Simulate error during prediction
                 mock_reranker.predict.side_effect = Exception("Model error")
@@ -226,12 +225,12 @@ class TestThresholdLogging:
 
     def test_threshold_filtering_logged(self, sample_documents, sample_query, capsys):
         """Test that threshold filtering is logged."""
-        with patch('reranker.settings') as mock_settings:
+        with patch("reranker.settings") as mock_settings:
             mock_settings.reranker_enabled = True
             mock_settings.reranker_score_threshold = 0.5
             mock_settings.reranker_top_n = 5
 
-            with patch('reranker.get_reranker') as mock_get_reranker:
+            with patch("reranker.get_reranker") as mock_get_reranker:
                 mock_reranker = MagicMock()
                 # 2 above threshold, 3 below
                 mock_scores = np.array([0.95, 0.72, 0.31, 0.12, 0.05])
@@ -248,12 +247,12 @@ class TestThresholdLogging:
 
     def test_all_filtered_warning_logged(self, sample_documents, sample_query, capsys):
         """Test that warning is logged when all documents are filtered."""
-        with patch('reranker.settings') as mock_settings:
+        with patch("reranker.settings") as mock_settings:
             mock_settings.reranker_enabled = True
             mock_settings.reranker_score_threshold = 1.0
             mock_settings.reranker_top_n = 5
 
-            with patch('reranker.get_reranker') as mock_get_reranker:
+            with patch("reranker.get_reranker") as mock_get_reranker:
                 mock_reranker = MagicMock()
                 mock_scores = np.array([0.95, 0.72, 0.31, 0.12, 0.05])
                 mock_reranker.predict.return_value = mock_scores

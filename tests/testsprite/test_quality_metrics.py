@@ -7,9 +7,7 @@ Tests for quality validation, confidence scoring, and adaptive thresholding.
 - TC009: test_adaptive_threshold_application
 """
 
-from typing import Any
-from typing import Dict
-from typing import List
+from typing import Any, Dict, List
 from unittest.mock import MagicMock
 
 import numpy as np

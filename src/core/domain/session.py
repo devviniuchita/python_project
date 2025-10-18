@@ -6,11 +6,7 @@ ensuring type safety and data integrity for memory management.
 
 from uuid import UUID
 
-from pydantic import BaseModel
-from pydantic import ConfigDict
-from pydantic import Field
-from pydantic import ValidationInfo
-from pydantic import field_validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_validator
 
 
 class SessionConfig(BaseModel):
@@ -56,7 +52,7 @@ class SessionConfig(BaseModel):
         arbitrary_types_allowed=False,  # Only allow standard types
     )
 
-    @field_validator('memory_window')
+    @field_validator("memory_window")
     @classmethod
     def validate_memory_window(cls, v: int, info: ValidationInfo) -> int:
         """Ensure memory_window doesn't exceed max_turns.
@@ -71,7 +67,7 @@ class SessionConfig(BaseModel):
         Raises:
             ValueError: If memory_window > max_turns
         """
-        max_turns = info.data.get('max_turns', 10)
+        max_turns = info.data.get("max_turns", 10)
         if v > max_turns:
             raise ValueError(
                 f"memory_window ({v}) cannot exceed max_turns ({max_turns})"

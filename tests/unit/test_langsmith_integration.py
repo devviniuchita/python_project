@@ -13,9 +13,7 @@ Usage:
 """
 
 from src.config.settings import settings
-from src.features.reranking.reranker import get_reranker
-from src.features.reranking.reranker import rerank_documents
-from src.features.reranking.reranker import reset_reranker
+from src.features.reranking.reranker import rerank_documents, reset_reranker
 
 
 def test_basic_tracing():
@@ -42,14 +40,14 @@ def test_basic_tracing():
 
     reranked = rerank_documents(query, documents, top_n=3)
 
-    print(f"\nReranked top 3:")
+    print("\nReranked top 3:")
     for i, doc in enumerate(reranked, 1):
         print(f"  {i}. {doc[:60]}...")
 
     print("\n✓ Basic tracing test complete")
     print("  → Check LangSmith dashboard for traces:")
     print(f"     Project: {settings.langsmith_project}")
-    print(f"     Expected traces:")
+    print("     Expected traces:")
     print("       - 'BGE Semantic Reranking with Threshold' (parent)")
     print("       - 'Load BGE Reranker Model' (child)")
 
@@ -99,7 +97,7 @@ def test_threshold_filtering():
             "Gardening in small spaces",
         ]
 
-        print(f"\nCase 1: All documents below threshold")
+        print("\nCase 1: All documents below threshold")
         print(f"  Query: {query}")
         print(f"  Threshold: {settings.reranker_score_threshold}")
 
@@ -120,7 +118,7 @@ def test_threshold_filtering():
         "Travel destinations in Asia",  # Low relevance
     ]
 
-    print(f"\nCase 2: Normal threshold filtering")
+    print("\nCase 2: Normal threshold filtering")
     print(f"  Query: {query}")
     print(f"  Documents: {len(mixed_docs)} (mixed relevance)")
 
@@ -137,9 +135,9 @@ def test_sampling_configuration():
     print("=" * 80)
 
     print(f"\nCurrent sampling rate: {settings.langsmith_trace_sample_rate}")
-    print(f"  - 1.0 = 100% of requests traced (development)")
-    print(f"  - 0.1 = 10% of requests traced (production)")
-    print(f"  - 0.0 = 0% (tracing disabled)")
+    print("  - 1.0 = 100% of requests traced (development)")
+    print("  - 0.1 = 10% of requests traced (production)")
+    print("  - 0.0 = 0% (tracing disabled)")
 
     if settings.langsmith_trace_sample_rate == 1.0:
         print("\n✓ Development mode: All requests traced")
@@ -188,7 +186,7 @@ def main():
     print("=" * 80)
 
     # Show configuration
-    print(f"\nConfiguration:")
+    print("\nConfiguration:")
     print(f"  - LangSmith Tracing: {settings.langsmith_tracing}")
     print(f"  - LangSmith Project: {settings.langsmith_project}")
     print(f"  - Sampling Rate: {settings.langsmith_trace_sample_rate}")

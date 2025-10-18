@@ -524,3 +524,4 @@ docs/testsprite_results/test_report_backend.json
 .kiro/steering/byterover-rules.md
 .qoder/rules/byterover-rules.md
 .augment/rules/byterover-rules.md
+docs/TROUBLESHOOT_PRECOMMIT_TLS.md

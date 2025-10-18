@@ -11,22 +11,22 @@ Digital Signature: 8f3c9d2e1a4b7f6c5e9d8a3b2c1f4e7d
 
 import sys
 import tempfile
-
 from pathlib import Path
 
 import pytest
 
-
 # Add scripts directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
 
-from add_copyright_headers import FileType
-from add_copyright_headers import add_copyright_header
-from add_copyright_headers import detect_file_type
-from add_copyright_headers import extract_docstring_from_content
-from add_copyright_headers import has_copyright
-from add_copyright_headers import has_shebang
-from add_copyright_headers import process_directory
+from add_copyright_headers import (
+    FileType,
+    add_copyright_header,
+    detect_file_type,
+    extract_docstring_from_content,
+    has_copyright,
+    has_shebang,
+    process_directory,
+)
 
 
 class TestFileTypeDetection:
@@ -63,12 +63,12 @@ class TestCopyrightDetection:
 
     def test_has_copyright_with_copyright_marker(self):
         """Detecta copyright existente."""
-        content = 'Copyright (c) 2025 Test'
+        content = "Copyright (c) 2025 Test"
         assert has_copyright(content)
 
     def test_has_copyright_with_spdx(self):
         """Detecta SPDX-License-Identifier."""
-        content = 'SPDX-License-Identifier: MIT'
+        content = "SPDX-License-Identifier: MIT"
         assert has_copyright(content)
 
     def test_no_copyright(self):
@@ -125,13 +125,13 @@ class TestDocstringExtraction:
 
     def test_extract_yaml_description(self):
         """Extrai descrição de YAML."""
-        content = 'description: Test configuration\nkey: value'
+        content = "description: Test configuration\nkey: value"
         result = extract_docstring_from_content(content, FileType.YAML)
         assert len(result) > 0
 
     def test_extract_markdown_title(self):
         """Extrai título de Markdown."""
-        content = '# Test Documentation\n\nContent here'
+        content = "# Test Documentation\n\nContent here"
         result = extract_docstring_from_content(content, FileType.MARKDOWN)
         assert "Test Documentation" in result
 
@@ -142,7 +142,7 @@ class TestAddCopyrightHeader:
     def test_add_copyright_to_python_file(self):
         """Adiciona copyright em arquivo Python."""
         with tempfile.NamedTemporaryFile(
-            mode='w', suffix='.py', delete=False, encoding='utf-8'
+            mode="w", suffix=".py", delete=False, encoding="utf-8"
         ) as f:
             f.write('"""Test module."""\nprint("hello")')
             f.flush()
@@ -153,7 +153,7 @@ class TestAddCopyrightHeader:
             assert result
 
             # Verify copyright was added
-            with open(temp_path, 'r') as f:
+            with open(temp_path, "r") as f:
                 content = f.read()
             assert "Copyright (c) 2025" in content
             assert "SPDX-License-Identifier: MIT" in content
@@ -163,7 +163,7 @@ class TestAddCopyrightHeader:
     def test_add_copyright_shell_script(self):
         """Adiciona copyright em script Shell."""
         with tempfile.NamedTemporaryFile(
-            mode='w', suffix='.sh', delete=False, encoding='utf-8'
+            mode="w", suffix=".sh", delete=False, encoding="utf-8"
         ) as f:
             f.write('#!/bin/bash\necho "test"')
             f.flush()
@@ -173,7 +173,7 @@ class TestAddCopyrightHeader:
             result = add_copyright_header(temp_path, dry_run=False)
             assert result
 
-            with open(temp_path, 'r') as f:
+            with open(temp_path, "r") as f:
                 content = f.read()
             assert "Copyright (c) 2025" in content
             assert content.startswith("#!/bin/bash")
@@ -183,9 +183,9 @@ class TestAddCopyrightHeader:
     def test_add_copyright_yaml_file(self):
         """Adiciona copyright em arquivo YAML."""
         with tempfile.NamedTemporaryFile(
-            mode='w', suffix='.yml', delete=False, encoding='utf-8'
+            mode="w", suffix=".yml", delete=False, encoding="utf-8"
         ) as f:
-            f.write('name: test\nversion: 1.0')
+            f.write("name: test\nversion: 1.0")
             f.flush()
             temp_path = Path(f.name)
 
@@ -193,7 +193,7 @@ class TestAddCopyrightHeader:
             result = add_copyright_header(temp_path, dry_run=False)
             assert result
 
-            with open(temp_path, 'r') as f:
+            with open(temp_path, "r") as f:
                 content = f.read()
             assert "Copyright (c) 2025" in content
             assert "# SPDX-License-Identifier: MIT" in content
@@ -203,7 +203,7 @@ class TestAddCopyrightHeader:
     def test_skip_file_with_existing_copyright(self):
         """Pula arquivo que já tem copyright."""
         with tempfile.NamedTemporaryFile(
-            mode='w', suffix='.py', delete=False, encoding='utf-8'
+            mode="w", suffix=".py", delete=False, encoding="utf-8"
         ) as f:
             f.write('"""Module."""\n# Copyright (c) 2025\nprint("test")')
             f.flush()
@@ -218,7 +218,7 @@ class TestAddCopyrightHeader:
     def test_verify_mode_no_modification(self):
         """Modo verify não modifica arquivo."""
         with tempfile.NamedTemporaryFile(
-            mode='w', suffix='.py', delete=False, encoding='utf-8'
+            mode="w", suffix=".py", delete=False, encoding="utf-8"
         ) as f:
             f.write('print("test")')
             f.flush()
@@ -238,7 +238,7 @@ class TestAddCopyrightHeader:
     def test_dry_run_no_modification(self):
         """Modo dry-run não modifica arquivo."""
         with tempfile.NamedTemporaryFile(
-            mode='w', suffix='.py', delete=False, encoding='utf-8'
+            mode="w", suffix=".py", delete=False, encoding="utf-8"
         ) as f:
             f.write('print("test")')
             f.flush()
@@ -266,7 +266,7 @@ class TestProcessDirectory:
             # Create test files
             (tmppath / "test.py").write_text('print("test")')
             (tmppath / "script.sh").write_text('#!/bin/bash\necho "test"')
-            (tmppath / "config.yml").write_text('name: test')
+            (tmppath / "config.yml").write_text("name: test")
 
             total, modified = process_directory(tmppath, dry_run=False)
 
@@ -304,7 +304,7 @@ class TestProcessDirectory:
             # Create test files
             (tmppath / "test.py").write_text('print("test")')
             (tmppath / "script.sh").write_text('echo "test"')
-            (tmppath / "config.yml").write_text('name: test')
+            (tmppath / "config.yml").write_text("name: test")
 
             # Process only .py files
             total, modified = process_directory(

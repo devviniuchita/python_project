@@ -4,6 +4,46 @@
 
 set -e
 
+# Normalize SSL/TLS environment variables for the hook runtime.
+# This helps when system-wide env vars point to invalid CA bundles (e.g.
+# leftovers from other installers) and would otherwise break pip installs or
+# tools invoked by hooks.
+REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
+if [ -x "${REPO_ROOT}/.venv/Scripts/python.exe" ]; then
+    VENV_PYTHON="${REPO_ROOT}/.venv/Scripts/python.exe"
+elif [ -x "${REPO_ROOT}/.venv/bin/python" ]; then
+    VENV_PYTHON="${REPO_ROOT}/.venv/bin/python"
+else
+    VENV_PYTHON="python"
+fi
+
+echo "🔐 Validando variáveis TLS/CA para o hook..."
+CERT_PATH="$($VENV_PYTHON - <<'PY'
+import sys
+try:
+    import certifi
+    print(certifi.where())
+except Exception:
+    pass
+PY
+)"
+
+if [ -n "$CERT_PATH" ]; then
+    export SSL_CERT_FILE="$CERT_PATH"
+    export REQUESTS_CA_BUNDLE="$CERT_PATH"
+    echo "  -> Usando certifi bundle em $CERT_PATH"
+else
+    if [ -n "$SSL_CERT_FILE" ] && [ ! -f "$SSL_CERT_FILE" ]; then
+        echo "  -> SSL_CERT_FILE aponta para arquivo inexistente ($SSL_CERT_FILE). Unsetting..."
+        unset SSL_CERT_FILE
+    fi
+    if [ -n "$REQUESTS_CA_BUNDLE" ] && [ ! -f "$REQUESTS_CA_BUNDLE" ]; then
+        echo "  -> REQUESTS_CA_BUNDLE aponta para arquivo inexistente ($REQUESTS_CA_BUNDLE). Unsetting..."
+        unset REQUESTS_CA_BUNDLE
+    fi
+    echo "  -> Certifi não encontrado no venv; mantendo variáveis válidas (se existirem)."
+fi
+
 echo "🔍 Running pre-commit checks..."
 echo ""
 

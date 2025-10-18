@@ -1,18 +1,14 @@
 """Test JSON output format for production logging."""
 
-import json
-
 # Force JSON mode BEFORE importing logger
 import os
-import sys
-
 
 os.environ["LOG_FORMAT"] = "json"
 os.environ["LOG_LEVEL"] = "INFO"
 
 from structlog.contextvars import bind_contextvars
-from src.infrastructure.logging.logger import get_logger
 
+from src.infrastructure.logging.logger import get_logger
 
 logger = get_logger("test")
 

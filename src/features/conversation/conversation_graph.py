@@ -3,22 +3,24 @@ Conversational RAG Graph with Memory
 Integrates chat history, context analysis, and follow-up handling
 """
 
-from src.features.conversation import analyze_context
-from src.features.conversation import check_clarification
-from src.features.conversation import expand_question
 from langchain_core.messages import HumanMessage
-from langgraph.graph import END
-from langgraph.graph import START
-from langgraph.graph import StateGraph
+from langgraph.graph import END, START, StateGraph
 from memory_manager import get_memory_saver
-from nodes import classify_question
-from nodes import generate_answer
-from nodes import refine_answer
-from nodes import rerank_documents
-from nodes import retrieve_adaptive
-from nodes import validate_quality
-from src.core.domain.state import ConversationalRAGState
+from nodes import (
+    classify_question,
+    generate_answer,
+    refine_answer,
+    rerank_documents,
+    retrieve_adaptive,
+    validate_quality,
+)
 
+from src.core.domain.state import ConversationalRAGState
+from src.features.conversation import (
+    analyze_context,
+    check_clarification,
+    expand_question,
+)
 
 # Maximum refinement iterations
 MAX_ITERATIONS = 2

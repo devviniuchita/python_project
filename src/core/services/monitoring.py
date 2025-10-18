@@ -3,14 +3,12 @@ LangSmith Monitoring and Observability Module
 Provides functions to interact with LangSmith for monitoring and analysis
 """
 
-from typing import Dict
-from typing import List
-from typing import Optional
+from typing import Dict, List, Optional
+
+from langsmith import Client
 
 from src.infrastructure.config.settings import settings
-from langsmith import Client
 from src.infrastructure.utils.logger import get_logger
-
 
 # Module logger
 logger = get_logger(__name__)
@@ -90,9 +88,9 @@ def get_run_stats(run_id: str) -> Optional[Dict]:
             "run_type": run.run_type,
             "start_time": run.start_time,
             "end_time": run.end_time,
-            "latency_ms": run.latency_ms if hasattr(run, 'latency_ms') else None,
-            "total_tokens": run.total_tokens if hasattr(run, 'total_tokens') else None,
-            "status": run.status if hasattr(run, 'status') else None,
+            "latency_ms": run.latency_ms if hasattr(run, "latency_ms") else None,
+            "total_tokens": run.total_tokens if hasattr(run, "total_tokens") else None,
+            "status": run.status if hasattr(run, "status") else None,
         }
     except Exception as e:
         logger.error(

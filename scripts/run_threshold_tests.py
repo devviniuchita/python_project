@@ -6,7 +6,6 @@ Script to run comprehensive threshold tests without pytest dependency.
 import os
 import sys
 
-
 # Add project root to path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
@@ -40,11 +39,6 @@ def main():
     try:
         from tests.test_threshold_statistical_validation import (
             TestThresholdOptimization,
-        )
-        from tests.test_threshold_statistical_validation import (
-            TestThresholdPerformanceMetrics,
-        )
-        from tests.test_threshold_statistical_validation import (
             TestThresholdStatisticalValidation,
         )
 
@@ -54,8 +48,9 @@ def main():
         return False
 
     try:
-        from tests.test_threshold_performance import TestThresholdPerformance
-        from tests.test_threshold_performance import TestThresholdStressTesting
+        from tests.test_threshold_performance import (
+            TestThresholdPerformance,
+        )
 
         print("✅ Performance tests imported")
     except ImportError as e:
@@ -69,10 +64,10 @@ def main():
     stat_tests = [
         (
             TestThresholdStatisticalValidation,
-            'test_roc_curve_analysis_for_threshold_optimization',
+            "test_roc_curve_analysis_for_threshold_optimization",
         ),
-        (TestThresholdStatisticalValidation, 'test_precision_recall_curve_analysis'),
-        (TestThresholdStatisticalValidation, 'test_threshold_confidence_intervals'),
+        (TestThresholdStatisticalValidation, "test_precision_recall_curve_analysis"),
+        (TestThresholdStatisticalValidation, "test_threshold_confidence_intervals"),
     ]
 
     stat_results = []
@@ -84,9 +79,9 @@ def main():
     print("-" * 40)
 
     perf_tests = [
-        (TestThresholdPerformance, 'test_threshold_discriminative_power'),
-        (TestThresholdPerformance, 'test_threshold_robustness_to_score_distribution'),
-        (TestThresholdOptimization, 'test_automated_threshold_tuning'),
+        (TestThresholdPerformance, "test_threshold_discriminative_power"),
+        (TestThresholdPerformance, "test_threshold_robustness_to_score_distribution"),
+        (TestThresholdOptimization, "test_automated_threshold_tuning"),
     ]
 
     perf_results = []

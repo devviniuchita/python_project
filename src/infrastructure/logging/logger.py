@@ -17,13 +17,11 @@ Example:
 
 import logging
 import sys
-
 from typing import Optional
 
 import structlog
 
 from src.infrastructure.config.settings import settings
-
 
 # Try to use orjson for 2-3x faster JSON rendering
 try:

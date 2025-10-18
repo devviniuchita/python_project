@@ -10,17 +10,11 @@ Validates:
 """
 
 import json
-import logging
-import sys
-
-from io import StringIO
-from unittest.mock import patch
 
 import pytest
 import structlog
 
-from src.infrastructure.logging.logger import configure_logging
-from src.infrastructure.logging.logger import get_logger
+from src.infrastructure.logging.logger import configure_logging, get_logger
 
 
 class TestLoggingConfiguration:
@@ -47,8 +41,7 @@ class TestContextVariables:
 
     def test_context_binding(self, capfd):
         """Verify context variables are included in logs."""
-        from structlog.contextvars import bind_contextvars
-        from structlog.contextvars import clear_contextvars
+        from structlog.contextvars import bind_contextvars, clear_contextvars
 
         # Clear any previous context
         clear_contextvars()

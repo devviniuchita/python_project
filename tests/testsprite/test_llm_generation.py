@@ -5,11 +5,8 @@ Tests for response generation functionality using LLM integration.
 - TC003: test_llm_generation_response
 """
 
-from typing import Any
-from typing import Dict
-from unittest.mock import MagicMock
-from unittest.mock import call
-from unittest.mock import patch
+from typing import Any, Dict
+from unittest.mock import MagicMock, call, patch
 
 import pytest
 

@@ -6,11 +6,7 @@ Type hints with Literal and Field provide static type checking without
 runtime validation overhead (~2.5x faster than BaseModel).
 """
 
-from typing import Annotated
-from typing import List
-from typing import Literal
-from typing import Sequence
-from typing import TypedDict
+from typing import Annotated, List, Literal, Sequence, TypedDict
 
 from langchain_core.messages import BaseMessage
 from langgraph.graph.message import add_messages

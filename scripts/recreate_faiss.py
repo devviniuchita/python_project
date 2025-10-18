@@ -10,7 +10,6 @@ from langchain_community.document_loaders import PyPDFLoader
 from langchain_community.vectorstores import FAISS
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 
-
 # Load environment variables
 venv_env_path = "c:/Users/ADMIN/Desktop/rules-base/.venv/.env"
 if os.path.exists(venv_env_path):
@@ -35,7 +34,7 @@ embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
 print("[INFO] Using Google embeddings model: models/embedding-001")
 
 # Create and save FAISS vectorstore
-db_path = 'banco_faiss'
+db_path = "banco_faiss"
 vectorstore = FAISS.from_documents(chunks, embeddings)
 vectorstore.save_local(db_path)
 

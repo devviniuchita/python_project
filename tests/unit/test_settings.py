@@ -2,7 +2,6 @@
 
 from src.config.settings import settings
 
-
 print("=" * 80)
 print("PYDANTIC SETTINGS VALIDATION")
 print("=" * 80)

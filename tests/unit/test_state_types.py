@@ -1,8 +1,6 @@
 """Test script to validate state.py type hints improvements."""
 
-from src.core.domain.state import ConversationalRAGState
-from src.core.domain.state import RAGState
-
+from src.core.domain.state import ConversationalRAGState, RAGState
 
 print("=" * 80)
 print("STATE.PY TYPE HINTS VALIDATION")

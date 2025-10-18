@@ -10,12 +10,7 @@ Tests cover:
 """
 
 import numpy as np
-import pytest
-from sklearn.metrics import roc_curve, precision_recall_curve, auc
-from unittest.mock import MagicMock, patch
-
-from src.features.reranking.reranker import rerank_documents
-from src.config.settings import settings
+from sklearn.metrics import auc, precision_recall_curve, roc_curve
 
 
 class TestThresholdStatisticalValidation:
@@ -32,7 +27,9 @@ class TestThresholdStatisticalValidation:
         irrelevant_scores = np.random.normal(0.3, 0.15, n_samples // 2)
 
         all_scores = np.concatenate([relevant_scores, irrelevant_scores])
-        ground_truth = np.concatenate([np.ones(n_samples // 2), np.zeros(n_samples // 2)])
+        ground_truth = np.concatenate(
+            [np.ones(n_samples // 2), np.zeros(n_samples // 2)]
+        )
 
         # Calculate ROC curve
         fpr, tpr, thresholds = roc_curve(ground_truth, all_scores)
@@ -40,14 +37,19 @@ class TestThresholdStatisticalValidation:
 
         print("ROC Analysis Results:")
         print(f"  AUC: {roc_auc:.3f}")
-        print(f"  Optimal threshold (Youden): {thresholds[np.argmax(tpr - fpr)].3f}}")
+        youden_idx = np.argmax(tpr - fpr)
+        print(f"  Optimal threshold (Youden): {thresholds[youden_idx]:.3f}")
 
         # Validate that AUC is meaningful (> 0.7 indicates good discrimination)
-        assert roc_auc > 0.7, f"ROC AUC {roc_auc:.3f} is too low for effective threshold"
+        assert (
+            roc_auc > 0.7
+        ), f"ROC AUC {roc_auc:.3f} is too low for effective threshold"
 
         # Find optimal threshold using Youden's J statistic
         youden_threshold = thresholds[np.argmax(tpr - fpr)]
-        print(f"✅ PASS - ROC analysis identifies optimal threshold: {youden_threshold:.3f}")
+        print(
+            f"✅ PASS - ROC analysis identifies optimal threshold: {youden_threshold:.3f}"
+        )
 
     def test_precision_recall_curve_analysis(self):
         """Test precision-recall curve for threshold evaluation."""
@@ -68,17 +70,19 @@ class TestThresholdStatisticalValidation:
 
         print("Precision-Recall Analysis Results:")
         print(f"  AUC: {pr_auc:.3f}")
-        print(f"  Max precision: {np.max(precision).3f}}")
-        print(f"  Max recall: {np.max(recall).3f}}")
+        print(f"  Max precision: {np.max(precision):.3f}")
+        print(f"  Max recall: {np.max(recall):.3f}")
 
         # Find threshold that balances precision and recall
         f1_scores = 2 * (precision * recall) / (precision + recall)
         best_threshold = thresholds[np.argmax(f1_scores)]
 
-        print(f"  Best F1 threshold: {best_threshold.3f}}")
+        print(f"  Best F1 threshold: {best_threshold:.3f}")
 
         assert pr_auc > 0.3, f"PR AUC {pr_auc:.3f} is too low"
-        print(f"✅ PASS - PR curve analysis identifies balanced threshold: {best_threshold:..3f})
+        print(
+            f"✅ PASS - PR curve analysis identifies balanced threshold: {best_threshold:.3f}"
+        )
 
     def test_threshold_confidence_intervals(self):
         """Test statistical confidence intervals for threshold decisions."""
@@ -96,11 +100,17 @@ class TestThresholdStatisticalValidation:
 
         for _ in range(n_bootstrap):
             # Sample with replacement
-            rel_sample = np.random.choice(relevant_scores, sample_size // 2, replace=True)
-            irrel_sample = np.random.choice(irrelevant_scores, sample_size // 2, replace=True)
+            rel_sample = np.random.choice(
+                relevant_scores, sample_size // 2, replace=True
+            )
+            irrel_sample = np.random.choice(
+                irrelevant_scores, sample_size // 2, replace=True
+            )
 
             scores = np.concatenate([rel_sample, irrel_sample])
-            ground_truth = np.concatenate([np.ones(sample_size // 2), np.zeros(sample_size // 2)])
+            ground_truth = np.concatenate(
+                [np.ones(sample_size // 2), np.zeros(sample_size // 2)]
+            )
 
             # Find optimal threshold for this bootstrap sample
             fpr, tpr, thresholds = roc_curve(ground_truth, scores)
@@ -113,15 +123,19 @@ class TestThresholdStatisticalValidation:
         mean_threshold = np.mean(bootstrap_thresholds)
 
         print("Threshold Confidence Interval Analysis:")
-        print(f"  Mean threshold: {mean_threshold.3f}}")
-        print(f"  95% CI: [{ci_lower.3f}}, {ci_upper.3f}}]")
-        print(f"  CI width: {ci_upper - ci_lower.3f}}")
+        print(f"  Mean threshold: {mean_threshold:.3f}")
+        print(f"  95% CI: [{ci_lower:.3f}, {ci_upper:.3f}]")
+        print(f"  CI width: {ci_upper - ci_lower:.3f}")
 
         # Validate confidence interval is reasonable
-        assert ci_upper - ci_lower < 0.3, f"CI width {ci_upper - ci_lower:..3f}is too large"
+        assert (
+            ci_upper - ci_lower < 0.3
+        ), f"CI width {ci_upper - ci_lower:.3f} is too large"
         assert ci_lower > 0.0 and ci_upper < 1.0, "CI should be within valid range"
 
-        print(f"✅ PASS - Threshold CI analysis: {mean_threshold:..3f}± {(ci_upper-ci_lower)/2:..3f})
+        print(
+            f"✅ PASS - Threshold CI analysis: {mean_threshold:.3f} ± {(ci_upper-ci_lower)/2:.3f}"
+        )
 
 
 class TestThresholdPerformanceMetrics:
@@ -144,23 +158,47 @@ class TestThresholdPerformanceMetrics:
             predictions = [1 if score >= threshold else 0 for score in all_scores]
 
             # Calculate confusion matrix
-            tp = sum(1 for gt, pred in zip(ground_truth, predictions) if gt == 1 and pred == 1)
-            tn = sum(1 for gt, pred in zip(ground_truth, predictions) if gt == 0 and pred == 0)
-            fp = sum(1 for gt, pred in zip(ground_truth, predictions) if gt == 0 and pred == 1)
-            fn = sum(1 for gt, pred in zip(ground_truth, predictions) if gt == 1 and pred == 0)
+            tp = sum(
+                1
+                for gt, pred in zip(ground_truth, predictions)
+                if gt == 1 and pred == 1
+            )
+            tn = sum(
+                1
+                for gt, pred in zip(ground_truth, predictions)
+                if gt == 0 and pred == 0
+            )
+            fp = sum(
+                1
+                for gt, pred in zip(ground_truth, predictions)
+                if gt == 0 and pred == 1
+            )
+            fn = sum(
+                1
+                for gt, pred in zip(ground_truth, predictions)
+                if gt == 1 and pred == 0
+            )
 
             precision = tp / (tp + fp) if (tp + fp) > 0 else 0
             recall = tp / (tp + fn) if (tp + fn) > 0 else 0
-            f1 = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0
+            f1 = (
+                2 * precision * recall / (precision + recall)
+                if (precision + recall) > 0
+                else 0
+            )
 
-            print(f"  Threshold {threshold.1f}}:")
-            print(f"    Precision: {precision.3f}}")
-            print(f"    Recall: {recall.3f}}")
-            print(f"    F1: {f1.3f}}")
+            print(f"  Threshold {threshold:.1f}:")
+            print(f"    Precision: {precision:.3f}")
+            print(f"    Recall: {recall:.3f}")
+            print(f"    F1: {f1:.3f}")
 
             # Validate performance metrics
-            assert precision >= 0.8, f"Precision {precision:..3f}too low for threshold {threshold}"
-            assert recall >= 0.8, f"Recall {recall:..3f}too low for threshold {threshold}"
+            assert (
+                precision >= 0.8
+            ), f"Precision {precision:.3f} too low for threshold {threshold}"
+            assert (
+                recall >= 0.8
+            ), f"Recall {recall:.3f} too low for threshold {threshold}"
 
         print("✅ PASS - All thresholds show good discriminative power")
 
@@ -170,7 +208,7 @@ class TestThresholdPerformanceMetrics:
             ("normal", lambda: np.random.normal(0.5, 0.2, 100)),
             ("skewed_right", lambda: np.random.beta(2, 5, 100) * 0.8 + 0.1),
             ("skewed_left", lambda: np.random.beta(5, 2, 100) * 0.8 + 0.1),
-            ("uniform", lambda: np.random.uniform(0.1, 0.9, 100))
+            ("uniform", lambda: np.random.uniform(0.1, 0.9, 100)),
         ]
 
         for dist_name, score_gen in distributions:
@@ -185,10 +223,12 @@ class TestThresholdPerformanceMetrics:
             # Calculate accuracy
             accuracy = np.mean(predictions == ground_truth)
 
-            print(f"  {dist_name} distribution: accuracy = {accuracy.3f}}")
+            print(f"  {dist_name} distribution: accuracy = {accuracy:.3f}")
 
             # Should achieve reasonable accuracy across distributions
-            assert accuracy > 0.6, f"Poor accuracy {accuracy:..3f}for {dist_name} distribution"
+            assert (
+                accuracy > 0.6
+            ), f"Poor accuracy {accuracy:.3f} for {dist_name} distribution"
 
         print("✅ PASS - Threshold robust across different score distributions")
 
@@ -207,7 +247,9 @@ class TestThresholdOptimization:
         irrelevant_scores = np.random.normal(0.25, 0.1, n_samples // 2)
 
         all_scores = np.concatenate([relevant_scores, irrelevant_scores])
-        ground_truth = np.concatenate([np.ones(n_samples // 2), np.zeros(n_samples // 2)])
+        ground_truth = np.concatenate(
+            [np.ones(n_samples // 2), np.zeros(n_samples // 2)]
+        )
 
         # Test multiple threshold candidates
         threshold_candidates = np.linspace(0.1, 0.9, 50)
@@ -223,22 +265,30 @@ class TestThresholdOptimization:
 
             precision = tp / (tp + fp) if (tp + fp) > 0 else 0
             recall = tp / (tp + fn) if (tp + fn) > 0 else 0
-            f1 = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0
+            f1 = (
+                2 * precision * recall / (precision + recall)
+                if (precision + recall) > 0
+                else 0
+            )
 
             if f1 > best_f1:
                 best_f1 = f1
                 best_threshold = threshold
 
         print("Automated Threshold Tuning Results:")
-        print(f"  Best threshold: {best_threshold.3f}}")
-        print(f"  Best F1 score: {best_f1.3f}}")
-        print(f"  Expected range: [0.5, 0.7]")
+        print(f"  Best threshold: {best_threshold:.3f}")
+        print(f"  Best F1 score: {best_f1:.3f}")
+        print("  Expected range: [0.5, 0.7]")
 
         # Validate optimal threshold is in expected range
-        assert 0.5 <= best_threshold <= 0.7, f"Optimal threshold {best_threshold:..3f}outside expected range"
-        assert best_f1 > 0.8, f"F1 score {best_f1:..3f}too low for optimal threshold"
+        assert (
+            0.5 <= best_threshold <= 0.7
+        ), f"Optimal threshold {best_threshold:.3f} outside expected range"
+        assert best_f1 > 0.8, f"F1 score {best_f1:.3f} too low for optimal threshold"
 
-        print(f"✅ PASS - Automated threshold tuning found optimal: {best_threshold:..3f})
+        print(
+            f"✅ PASS - Automated threshold tuning found optimal: {best_threshold:.3f}"
+        )
 
 
 if __name__ == "__main__":

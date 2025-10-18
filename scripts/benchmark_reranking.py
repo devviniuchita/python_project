@@ -14,13 +14,10 @@ Target:
 
 import sys
 import time
-
-from typing import Dict
-from typing import List
+from typing import Dict, List
 
 from config.settings import settings
 from graph_rag import create_rag_graph
-
 
 # Test queries with expected complexity
 TEST_QUERIES = [
@@ -149,10 +146,10 @@ class BenchmarkResults:
         )
 
         # Quality verdict
-        if metrics['quality_improvement_percent'] >= 10:
-            print(f"  ✅ PASS - Quality improvement ≥10% (Target: ≥10%)")
+        if metrics["quality_improvement_percent"] >= 10:
+            print("  ✅ PASS - Quality improvement ≥10% (Target: ≥10%)")
         else:
-            print(f"  ❌ FAIL - Quality improvement <10% (Target: ≥10%)")
+            print("  ❌ FAIL - Quality improvement <10% (Target: ≥10%)")
 
         print("\n⚡ PERFORMANCE METRICS:")
         print(f"  Baseline Latency:        {metrics['baseline_latency_ms']:.0f}ms")
@@ -160,10 +157,10 @@ class BenchmarkResults:
         print(f"  Latency Overhead:        +{metrics['latency_overhead_ms']:.0f}ms")
 
         # Latency verdict
-        if metrics['latency_overhead_ms'] < 500:
-            print(f"  ✅ PASS - Latency overhead <500ms (Target: <500ms)")
+        if metrics["latency_overhead_ms"] < 500:
+            print("  ✅ PASS - Latency overhead <500ms (Target: <500ms)")
         else:
-            print(f"  ⚠️  WARNING - Latency overhead ≥500ms (Target: <500ms)")
+            print("  ⚠️  WARNING - Latency overhead ≥500ms (Target: <500ms)")
 
         print("\n🔄 REFINEMENT METRICS:")
         print(f"  Baseline Iterations:     {metrics['baseline_iterations']:.1f}")
@@ -171,8 +168,8 @@ class BenchmarkResults:
 
         # Overall verdict
         print("\n" + "=" * 80)
-        quality_pass = metrics['quality_improvement_percent'] >= 10
-        latency_pass = metrics['latency_overhead_ms'] < 500
+        quality_pass = metrics["quality_improvement_percent"] >= 10
+        latency_pass = metrics["latency_overhead_ms"] < 500
 
         if quality_pass and latency_pass:
             print(

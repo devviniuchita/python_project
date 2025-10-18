@@ -5,11 +5,10 @@ Simula uma conversa completa para validar todas as funcionalidades
 
 import os
 
-from src.features.conversation.conversation_graph import run_conversational_query
 from dotenv import load_dotenv
-from memory_manager import get_conversation_config
-from memory_manager import reset_conversation
+from memory_manager import get_conversation_config, reset_conversation
 
+from src.features.conversation.conversation_graph import run_conversational_query
 
 # Load environment
 venv_env_path = "c:/Users/ADMIN/Desktop/rules-base/.venv/.env"
