@@ -12,10 +12,10 @@ Usage:
     python test_langsmith_integration.py
 """
 
-from config.settings import settings
-from reranker import get_reranker
-from reranker import rerank_documents
-from reranker import reset_reranker
+from src.config.settings import settings
+from src.features.reranking.reranker import get_reranker
+from src.features.reranking.reranker import rerank_documents
+from src.features.reranking.reranker import reset_reranker
 
 
 def test_basic_tracing():

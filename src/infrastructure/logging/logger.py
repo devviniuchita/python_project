@@ -22,7 +22,7 @@ from typing import Optional
 
 import structlog
 
-from config.settings import settings
+from src.infrastructure.config.settings import settings
 
 
 # Try to use orjson for 2-3x faster JSON rendering

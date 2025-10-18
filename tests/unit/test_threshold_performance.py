@@ -16,7 +16,7 @@ import numpy as np
 from unittest.mock import MagicMock, patch
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-from reranker import rerank_documents
+from src.features.reranking.reranker import rerank_documents
 from config.settings import settings
 
 
@@ -58,15 +58,15 @@ class TestThresholdPerformance:
         end_time = time.time()
         execution_time = end_time - start_time
 
-        print(f"Execution time: {execution_time".3f"} seconds")
-        print(f"Documents processed per second: {n_docs / execution_time".1f"}")
+        print(f"Execution time: {execution_time:.3f} seconds")
+        print(f"Documents processed per second: {n_docs / execution_time.1f}}")
 
         # Validate performance requirements
-        assert execution_time < 10.0, f"Too slow: {execution_time".3f"}s for {n_docs} documents"
+        assert execution_time < 10.0, f"Too slow: {execution_time:.3f}s for {n_docs} documents"
         assert len(result) <= 50, f"Returned too many results: {len(result)}"
         assert len(result) > 0, "No results returned"
 
-        print(f"✅ PASS - Large dataset performance: {execution_time:.".3f"")
+        print(f"✅ PASS - Large dataset performance: {execution_time:.3f}")
 
     def test_memory_usage_monitoring(self):
         """Test memory usage during threshold processing."""
@@ -92,15 +92,16 @@ class TestThresholdPerformance:
         final_memory = process.memory_info().rss / 1024 / 1024  # MB
         memory_increase = final_memory - initial_memory
 
-        print("Memory Usage Analysis:"        print(f"  Initial memory: {initial_memory".1f"} MB")
-        print(f"  Final memory: {final_memory".1f"} MB")
-        print(f"  Memory increase: {memory_increase".1f"} MB")
+        print("Memory Usage Analysis:")
+        print(f"  Initial memory: {initial_memory:.1f} MB")
+        print(f"  Final memory: {final_memory:.1f} MB")
+        print(f"  Memory increase: {memory_increase:.1f} MB")
 
         # Memory increase should be reasonable (< 50MB for 500 docs)
-        assert memory_increase < 50, f"Memory increase {memory_increase:.".1f"MB is too high"
+        assert memory_increase < 50, f"Memory increase {memory_increase:.1f}MB is too high"
         assert len(result) <= 25, f"Too many results: {len(result)}"
 
-        print(f"✅ PASS - Memory usage acceptable: +{memory_increase:.".1f"MB")
+        print(f"✅ PASS - Memory usage acceptable: +{memory_increase:.1f}MB")
 
     def test_concurrent_threshold_processing(self):
         """Test concurrent processing of multiple threshold operations."""
@@ -142,10 +143,11 @@ class TestThresholdPerformance:
         end_time = time.time()
         total_time = end_time - start_time
 
-        print("Concurrent Processing Results:"        print(f"  Concurrent requests: {n_concurrent}")
+        print("Concurrent Processing Results:")
+        print(f"  Concurrent requests: {n_concurrent}")
         print(f"  Documents per request: {n_docs_per_query}")
-        print(f"  Total processing time: {total_time".3f"} seconds")
-        print(f"  Average time per request: {total_time / n_concurrent".3f"} seconds")
+        print(f"  Total processing time: {total_time:.3f} seconds")
+        print(f"  Average time per request: {total_time / n_concurrent:.3f} seconds")
 
         # Validate results
         assert len(results) == n_concurrent, "Not all requests completed"
@@ -154,9 +156,9 @@ class TestThresholdPerformance:
             assert len(result) > 0, f"Query {i} returned no results"
 
         # Performance should be reasonable (less than 30 seconds for 10 concurrent requests)
-        assert total_time < 30, f"Concurrent processing too slow: {total_time".3f"}s"
+        assert total_time < 30, f"Concurrent processing too slow: {total_time:.3f}s"
 
-        print(f"✅ PASS - Concurrent processing: {total_time:.".3f"")
+        print(f"✅ PASS - Concurrent processing: {total_time:.3f}s")
 
     def test_scalability_with_increasing_dataset_size(self):
         """Test scalability as dataset size increases."""
@@ -182,7 +184,7 @@ class TestThresholdPerformance:
             execution_time = end_time - start_time
             execution_times.append(execution_time)
 
-            print(f"  {n_docs"4d"} docs: {execution_time"6.3f"}s ({n_docs/execution_time"6.1f"} docs/s)")
+            print(f"  {n_docs:4d} docs: {execution_time:6.3f}s ({n_docs/execution_time:6.1f} docs/s)")
 
         # Validate scalability - execution time should not grow exponentially
         # Linear growth is acceptable, exponential growth indicates problems
@@ -190,11 +192,11 @@ class TestThresholdPerformance:
             growth_ratio = execution_times[i] / execution_times[i-1]
             dataset_ratio = dataset_sizes[i] / dataset_sizes[i-1]
 
-            print(f"  Growth {dataset_sizes[i-1]}→{dataset_sizes[i]}: {growth_ratio".2f"}x time, {dataset_ratio".2f"}x data")
+            print(f"  Growth {dataset_sizes[i-1]}→{dataset_sizes[i]}: {growth_ratio:.2f}x time, {dataset_ratio:.2f}x data")
 
             # Growth should be roughly linear (not much higher than dataset ratio)
             assert growth_ratio < dataset_ratio * 2.5, \
-                f"Non-linear growth detected: {growth_ratio".2f"}x time for {dataset_ratio".2f"}x data"
+                f"Non-linear growth detected: {growth_ratio:.2f}x time for {dataset_ratio:.2f}x data"
 
         print("✅ PASS - Scalability analysis shows linear performance growth")
 
@@ -221,7 +223,7 @@ class TestThresholdStressTesting:
 
                     result = rerank_documents("test query", documents)
 
-                    print(f"  Threshold {threshold".3f"}: {len(result)} results")
+                    print(f"  Threshold {threshold:.3f}: {len(result)} results")
 
                     # Validate edge case behavior
                     if threshold >= 1.0:

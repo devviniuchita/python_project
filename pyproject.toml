@@ -71,6 +71,14 @@ profile = "black"
 line_length = 88
 known_first_party = ["src"]
 
+[tool.flake8]
+max-line-length = 88
+extend-ignore = ["E203", "W503"]
+exclude = [".venv", "venv", "migrations", "__pycache__", ".git"]
+per-file-ignores = [
+    "__init__.py:F401",
+]
+
 [tool.mypy]
 python_version = "3.8"
 warn_return_any = true

@@ -16,6 +16,7 @@
 
 - [💖 Bem-vindo à Nossa Comunidade](#-bem-vindo-à-nossa-comunidade)
 - [📜 Governança & Regras](#-governança--regras)
+- [🔐 Setup Pre-Commit Hooks](#-setup-pre-commit-hooks)
 - [🤝 Como Contribuir](#-como-contribuir)
 - [⚡ Padrões Técnicos](#-padrões-técnicos)
 - [🧪 Requisitos de Teste](#-requisitos-de-teste)
@@ -161,6 +162,328 @@ chmod +x .githooks/*  # Linux/macOS
 - **DCO Oficial**: [developercertificate.org](https://developercertificate.org/)
 - **Linux Foundation DCO**: [GitHub Apps](https://github.com/apps/dco)
 - **Nosso DCO**: [.github/DCO](.github/DCO)
+
+---
+
+## 🔐 Setup Pre-Commit Hooks
+
+### 🎯 O que é Pre-Commit Framework?
+
+O **pre-commit** é um framework que automatiza verificações de qualidade de código **antes** de cada commit. Ao invés de esperar o CI falhar, você recebe feedback **instantaneamente** no seu ambiente local.
+
+**Ferramentas Executadas Automaticamente:**
+
+| Ferramenta            | Função                 | Ação                             |
+| --------------------- | ---------------------- | -------------------------------- |
+| **Black**             | Formatação             | Auto-formata código para PEP 8   |
+| **isort**             | Organização de imports | Auto-organiza imports            |
+| **flake8**            | Linting                | Detecta erros de estilo e lógica |
+| **mypy**              | Type checking          | Valida type hints                |
+| **copyright-headers** | Headers obrigatórios   | Valida copyright em arquivos     |
+
+**Benefícios:**
+
+- ✅ Catch issues **antes** de enviar PR (não espera CI falhar)
+- ✅ Feedback instantâneo (alguns hooks auto-corrigem)
+- ✅ Menos "fix lint" commits na história
+- ✅ Consistência garantida entre contribuidores
+
+### 📦 Instalação
+
+**Passo 1: Instalar pre-commit**
+
+```bash
+# Dentro do seu ambiente virtual do projeto
+pip install pre-commit
+```
+
+**Passo 2: Ativar os hooks**
+
+```bash
+# Na raiz do repositório
+pre-commit install
+
+# Resultado esperado:
+# > pre-commit installed at .git/hooks/pre-commit
+```
+
+**Passo 3: Verificar instalação**
+
+```bash
+# Validar configuração (recomendado)
+pre-commit validate-config
+
+# Resultado esperado:
+# No errors found in configuration
+```
+
+**⏱️ Tempo Total:** ~2 minutos
+
+### 🚀 Workflow & Uso
+
+#### Primeiro Commit com Pre-Commit
+
+```bash
+# 1. Faça alterações no código
+echo "print('hello')" > src/example.py
+
+# 2. Stage dos arquivos
+git add src/example.py
+
+# 3. Commit normalmente (hooks executam automaticamente)
+git commit -m "feat: adicionar exemplo"
+
+# RESULTADO 1: Hooks Passam ✅
+# [pre-commit] Passing hooks:
+#   - trailing-whitespace
+#   - end-of-file-fixer
+#   - check-yaml
+#   - black
+#   - isort
+#   - flake8
+#   - mypy
+#   - copyright-headers
+# ✅ Commit realizado com sucesso!
+
+# RESULTADO 2: Hooks Falham ❌
+# [pre-commit] Pre-commit hook failed: black
+# - Check was modified
+# - isort fixed issues
+# ✅ Tente fazer commit novamente (arquivo foi auto-corrigido)
+```
+
+#### Entendendo Falhas de Hooks
+
+**Cenário 1: Auto-Fix**
+
+Alguns hooks corrigem automaticamente (Black, isort, copyright-headers):
+
+```bash
+# Código original (mal formatado)
+def  myfunc(  x,y  ):
+    return x+y
+
+# Após Black (auto-fix)
+def myfunc(x, y):
+    return x + y
+
+# Git marca arquivo como modificado
+git status
+# On branch feature/myfunc
+# Changes not staged for commit:
+#   modified: src/example.py
+
+# Stage novamente e commit
+git add src/example.py
+git commit -m "feat: adicionar myfunc"
+# ✅ Commit passa na segunda tentativa
+```
+
+**Cenário 2: Manual Fix Required**
+
+Alguns hooks requerem correção manual (flake8, mypy):
+
+```bash
+# Erro detectado: Nome de variável muito longo sem underscore
+def calcular_resultado_muito_longo_sem_abreviar():  # F841: local var unused
+    pass
+
+# Solução: Corrija manualmente
+def calcular_resultado_muito_longo():  # ✅ Válido
+    pass
+
+# Commit novamente
+git commit -m "fix: renomear função"
+# ✅ Commit passa
+```
+
+#### Ignorar Hooks (Emergência Apenas)
+
+```bash
+# ⚠️ NÃO RECOMENDADO - Apenas em emergências
+
+# Fazer commit sem rodar hooks
+git commit --no-verify -m "hotfix: corrigir produção"
+
+# ⚠️ CUIDADO: Isso pula TODAS as validações (linting, type checking)
+# Use com responsabilidade - o código pode ter issues!
+```
+
+### 🐛 Troubleshooting & Soluções
+
+#### ❌ Problema 1: "Hooks não executam"
+
+**Sintomas:**
+
+- Você faz `git commit` e nada acontece
+- Código com issues passa (Black, flake8 não rodam)
+
+**Solução:**
+
+```bash
+# Reinstalar hooks
+pre-commit install
+
+# Testar manualmente se falhou
+pre-commit run --all-files
+
+# Verificar arquivo .git/hooks/pre-commit existe
+ls -la .git/hooks/pre-commit  # Linux/macOS
+dir .git/hooks/pre-commit     # Windows
+```
+
+#### ❌ Problema 2: "Hook travou/parece pendurado"
+
+**Sintomas:**
+
+- Pre-commit começa mas não termina (>30s)
+- Cursor piscando, sem mensagem
+
+**Solução:**
+
+```bash
+# Pressione Ctrl+C para interromper
+# Identificar qual hook está lento
+pre-commit run --all-files --hook-stage commit
+
+# Limpar cache (alguns hooks cachean)
+rm -rf ~/.cache/pre-commit  # Linux/macOS
+rmdir %USERPROFILE%\.cache\pre-commit  # Windows
+
+# Tentar novamente
+git commit -m "..."
+```
+
+#### ❌ Problema 3: "Comando `pre-commit` não encontrado"
+
+**Sintomas:**
+
+```bash
+git commit
+# bash: pre-commit: command not found
+```
+
+**Solução:**
+
+```bash
+# Verifique se está no ambiente virtual correto
+which pre-commit  # Linux/macOS: deve retornar caminho .venv/
+where pre-commit  # Windows: deve retornar caminho .venv/Scripts/
+
+# Se não estiver, ativar .venv
+source venv/bin/activate      # Linux/macOS
+.\venv\Scripts\activate       # Windows (PowerShell)
+source venv/Scripts/activate  # Windows (Git Bash)
+
+# Reinstalar pre-commit
+pip install --upgrade pre-commit
+pre-commit install
+```
+
+#### ❌ Problema 4: "Windows Git Bash: Permissão Negada"
+
+**Sintomas:**
+
+```bash
+git commit
+# permission denied: .git/hooks/pre-commit
+```
+
+**Solução:**
+
+```bash
+# Dar permissão de execução (Windows Git Bash)
+chmod +x .git/hooks/pre-commit
+
+# Ou reconfigurar hooks
+pre-commit uninstall
+pre-commit install
+
+# Testar
+pre-commit run --all-files
+```
+
+#### ❌ Problema 5: "MyPy ou Flake8 com Falsos Positivos"
+
+**Sintomas:**
+
+```bash
+# Erro que você acredita estar errado
+mypy: error: Unsupported operand types for + ("str" and "int")
+# Mas seu código está correto (type: ignore)
+```
+
+**Solução:**
+
+```python
+# Ignorar avisos específicos com comentários
+result = str_value + int_value  # type: ignore
+
+# Ou configure em pyproject.toml
+# [tool.mypy]
+# ignore_errors = true  # NÃO RECOMENDADO - use com cuidado
+```
+
+### 💻 Notas por Sistema Operacional
+
+#### **Windows (Git Bash via Git for Windows)**
+
+```bash
+# Verificar instalação de Git Bash
+git --version  # deve retornar "Git for Windows" ou "git version X.X.X"
+
+# Ativar environment virtual em Git Bash
+source venv/Scripts/activate  # Não use .\venv\Scripts\activate
+
+# Pre-commit deve funcionar normalmente
+pre-commit install
+
+# Se problemas com paths, configurar Git
+git config core.safecrlf false
+git config core.autocrlf false
+```
+
+#### **Linux (Bash Nativo)**
+
+```bash
+# Ambiente virtual
+source venv/bin/activate
+
+# Pre-commit
+pip install pre-commit
+pre-commit install
+
+# Sem problemas conhecidos - funciona direto
+```
+
+#### **macOS (Bash Nativo)**
+
+```bash
+# Similar a Linux
+source venv/bin/activate
+pip install pre-commit
+pre-commit install
+
+# Se usar zsh (macOS Catalina+), também funciona
+# zsh é compatível com bash scripts
+```
+
+### 📋 Checklist de Setup
+
+- [ ] `pip install pre-commit` executado
+- [ ] `pre-commit install` executado na raiz do projeto
+- [ ] `pre-commit validate-config` passou
+- [ ] Fez um commit teste: `git commit --allow-empty -m "test: pre-commit setup"`
+- [ ] Hooks executaram normalmente
+- [ ] Arquivo `.pre-commit-config.yaml` validado (10 hooks configurados)
+
+### 🔗 Referências & Configuração
+
+- **Configuração do projeto**: [`.pre-commit-config.yaml`](.pre-commit-config.yaml) (10 hooks, todas as versões pinned)
+- **Custom hooks**: [`.pre-commit-hooks.yaml`](.pre-commit-hooks.yaml) (copyright-headers hook local)
+- **Configuração de ferramentas**: [`pyproject.toml`](pyproject.toml) ([tool.black], [tool.isort], [tool.flake8], [tool.mypy])
+- **Copyright headers**: [`scripts/add_copyright_headers.py`](scripts/add_copyright_headers.py) (validação automática)
+- **Documentação oficial**: [pre-commit.com](https://pre-commit.com)
 
 ---
 

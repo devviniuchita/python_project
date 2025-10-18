@@ -3,9 +3,9 @@ Conversational RAG Graph with Memory
 Integrates chat history, context analysis, and follow-up handling
 """
 
-from conversation import analyze_context
-from conversation import check_clarification
-from conversation import expand_question
+from src.features.conversation import analyze_context
+from src.features.conversation import check_clarification
+from src.features.conversation import expand_question
 from langchain_core.messages import HumanMessage
 from langgraph.graph import END
 from langgraph.graph import START
@@ -17,7 +17,7 @@ from nodes import refine_answer
 from nodes import rerank_documents
 from nodes import retrieve_adaptive
 from nodes import validate_quality
-from state import ConversationalRAGState
+from src.core.domain.state import ConversationalRAGState
 
 
 # Maximum refinement iterations

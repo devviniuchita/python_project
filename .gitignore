@@ -516,3 +516,11 @@ docs/T-13_IMPLEMENTATION_REPORT.md
 # FAISS
 !index.pkl
 !banco_faiss/
+docs/testsprite_results/test_report_backend.json
+.clinerules/byterover-rules.md
+.kilocode/rules/byterover-rules.md
+.roo/rules/byterover-rules.md
+.windsurf/rules/byterover-rules.md
+.kiro/steering/byterover-rules.md
+.qoder/rules/byterover-rules.md
+.augment/rules/byterover-rules.md

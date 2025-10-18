@@ -11,7 +11,7 @@ os.environ["LOG_FORMAT"] = "json"
 os.environ["LOG_LEVEL"] = "INFO"
 
 from structlog.contextvars import bind_contextvars
-from utils.logger import get_logger
+from src.infrastructure.logging.logger import get_logger
 
 
 logger = get_logger("test")

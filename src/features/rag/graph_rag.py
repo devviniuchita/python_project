@@ -12,7 +12,7 @@ from nodes import refine_answer
 from nodes import rerank_documents
 from nodes import retrieve_adaptive
 from nodes import validate_quality
-from state import RAGState
+from src.core.domain.state import RAGState
 
 
 # Maximum refinement iterations to prevent infinite loops

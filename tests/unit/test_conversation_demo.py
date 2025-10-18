@@ -5,7 +5,7 @@ Simula uma conversa completa para validar todas as funcionalidades
 
 import os
 
-from conversation_graph import run_conversational_query
+from src.features.conversation.conversation_graph import run_conversational_query
 from dotenv import load_dotenv
 from memory_manager import get_conversation_config
 from memory_manager import reset_conversation

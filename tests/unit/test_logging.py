@@ -19,8 +19,8 @@ from unittest.mock import patch
 import pytest
 import structlog
 
-from utils.logger import configure_logging
-from utils.logger import get_logger
+from src.infrastructure.logging.logger import configure_logging
+from src.infrastructure.logging.logger import get_logger
 
 
 class TestLoggingConfiguration:

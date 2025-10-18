@@ -14,8 +14,8 @@ import pytest
 from sklearn.metrics import roc_curve, precision_recall_curve, auc
 from unittest.mock import MagicMock, patch
 
-from reranker import rerank_documents
-from config.settings import settings
+from src.features.reranking.reranker import rerank_documents
+from src.config.settings import settings
 
 
 class TestThresholdStatisticalValidation:
@@ -38,15 +38,16 @@ class TestThresholdStatisticalValidation:
         fpr, tpr, thresholds = roc_curve(ground_truth, all_scores)
         roc_auc = auc(fpr, tpr)
 
-        print("ROC Analysis Results:"        print(f"  AUC: {roc_auc".3f"}")
-        print(f"  Optimal threshold (Youden): {thresholds[np.argmax(tpr - fpr)]".3f"}")
+        print("ROC Analysis Results:")
+        print(f"  AUC: {roc_auc:.3f}")
+        print(f"  Optimal threshold (Youden): {thresholds[np.argmax(tpr - fpr)].3f}}")
 
         # Validate that AUC is meaningful (> 0.7 indicates good discrimination)
-        assert roc_auc > 0.7, f"ROC AUC {roc_auc".3f"} is too low for effective threshold"
+        assert roc_auc > 0.7, f"ROC AUC {roc_auc:.3f} is too low for effective threshold"
 
         # Find optimal threshold using Youden's J statistic
         youden_threshold = thresholds[np.argmax(tpr - fpr)]
-        print(f"✅ PASS - ROC analysis identifies optimal threshold: {youden_threshold:.".3f")
+        print(f"✅ PASS - ROC analysis identifies optimal threshold: {youden_threshold:.3f}")
 
     def test_precision_recall_curve_analysis(self):
         """Test precision-recall curve for threshold evaluation."""
@@ -65,18 +66,19 @@ class TestThresholdStatisticalValidation:
         precision, recall, thresholds = precision_recall_curve(ground_truth, all_scores)
         pr_auc = auc(recall, precision)
 
-        print("Precision-Recall Analysis Results:"        print(f"  AUC: {pr_auc".3f"}")
-        print(f"  Max precision: {np.max(precision)".3f"}")
-        print(f"  Max recall: {np.max(recall)".3f"}")
+        print("Precision-Recall Analysis Results:")
+        print(f"  AUC: {pr_auc:.3f}")
+        print(f"  Max precision: {np.max(precision).3f}}")
+        print(f"  Max recall: {np.max(recall).3f}}")
 
         # Find threshold that balances precision and recall
         f1_scores = 2 * (precision * recall) / (precision + recall)
         best_threshold = thresholds[np.argmax(f1_scores)]
 
-        print(f"  Best F1 threshold: {best_threshold".3f"}")
+        print(f"  Best F1 threshold: {best_threshold.3f}}")
 
-        assert pr_auc > 0.3, f"PR AUC {pr_auc".3f"} is too low"
-        print(f"✅ PASS - PR curve analysis identifies balanced threshold: {best_threshold:.".3f")
+        assert pr_auc > 0.3, f"PR AUC {pr_auc:.3f} is too low"
+        print(f"✅ PASS - PR curve analysis identifies balanced threshold: {best_threshold:..3f})
 
     def test_threshold_confidence_intervals(self):
         """Test statistical confidence intervals for threshold decisions."""
@@ -110,15 +112,16 @@ class TestThresholdStatisticalValidation:
         ci_upper = np.percentile(bootstrap_thresholds, 97.5)
         mean_threshold = np.mean(bootstrap_thresholds)
 
-        print("Threshold Confidence Interval Analysis:"        print(f"  Mean threshold: {mean_threshold".3f"}")
-        print(f"  95% CI: [{ci_lower".3f"}, {ci_upper".3f"}]")
-        print(f"  CI width: {ci_upper - ci_lower".3f"}")
+        print("Threshold Confidence Interval Analysis:")
+        print(f"  Mean threshold: {mean_threshold.3f}}")
+        print(f"  95% CI: [{ci_lower.3f}}, {ci_upper.3f}}]")
+        print(f"  CI width: {ci_upper - ci_lower.3f}}")
 
         # Validate confidence interval is reasonable
-        assert ci_upper - ci_lower < 0.3, f"CI width {ci_upper - ci_lower:.".3f"is too large"
+        assert ci_upper - ci_lower < 0.3, f"CI width {ci_upper - ci_lower:..3f}is too large"
         assert ci_lower > 0.0 and ci_upper < 1.0, "CI should be within valid range"
 
-        print(f"✅ PASS - Threshold CI analysis: {mean_threshold:.".3f"± {(ci_upper-ci_lower)/2:.".3f")
+        print(f"✅ PASS - Threshold CI analysis: {mean_threshold:..3f}± {(ci_upper-ci_lower)/2:..3f})
 
 
 class TestThresholdPerformanceMetrics:
@@ -150,14 +153,14 @@ class TestThresholdPerformanceMetrics:
             recall = tp / (tp + fn) if (tp + fn) > 0 else 0
             f1 = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0
 
-            print(f"  Threshold {threshold".1f"}:")
-            print(f"    Precision: {precision".3f"}")
-            print(f"    Recall: {recall".3f"}")
-            print(f"    F1: {f1".3f"}")
+            print(f"  Threshold {threshold.1f}}:")
+            print(f"    Precision: {precision.3f}}")
+            print(f"    Recall: {recall.3f}}")
+            print(f"    F1: {f1.3f}}")
 
             # Validate performance metrics
-            assert precision >= 0.8, f"Precision {precision:.".3f"too low for threshold {threshold}"
-            assert recall >= 0.8, f"Recall {recall:.".3f"too low for threshold {threshold}"
+            assert precision >= 0.8, f"Precision {precision:..3f}too low for threshold {threshold}"
+            assert recall >= 0.8, f"Recall {recall:..3f}too low for threshold {threshold}"
 
         print("✅ PASS - All thresholds show good discriminative power")
 
@@ -182,10 +185,10 @@ class TestThresholdPerformanceMetrics:
             # Calculate accuracy
             accuracy = np.mean(predictions == ground_truth)
 
-            print(f"  {dist_name} distribution: accuracy = {accuracy".3f"}")
+            print(f"  {dist_name} distribution: accuracy = {accuracy.3f}}")
 
             # Should achieve reasonable accuracy across distributions
-            assert accuracy > 0.6, f"Poor accuracy {accuracy:.".3f"for {dist_name} distribution"
+            assert accuracy > 0.6, f"Poor accuracy {accuracy:..3f}for {dist_name} distribution"
 
         print("✅ PASS - Threshold robust across different score distributions")
 
@@ -226,15 +229,16 @@ class TestThresholdOptimization:
                 best_f1 = f1
                 best_threshold = threshold
 
-        print("Automated Threshold Tuning Results:"        print(f"  Best threshold: {best_threshold".3f"}")
-        print(f"  Best F1 score: {best_f1".3f"}")
+        print("Automated Threshold Tuning Results:")
+        print(f"  Best threshold: {best_threshold.3f}}")
+        print(f"  Best F1 score: {best_f1.3f}}")
         print(f"  Expected range: [0.5, 0.7]")
 
         # Validate optimal threshold is in expected range
-        assert 0.5 <= best_threshold <= 0.7, f"Optimal threshold {best_threshold:.".3f"outside expected range"
-        assert best_f1 > 0.8, f"F1 score {best_f1:.".3f"too low for optimal threshold"
+        assert 0.5 <= best_threshold <= 0.7, f"Optimal threshold {best_threshold:..3f}outside expected range"
+        assert best_f1 > 0.8, f"F1 score {best_f1:..3f}too low for optimal threshold"
 
-        print(f"✅ PASS - Automated threshold tuning found optimal: {best_threshold:.".3f")
+        print(f"✅ PASS - Automated threshold tuning found optimal: {best_threshold:..3f})
 
 
 if __name__ == "__main__":

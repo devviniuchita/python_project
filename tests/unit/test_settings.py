@@ -1,6 +1,6 @@
 """Test script to validate Pydantic Settings loading."""
 
-from config.settings import settings
+from src.config.settings import settings
 
 
 print("=" * 80)

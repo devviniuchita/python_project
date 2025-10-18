@@ -13,7 +13,7 @@ from unittest.mock import patch
 
 import pytest
 
-from state import RAGState
+from src.core.domain.state import RAGState
 
 
 class TestRerankerNodeIntegration:

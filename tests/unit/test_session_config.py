@@ -2,7 +2,7 @@
 
 from uuid import uuid4
 
-from models.session import SessionConfig
+from src.core.models.session import SessionConfig
 from pydantic import ValidationError
 
 

@@ -19,8 +19,8 @@ from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 
-from reranker import rerank_documents
-from config.settings import settings
+from src.features.reranking.reranker import rerank_documents
+from src.config.settings import settings
 
 
 class TestThresholdRealWorldIntegration:
@@ -183,7 +183,7 @@ class TestThresholdRealWorldIntegration:
                         reranked_docs = rerank_documents(query, retrieved_texts)
 
                         expected_min_docs = 1 if threshold >= 0.7 else (2 if threshold >= 0.5 else 3)
-                        print(f"    {strategy_name} threshold {threshold".1f"}: {len(reranked_docs)} docs (min expected: {expected_min_docs})")
+                        print(f"    {strategy_name} threshold {threshold.1f}}: {len(reranked_docs)} docs (min expected: {expected_min_docs})")
 
                         # Validate threshold effectiveness
                         assert len(reranked_docs) >= expected_min_docs, \
@@ -215,7 +215,8 @@ class TestThresholdQualityValidation:
 
             filtered_docs = rerank_documents(query, baseline_texts, top_n=5)
 
-        print("Quality Improvement Analysis:"        print(f"  Baseline retrieval: {len(baseline_texts)} documents")
+        print("Quality Improvement Analysis:")
+        print(f"  Baseline retrieval: {len(baseline_texts)} documents")
         print(f"  Threshold filtered: {len(filtered_docs)} documents")
 
         # Analyze score distribution
@@ -225,15 +226,15 @@ class TestThresholdQualityValidation:
         baseline_avg = np.mean(baseline_scores)
         filtered_avg = np.mean(filtered_scores)
 
-        print(f"  Baseline average score: {baseline_avg".3f"}")
-        print(f"  Filtered average score: {filtered_avg".3f"}")
-        print(f"  Quality improvement: {filtered_avg - baseline_avg".3f"}")
+        print(f"  Baseline average score: {baseline_avg.3f}}")
+        print(f"  Filtered average score: {filtered_avg.3f}}")
+        print(f"  Quality improvement: {filtered_avg - baseline_avg.3f}}")
 
         # Validate quality improvement
         assert filtered_avg > baseline_avg, "Threshold filtering should improve average quality"
-        assert filtered_avg > 0.6, f"Filtered quality {filtered_avg".3f"} is too low"
+        assert filtered_avg > 0.6, f"Filtered quality {filtered_avg:.3f} is too low"
 
-        print(f"✅ PASS - Quality improvement: +{filtered_avg - baseline_avg:.".3f")
+        print(f"✅ PASS - Quality improvement: +{filtered_avg - baseline_avg:.3f}")
 
     def test_adaptive_threshold_based_on_query_complexity(self, faiss_store):
         """Test adaptive threshold selection based on query complexity."""

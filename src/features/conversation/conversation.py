@@ -8,13 +8,13 @@ import os
 from typing import Any
 from typing import Dict
 
-from config.settings import settings
+from src.infrastructure.config.settings import settings
 from langchain.prompts import ChatPromptTemplate
 from langchain_core.messages import AIMessage
 from langchain_core.messages import HumanMessage
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langsmith import traceable
-from state import ConversationalRAGState
+from src.core.domain.state import ConversationalRAGState
 
 
 # Initialize LLM

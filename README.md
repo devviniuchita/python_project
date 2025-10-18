@@ -478,6 +478,31 @@ mypy src/ --strict
 .\scripts\run_quality_checks.bat  # Windows
 ```
 
+### 🤖 TestSprite: Testes Dinâmicos Automatizados (T-39)
+
+TestSprite complementa SonarQube com **testes dinâmicos** auto-gerados:
+
+```bash
+# Executar suite completa TestSprite + pytest
+./scripts/run_testsprite.sh
+
+# Opções disponíveis
+./scripts/run_testsprite.sh --skip-coverage  # Mais rápido
+./scripts/run_testsprite.sh --verbose         # Saída detalhada
+./scripts/run_testsprite.sh -X                # Debug mode
+
+# Visualizar plano de testes gerado
+cat testsprite_tests/testsprite_backend_test_plan.json
+
+# Ver relatório completo
+cat docs/testsprite_results/TESTSPRITE_REPORT.md
+```
+
+**TestSprite Generated Tests**: 9 test cases cobrindo RAG, Reranking, Conversations
+**Integration**: SonarQube (T-32) + Pre-commit (T-33) + Copyright (T-31) + TestSprite (T-39)
+**Docs**: [docs/TESTING_WITH_TESTSPRITE.md](docs/TESTING_WITH_TESTSPRITE.md)
+**CI/CD**: Automatizado via [.github/workflows/testsprite-automation.yml](.github/workflows/testsprite-automation.yml)
+
 ---
 
 <a id="documentação"></a>
@@ -952,7 +977,130 @@ Este projeto é construído com tecnologias incríveis:
 
 ---
 
-## 🔗 Referências e Tecnologias
+## � Qualidade de Código
+
+### 📊 Code Quality Gates
+
+Este projeto implementa um sistema robusto de qualidade de código através de múltiplas ferramentas integradas:
+
+<div align="center">
+
+| Métrica                         | Target       | Ferramenta  | Status         |
+| ------------------------------- | ------------ | ----------- | -------------- |
+| 🔄 **Complexidade Ciclomática** | < 15         | SonarQube   | ✅ Monitorado  |
+| 📋 **Duplicação de Código**     | < 3%         | SonarQube   | ✅ Monitorado  |
+| 🧪 **Cobertura de Testes**      | > 80%        | pytest-cov  | ✅ Obrigatório |
+| 🛡️ **Security Hotspots**        | OWASP Top 10 | SonarQube   | ✅ Monitorado  |
+| 📝 **Formatação de Código**     | PEP 8        | Black/isort | ✅ Pre-commit  |
+| 🧠 **Type Checking**            | Strict       | mypy        | ✅ Pre-commit  |
+
+</div>
+
+### 🔍 Ferramentas de Análise
+
+#### **Pre-commit Framework** (T-33)
+
+```bash
+# Validação automática em cada commit
+git commit -m "message"
+# Executa: Black, isort, flake8, mypy, pylint, bandit
+```
+
+📖 Veja: [.pre-commit-config.yaml](.pre-commit-config.yaml)
+
+#### **SonarQube** (T-32)
+
+- 🌐 **Cloud**: SonarCloud.io (recomendado)
+- 🏢 **On-Premise**: Docker Community Edition
+- 🔗 **CI/CD**: GitHub Actions (automático em PRs e merges)
+- 📊 **Dashboard**: Métricas em tempo real
+- 🚨 **Quality Gates**: Bloqueia PRs com falhas críticas
+
+```bash
+# Executar análise local
+bash scripts/run_sonarqube.sh
+
+# Acessar Dashboard
+open https://sonarcloud.io/projects/[seu-projeto]
+```
+
+📖 Veja: [docs/compliance/SONARQUBE_SETUP.md](docs/compliance/SONARQUBE_SETUP.md)
+
+#### **GitHub Actions** (T-32)
+
+- ✅ Executa em: Push (main/develop) e PRs
+- 📦 Artefatos: Relatórios de cobertura (30 dias)
+- 💬 Comentários automáticos em PRs com resultados
+- 🎯 Bloqueia merge se quality gates falharem
+
+Workflow: [.github/workflows/sonarqube-check.yml](.github/workflows/sonarqube-check.yml)
+
+### 📂 Estrutura de Compliance
+
+```
+docs/compliance/
+├── SONARQUBE_SETUP.md          # 📖 Guia completo SonarQube
+├── sonar-project.properties    # ⚙️ Configuração SonarQube
+└── ARCHITECTURE_DECISIONS.md   # 🏗️ ADRs (Architectural Decision Records)
+
+.github/
+├── workflows/
+│   └── sonarqube-check.yml     # 🔄 CI/CD pipeline
+└── copilot-rules/
+    └── *.md                    # 📋 Regras de desenvolvimento
+
+scripts/
+└── run_sonarqube.sh            # 🚀 Local testing helper
+```
+
+### 🎯 Setup Rápido (Primeira Vez)
+
+#### 1️⃣ **Instalar Pre-commit**
+
+```bash
+pip install pre-commit
+pre-commit install
+```
+
+#### 2️⃣ **Configurar SonarQube** (Opcional - Recomendado)
+
+```bash
+# Clonar .env
+cp .env.example .env
+
+# Preencher variáveis SonarQube
+# SONAR_HOST_URL=https://sonarcloud.io
+# SONAR_TOKEN=seu_token_aqui
+# SONAR_PROJECT_KEY=python_project
+
+# Testar localmente
+bash scripts/run_sonarqube.sh
+```
+
+#### 3️⃣ **Integração GitHub** (Automática após setup)
+
+- Secrets já configurados → Workflow executa automaticamente
+- PR recebe comentário com resultados
+- Merge é bloqueado se gates falharem
+
+### 🔗 Integração com Outras Ferramentas
+
+- **T-31**: [Copyright Headers](scripts/add_copyright_headers.py) - Metadata automático em arquivos
+- **T-33**: [Pre-commit Framework](.pre-commit-config.yaml) - Validação local em commits
+- **T-32**: [SonarQube Setup](docs/compliance/SONARQUBE_SETUP.md) - Análise central em CI/CD
+- **T-39**: TestSprite Integration (em breve) - Testes automatizados
+
+### 📈 Métricas Atuais
+
+Verifique em tempo real:
+
+- 🌐 [SonarCloud Dashboard](https://sonarcloud.io/projects/python_project)
+- 🐍 [Coverage Report](coverage_html/)
+- 🔄 [GitHub Actions Runs](.github/workflows/sonarqube-check.yml)
+
+---
+
+## �🔗 Referências e Tecnologias
 
 Este projeto utiliza e se baseia em tecnologias e frameworks de ponta:
 

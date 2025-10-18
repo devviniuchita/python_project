@@ -7,9 +7,9 @@ from typing import Dict
 from typing import List
 from typing import Optional
 
-from config.settings import settings
+from src.infrastructure.config.settings import settings
 from langsmith import Client
-from utils.logger import get_logger
+from src.infrastructure.utils.logger import get_logger
 
 
 # Module logger

@@ -21,12 +21,12 @@ import langsmith
 import numpy as np
 import torch
 
-from config.settings import settings
+from src.infrastructure.config.settings import settings
 from langchain_core.documents import Document
 from langsmith import traceable
 from sentence_transformers import CrossEncoder
 from structlog.contextvars import bind_contextvars
-from utils.logger import get_logger
+from src.infrastructure.utils.logger import get_logger
 
 
 # Module logger
