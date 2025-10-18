@@ -5,7 +5,7 @@ description: 'Project rules, to define and standardize stacks and versions that 
 aiOptimized: true
 alwaysApply: false
 applyManually: true
-syncWith: ['.github/copilot-rules/project-codification.md']
+syncWith: ['.github/copilot-rules/project-codification.md'](project-codification.md)
 ---
 
 # 🔒 SISTEMA DE REGRAS IMUTÁVEIS - MCP TreeOfThoughts
@@ -16,246 +16,194 @@ syncWith: ['.github/copilot-rules/project-codification.md']
 
 ### Clean Architecture (OBRIGATÓRIO)
 
-- **Camadas**: Controllers → Services → Repositories → Entities
-- **Dependency Inversion**: Dependências apontam para dentro via interfaces e @Autowired
-- **Separation of Concerns**: Responsabilidades bem definidas, com injeção de dependência via Spring
-- **Domain Independence**: Entidades independentes de infraestrutura (use JPA annotations)
+- **Camadas**: Apresentação (CLI/Handlers) → Orquestração (LangGraph) → Lógica de Negócio (RAG Nodes) → Serviços Especializados (Config/Logging/Infra)
+- **Dependency Boundaries**: Cada camada consome somente contratos da camada imediatamente inferior (`RAGState`, `SessionConfig`, helpers do Layer 4).
+- **Separation of Concerns**: Camada 1 trata entrada/saída e comandos; Camada 2 monta o grafo `StateGraph`; Camada 3 transforma o estado com estratégias especializadas; Camada 4 encapsula integrações externas (FAISS, LangSmith, CrossEncoder, Settings).
+- **Domain Independence**: Contratos em `src/core/domain` permanecem puros (sem dependências de infraestrutura) e são reutilizados em todas as camadas.
 
 _Otimização Tips (YOLO Mode):_
 
--
-- Evite controllers gordos: Delegue lógica para services imediatamente.
-- Métrica de alavancagem: Classes <250 LOC para manutenção rápida.
+- Novo handler? implemente em `scripts/` ou `src/features/conversation/` e delegue tudo para o grafo.
+- Monitore dependências com `python -m compileall` + `pip install import-linter` para garantir fluxo unidirecional (Layer 1 → Layer 4).
+- Métrica prática: nenhum módulo deve importar camadas superiores; falhas nessa regra aumentam o acoplamento e devem ser bloqueadas.
 
 ### OOP Principles (SOLID - INQUEBRÁVEIS)
 
-- **S** - Single Responsibility: Uma responsabilidade por classe (ex: @Service para lógica de negócio isolada)
-- **O** - Open/Closed: Extensão sem modificação (use interfaces e subclasses)
-- **L** - Liskov Substitution: Subtipos substituíveis sem quebrar contratos
-- **I** - Interface Segregation: Interfaces específicas e cliente-orientadas
-- **D** - Dependency Inversion: Abstrações não implementações (Spring DI obrigatório)
+- **S** - Single Responsibility: Cada módulo com escopo único (`retrieve_adaptive` só cuida de buscar documentos).
+- **O** - Open/Closed: Extensão via novos nodes/serviços sem modificar comportamento existente.
+- **L** - Liskov Substitution: Subclasses e contratos (ex.: `Settings(BaseSettings)`) substituem a base sem quebrar consumidores.
+- **I** - Interface Segregation: Camadas consomem apenas os campos necessários (`SessionConfig`, `RAGState`), evitando APIs gordas.
+- **D** - Dependency Inversion: Layer 2 depende de assinaturas (`state -> dict`) ao invés de implementações concretas.
 
 _Otimização Tips (YOLO Mode):_
 
-- Verifique **S** com tool como **SonarQube**: Flag classes com >1 responsabilidade
-- Para **O**, prefira composição sobre herança para evitar fragilidade
-  <impact>: Reduza bugs em 40% com testes unitários em interfaces segregadas.</impact>
+- Verifique **S** com ferramentas como **SonarQube**/cognitive complexity.
+- Para **O**, adicione novas estratégias em módulos separados e integre via LangGraph.
+  <impact>: Reduza bugs em 40% com testes unitários focados em contratos pequenos.</impact>
 
 ### OOP (OBJECT-ORIENTED PROGRAMMING) - MANDATORY COMPLIANCE:
 
-#### **1. Abstraction - Abstract Base Classes & Protocols**
+#### **1. Abstraction - Contratos Tipados que isolam responsabilidades**
 
-Define interfaces claras usando `abc.ABC` ou `typing.Protocol` para separar contrato de implementação.
+Usamos `TypedDict` e `Literal` para declarar contratos imutáveis que separam o **o quê** do **como**, reforçando o `S` (Single Responsibility) de SOLID.
 
 ```yaml
-Pattern: ABC (Abstract Base Class) ou Protocol (Structural Subtyping)
-Module: abc, typing.Protocol
-Reference: PEP 3119, PEP 544
-Enforcement: @abstractmethod decorator
+Pattern: TypedDict + Literal (contrato estático)
+Module: typing.TypedDict, typing.Literal, pydantic.Field
+Reference: PEP 589 (TypedDict)
+Enforcement: Camada 2 (LangGraph) aceita apenas dicionários compatíveis com RAGState
 ```
 
-**Python Example - ABC Pattern:**
+**Python Example - Contrato de estado compartilhado:**
+
 ```python
-from abc import ABC, abstractmethod
+from typing import Annotated, List, Literal, Sequence, TypedDict
+from pydantic import Field
 
-# File: src/core/services/memory_manager.py
-class ConversationManager(ABC):
-    """Abstract interface para gerenciamento de conversação."""
+# File: src/core/domain/state.py (Linhas 10-38)
+class RAGState(TypedDict):
+  question: str
+  complexity: Literal["simple", "complex"]
+  documents: List[str]
+  generation: str
+  quality_score: Annotated[float, Field(ge=0.0, le=1.0)]
+  iterations: Annotated[int, Field(ge=0)]
 
-    @abstractmethod
-    def get_or_create_session(self, user_id: str) -> str:
-        """Create or retrieve session ID."""
-        pass
-
-    @abstractmethod
-    def reset_session(self, user_id: str) -> str:
-        """Reset conversation session."""
-        pass
+class ConversationalRAGState(TypedDict):
+  messages: Annotated[Sequence[BaseMessage], add_messages]
+  question: str
+  complexity: Literal["simple", "complex"]
+  documents: List[str]
+  generation: str
+  quality_score: Annotated[float, Field(ge=0.0, le=1.0)]
+  iterations: Annotated[int, Field(ge=0)]
+  is_followup: bool
+  original_question: str
 ```
 
-**Python Example - Protocol Pattern:**
-```python
-from typing import Protocol
+📌 **Como aplicar:** qualquer novo node da Camada 3 deve aceitar `RAGState` e retornar apenas os campos que realmente altera. Isso mantém o fluxo de dados coerente e fácil de testar.
 
-# Structural subtyping - duck typing com type hints
-class Reranker(Protocol):
-    """Protocol for reranking strategies."""
-
-    def score(self, query: str, documents: list[str]) -> list[float]:
-        """Score documents for relevance."""
-        ...
-```
-
-_Otimização Tips:_ Use `Protocol` para interfaces implícitas (duck typing tipado), `ABC` para hierarquias explícitas.
+_Otimização Tips:_ reutilize `TypedDict` sempre que precisar de contratos leves; `BaseModel` só é indicado quando validação em runtime for indispensável (cuidado com o overhead de ~2.5x).
 
 ---
 
-#### **2. Encapsulation - Properties & Data Validation**
+#### **2. Encapsulation - Validação automática + propriedades calculadas**
 
-Proteja dados internos usando properties decorators e validação automática via Pydantic.
-
-```yaml
-Pattern: @property decorator, Pydantic BaseSettings
-Module: pydantic, @property
-Reference: Python data model, Pydantic v2
-Enforcement: Type hints + validators
-```
-
-**Python Example - Pydantic Encapsulation:**
-```python
-from pydantic import BaseSettings, Field, field_validator
-
-# File: src/infrastructure/config/settings.py (Line 18)
-class Settings(BaseSettings):
-    """Encapsulated configuration with automatic validation."""
-
-    reranker_enabled: bool = Field(True, description="Enable reranking")
-    reranker_model: str = Field("BAAI/bge-reranker-base", description="Model name")
-
-    @field_validator("reranker_model")
-    @classmethod
-    def validate_model_name(cls, v: str) -> str:
-        """Validate model name format."""
-        if not v or "/" not in v:
-            raise ValueError("Model must be in format 'org/model'")
-        return v
-
-    class Config:
-        env_prefix = "PYTHON_RAG_"
-```
-
-**Python Example - Property Pattern:**
-```python
-# Domain model with encapsulation
-class SessionConfig:
-    def __init__(self, memory_window: int):
-        self._memory_window = memory_window
-
-    @property
-    def memory_window(self) -> int:
-        """Get memory window (read-only)."""
-        return self._memory_window
-
-    @property
-    def max_tokens(self) -> int:
-        """Compute derived value (encapsulated logic)."""
-        return self._memory_window * 512  # Bytes to tokens
-```
-
-_Otimização Tips:_ Combine Pydantic para objetos complexos, @property para valores computados ou validados.
-
----
-
-#### **3. Inheritance - Class Hierarchies & Extension**
-
-Reutilize funcionalidade comum através de classes base, mantendo Liskov Substitution Principle.
+Configurações e modelos de sessão ocultam detalhes internos via Pydantic, garantindo que somente estados válidos circulem entre camadas.
 
 ```yaml
-Pattern: Inheritance chains, BaseModel extension
-Module: pydantic (BaseSettings, BaseModel)
-Reference: SOLID L - Liskov Substitution
-Enforcement: Subclass contracts via type hints
+Pattern: Pydantic BaseModel/BaseSettings + propriedades read-only
+Module: pydantic.BaseModel, pydantic.Field, pydantic.field_validator
+Reference: SOLID I (Interface Segregation) – expõe somente o que o cliente precisa
+Enforcement: `model_config = ConfigDict(frozen=True)` evita mutação após criação
 ```
 
-**Python Example - Pydantic Inheritance:**
-```python
-from pydantic import BaseModel, Field
+**Python Example - Configuração imutável com validação:**
 
-# File: src/core/domain/session.py (Line 16)
+```python
+from uuid import UUID
+from pydantic import BaseModel, ConfigDict, Field, field_validator, ValidationInfo
+
+# File: src/core/domain/session.py (Linhas 12-78)
 class SessionConfig(BaseModel):
-    """Base session configuration."""
-    memory_window: int = Field(default=5, ge=1, le=50)
-    user_id: str = Field(default="default")
+  thread_id: UUID = Field(..., description="Unique UUID for conversation thread")
+  max_turns: int = Field(default=10, ge=1, description="Maximum turns")
+  memory_window: int = Field(default=6, ge=1, le=20, description="Context window")
 
-    @field_validator("memory_window")
-    @classmethod
-    def validate_memory_window(cls, v: int) -> int:
-        """Validate memory window bounds."""
-        if v < 1 or v > 50:
-            raise ValueError("Memory window must be between 1-50")
-        return v
+  model_config = ConfigDict(frozen=True, validate_assignment=True)
 
-class ConversationalSessionConfig(SessionConfig):
-    """Extended configuration for conversational RAG."""
-    max_iterations: int = Field(default=3, ge=1, le=10)
-    clarification_threshold: float = Field(default=0.7, ge=0.0, le=1.0)
+  @field_validator('memory_window')
+  @classmethod
+  def validate_memory_window(cls, v: int, info: ValidationInfo) -> int:
+    max_turns = info.data.get('max_turns', 10)
+    if v > max_turns:
+      raise ValueError("memory_window cannot exceed max_turns")
+    return v
+
+  @property
+  def memory_ratio(self) -> float:
+    """Return utilization ratio between memory window and max_turns."""
+    return self.memory_window / self.max_turns
 ```
 
-_Otimização Tips:_ Prefira Pydantic inheritance sobre plain classes para validação automática. Max 2 níveis de herança.
+📌 **Como aplicar:** exponha apenas métodos de leitura (`get_config`, `memory_ratio`) e deixe que Pydantic rejeite estados inválidos automaticamente — evita `if` redundante em cada camada.
+
+_Otimização Tips:_ Em objetos de configuração, use `frozen=True` para forçar imutabilidade; para campos derivados (ex.: métricas) crie propriedades calculadas ao invés de duplicar valores no estado.
 
 ---
 
-#### **4. Polymorphism - Multiple Implementations & Runtime Dispatch**
+#### **3. Inheritance - Reuso seguro com classes base Pydantic**
 
-Permita diferentes implementações de mesma interface usando `@abstractmethod` ou `Protocol`.
+Aplicamos herança quando o framework já entrega comportamento reutilizável (ex.: `BaseSettings`, `BaseModel`). Isso garante substituição segura (L de SOLID) sem criar hierarquias profundas.
 
 ```yaml
-Pattern: @abstractmethod, Protocol, LangGraph nodes
-Module: abc, typing.Protocol
-Reference: SOLID D - Dependency Inversion
-Enforcement: Interface contracts via inheritance
+Pattern: Subclasse especializada herdando validação/base behavior
+Module: pydantic.BaseSettings, pydantic.BaseModel
+Reference: SOLID L - Subclasses não quebram o contrato da base
+Enforcement: Validadores e campos herdados permanecem compatíveis
 ```
 
-**Python Example - Strategy Pattern with @abstractmethod:**
+**Python Example - Configuração derivada de BaseSettings:**
+
 ```python
-from abc import ABC, abstractmethod
+from pydantic import BaseSettings, Field
+
+# File: src/infrastructure/config/settings.py (Linhas 18-52)
+class Settings(BaseSettings):
+  langsmith_api_key: str = Field(..., description="LangSmith API Key")
+  llm_model: str = Field(default="gemini-2.0-flash-exp")
+  reranker_enabled: bool = Field(default=True)
+  reranker_model: str = Field(default="BAAI/bge-reranker-base")
+
+  class Config:
+    env_file = ".env"
+    env_prefix = "PYTHON_RAG_"
+```
+
+📌 **Como aplicar:** herde apenas quando o framework oferece comportamento valioso (validação automática, carregamento de `.env`, etc.). Evite cadeias >2 níveis — prefira composição com helpers do Layer 4.
+
+_Otimização Tips:_ Centralize toda configuração sensível em subclasses de `BaseSettings` para aproveitar caching interno e evitar boilerplate manual.
+
+---
+
+#### **4. Polymorphism - Implementações intercambiáveis no pipeline RAG**
+
+LangGraph trata cada node como algo que recebe `RAGState` e devolve um diff de estado. Isso nos permite trocar implementações sem alterar a orquestração — polimorfismo funcional alinhado ao `D` (Dependency Inversion) de SOLID.
+
+```yaml
+Pattern: Funções puras com mesma assinatura (state in → state diff out)
+Module: langsmith.traceable (decorator), state.RAGState
+Reference: SOLID D - camadas superiores dependem de abstrações (assinatura comum)
+Enforcement: StateGraph só aceita callables `Callable[[RAGState], RAGState]`
+```
+
+**Python Example - Nós intercambiáveis no LangGraph:**
+
+```python
+from langsmith import traceable
 
 # File: src/features/rag/nodes.py
-class RAGNode(ABC):
-    """Base class for RAG pipeline nodes."""
+@traceable(run_type="chain", name="Classify Question Complexity")
+def classify_question(state: RAGState) -> RAGState:
+  question = state["question"]
+  ...
+  return {"complexity": complexity}
 
-    @abstractmethod
-    def execute(self, state: RAGState) -> RAGState:
-        """Execute node transformation on state."""
-        pass
+@traceable(run_type="retriever", name="Adaptive Document Retrieval")
+def retrieve_adaptive(state: RAGState) -> RAGState:
+  complexity = state["complexity"]
+  ...
+  return {"documents": documents}
 
-class ClassifyQuestionNode(RAGNode):
-    def execute(self, state: RAGState) -> RAGState:
-        # Classify input question
-        return state
-
-class RetrievalNode(RAGNode):
-    def execute(self, state: RAGState) -> RAGState:
-        # Retrieve documents from FAISS
-        return state
-
-class RerankerNode(RAGNode):
-    def execute(self, state: RAGState) -> RAGState:
-        # Rerank documents with BGE
-        return state
-
-# Runtime dispatch - polymorphism
-def apply_node(node: RAGNode, state: RAGState) -> RAGState:
-    """Apply any RAG node - compiler ensures execute() exists."""
-    return node.execute(state)
+@traceable(run_type="chain", name="BGE Semantic Reranking")
+def rerank_documents(state: RAGState) -> RAGState:
+  ...
+  return {"documents": reranked_docs}
 ```
 
-**Python Example - Protocol Polymorphism:**
-```python
-from typing import Protocol
+📌 **Como aplicar:** qualquer nova estratégia (ex.: sumarização, filtragem) deve seguir a mesma assinatura `def node(state: RAGState) -> RAGState:`. O grafo decide a ordem; nós são plugáveis, possibilitando testes A/B sem alterar a Camada 2.
 
-class Reranker(Protocol):
-    """Protocol - any class with score() method works."""
-    def score(self, query: str, docs: list[str]) -> list[float]:
-        ...
-
-# Different implementations
-class BGEReranker:
-    def score(self, query: str, docs: list[str]) -> list[float]:
-        # BGE CrossEncoder scoring
-        pass
-
-class MockReranker:
-    def score(self, query: str, docs: list[str]) -> list[float]:
-        # Test mock implementation
-        pass
-
-# Both satisfy protocol - true polymorphism
-reranker1: Reranker = BGEReranker()
-reranker2: Reranker = MockReranker()
-```
-
-_Otimização Tips:_ Use `Protocol` para duck typing, `ABC` para contratos explícitos. LangGraph nodes como polimorfismo funcional.
+_Otimização Tips:_ Concentre-se em manter nodes puros (sem efeitos colaterais) — isso facilita swap entre implementações e permite mocks simples em testes unitários.
 
 ---
 
@@ -307,16 +255,16 @@ Rule Compliance:
 
 ### Validation Tools & Methods
 
-| Rule | Tool | Method | Trigger | Consequence |
-|---|---|---|---|---|
-| **Clean Architecture** | SonarQube | Module analysis | Pre-commit | Build failure |
-| **SOLID Principles** | SonarQube | Complexity <15, 0% duplication | Pre-commit | Block commit |
-| **Type Hints** | mypy | Strict type checking | Pre-commit | Reject commit |
-| **Copyright Headers** | Workflow (python script) | add_copyright_headers.py | Pre-commit | Auto-add or block |
-| **Code Review** | GitHub | Approval required | PR | Block merge |
-| **DCO Sign-off** | GitHub Actions | dco-check.yml | Commit | Reject commit |
-| **Imports** | isort | Auto-organization | Pre-commit | Auto-fix |
-| **Code Style** | Black | 88 char lines | Pre-commit | Auto-format |
+| Rule                   | Tool                     | Method                         | Trigger    | Consequence       |
+| ---------------------- | ------------------------ | ------------------------------ | ---------- | ----------------- |
+| **Clean Architecture** | SonarQube                | Module analysis                | Pre-commit | Build failure     |
+| **SOLID Principles**   | SonarQube                | Complexity <15, 0% duplication | Pre-commit | Block commit      |
+| **Type Hints**         | mypy                     | Strict type checking           | Pre-commit | Reject commit     |
+| **Copyright Headers**  | Workflow (python script) | add_copyright_headers.py       | Pre-commit | Auto-add or block |
+| **Code Review**        | GitHub                   | Approval required              | PR         | Block merge       |
+| **DCO Sign-off**       | GitHub Actions           | dco-check.yml                  | Commit     | Reject commit     |
+| **Imports**            | isort                    | Auto-organization              | Pre-commit | Auto-fix          |
+| **Code Style**         | Black                    | 88 char lines                  | Pre-commit | Auto-format       |
 
 ### Pre-Commit Hooks Enforcement
 
@@ -414,6 +362,7 @@ jobs:
 ### Compliance Verification Checklist
 
 **Before Every Commit:**
+
 - [ ] Type hints added (mypy strict)
 - [ ] SOLID principles respected (<15 cognitive complexity)
 - [ ] Clean Architecture maintained (4 layers)
@@ -425,6 +374,7 @@ jobs:
 - [ ] DCO sign-off included (`git commit -s`)
 
 **Before Every PR:**
+
 - [ ] All pre-commit checks passing
 - [ ] GitHub Actions passing
 - [ ] Code review approved

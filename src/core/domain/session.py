@@ -77,3 +77,8 @@ class SessionConfig(BaseModel):
                 f"memory_window ({v}) cannot exceed max_turns ({max_turns})"
             )
         return v
+
+    @property
+    def memory_ratio(self) -> float:
+        """Return utilization ratio between memory window and max_turns."""
+        return self.memory_window / self.max_turns
