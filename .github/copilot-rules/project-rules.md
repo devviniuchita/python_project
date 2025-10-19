@@ -708,4 +708,4 @@ jobs:
 
 ---
 
-_This document defines the development, coding, security and deployment rules for the PROJECT PYTHON_PROJECT_
+_This document defines the development, coding, security and deployment rules for the PROJECT PYTHON PROJECT_

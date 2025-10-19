@@ -189,6 +189,7 @@ python app.py
 ```
 
 **O que acontece:**
+
 - Demonstra single-turn e multi-turn RAG
 - Usa banco FAISS local
 - Mostra reranking semântico com BGE
@@ -204,11 +205,13 @@ python scripts/chat.py
 ```
 
 **Comandos disponíveis:**
+
 - `/reset` - Reiniciar conversação
 - `/quit` - Sair do chat
 - `/help` - Mostrar comandos
 
 **Exemplo de uso:**
+
 ```
 You: O que é Retrieval-Augmented Generation?
 Assistant: RAG é uma técnica que combina...
@@ -291,6 +294,7 @@ git commit -m "feat(reranker): adicionar threshold adaptativo"
 ```
 
 **Formatos de commit:**
+
 - `feat:` - Nova funcionalidade
 - `fix:` - Correção de bug
 - `docs:` - Documentação
@@ -361,6 +365,7 @@ pre-commit autoupdate
 ### Problema: `bash: python: command not found`
 
 **Solução:**
+
 ```bash
 # Usar python3 explicitamente
 python3 --version
@@ -370,12 +375,14 @@ python3 -m venv venv
 ### Problema: Pre-commit falha com erros SSL/TLS
 
 **Solução:**
+
 - Consulte guia completo: [docs/TROUBLESHOOT_PRECOMMIT_TLS.md](TROUBLESHOOT_PRECOMMIT_TLS.md)
 - Resumo: Configure `pip.ini` com certificado CA corporativo
 
 ### Problema: `ModuleNotFoundError: No module named 'src'`
 
 **Solução:**
+
 ```bash
 # Verificar que ambiente virtual está ativo
 which python  # Deve apontar para venv/bin/python
@@ -387,6 +394,7 @@ pip install -r requirements.txt
 ### Problema: FAISS index não encontrado
 
 **Solução:**
+
 ```bash
 # Verificar caminho em .env
 cat .env | grep FAISS_INDEX_PATH
@@ -438,11 +446,11 @@ ls -la src/infrastructure/database/banco_faiss
 
 <div align="center">
 
-| Canal | Descrição | Tempo de Resposta |
-|-------|-----------|-------------------|
-| 🐛 **[GitHub Issues](https://github.com/devviniuchita/python_project/issues)** | Bugs e feature requests | 1-3 dias |
-| 💬 **[GitHub Discussions](https://github.com/devviniuchita/python_project/discussions)** | Perguntas e discussões | Comunidade |
-| 📧 **Email** | viniciusuchita@gmail.com | 24-48h |
+| Canal                                                                                    | Descrição                | Tempo de Resposta |
+| ---------------------------------------------------------------------------------------- | ------------------------ | ----------------- |
+| 🐛 **[GitHub Issues](https://github.com/devviniuchita/python_project/issues)**           | Bugs e feature requests  | 1-3 dias          |
+| 💬 **[GitHub Discussions](https://github.com/devviniuchita/python_project/discussions)** | Perguntas e discussões   | Comunidade        |
+| 📧 **Email**                                                                             | viniciusuchita@gmail.com | 24-48h            |
 
 </div>
 
