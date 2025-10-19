@@ -23,7 +23,7 @@ from sentence_transformers import CrossEncoder
 from structlog.contextvars import bind_contextvars
 
 from src.infrastructure.config.settings import settings
-from src.infrastructure.utils.logger import get_logger
+from src.infrastructure.logging.logger import get_logger
 
 # Module logger
 logger = get_logger(__name__)
