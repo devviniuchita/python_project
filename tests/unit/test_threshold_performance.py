@@ -10,9 +10,13 @@ Tests cover:
 """
 
 import time
-from concurrent.futures import Future, ThreadPoolExecutor, as_completed
+
+from concurrent.futures import Future
+from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import as_completed
 from typing import List
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
+from unittest.mock import patch
 
 import numpy as np
 import psutil
@@ -172,7 +176,7 @@ class TestThresholdPerformance:
         # Validate results
         assert len(results) == n_concurrent, "Not all requests completed"
         for i, result in enumerate(results):
-            result_len = len(result) if hasattr(result, '__len__') else 0
+            result_len = len(result) if hasattr(result, "__len__") else 0
             assert (
                 result_len <= 20
             ), f"Query {i} returned too many results: {result_len}"
@@ -278,7 +282,7 @@ class TestThresholdStressTesting:
 
     def test_empty_and_minimal_inputs(self) -> None:
         """Test behavior with minimal and empty inputs."""
-        test_cases = [
+        test_cases: List[tuple[List[str], str]] = [
             ([], "Should handle empty document list"),
             (["single document"], "Should handle single document"),
             (["doc1", "doc2"], "Should handle minimal document set"),
@@ -297,14 +301,15 @@ class TestThresholdStressTesting:
 
                 mock_get_reranker.return_value = mock_reranker
 
-                result: List[str] = rerank_documents("test query", documents)
+                result = rerank_documents("test query", documents)
 
-                print(f"  {description}: {len(result)} results")
+                result_len = len(result) if hasattr(result, "__len__") else 0
+                print(f"  {description}: {result_len} results")
 
                 # Validate minimal input handling
                 assert isinstance(result, list), "Result should be a list"
                 if not documents:
-                    assert len(result) == 0, "Empty input should return empty list"
+                    assert result_len == 0, "Empty input should return empty list"
 
         print("✅ PASS - Minimal and empty inputs handled correctly")
 
