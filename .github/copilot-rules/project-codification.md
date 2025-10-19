@@ -1,3 +1,4 @@
+<!-- CHUNK: codif-metadata | Lines: 1-89 | Keywords: metadata, quick-navigation-index, search-shortcuts | Tokens: ~700 -->
 ---
 metadata: |
 name: '.github/copilot-rules/project-codification.md'
@@ -87,6 +88,8 @@ syncWith: ['.github\copilot-rules\project-rules.md'](project-rules.md)
 
 ---
 
+<!-- END CHUNK: codif-metadata -->
+<!-- CHUNK: codif-layer1-part1 | Lines: 90-195 | Keywords: presentation-layer, cli-interface, command-pattern | Tokens: ~1100 -->
 ## 🏗️ ARQUITETURA ENTERPRISE HIERÁRQUICA - PADRÕES VALIDADOS
 
 ### ✅ **CAMADA 1: APRESENTAÇÃO (CLI/HTTP Interface)**
@@ -193,6 +196,8 @@ def reset_conversation(user_id: str = "default") -> None:
     """Delegate session reset to Layer 4."""
     conversation_manager.reset_session(user_id)
 ```
+<!-- END CHUNK: codif-layer1-part1 -->
+<!-- CHUNK: codif-layer1-part2 | Lines: 196-303 | Keywords: traceable, graph-invoke, handler-pattern | Tokens: ~1100 -->
 
 **Fluxo de Comunicação (Layer 1):**
 
@@ -301,6 +306,8 @@ Layer_1_Boundaries:
 
 Dependency_Direction:
   'UP': 'Receives from user/client'
+<!-- END CHUNK: codif-layer1-part2 -->
+<!-- CHUNK: codif-layer2-part1 | Lines: 304-450 | Keywords: orchestration, stategraph, add-node | Tokens: ~1500 -->
   'DOWN': 'Delegates to Layer 2 (Orchestration)'
   'SIDE': 'Uses Layer 4 (Memory Manager) for sessions'
   'NEVER': 'Circular dependencies, direct Layer 3/4 business logic'
@@ -448,6 +455,8 @@ def run_rag_query(question: str) -> str:
 
     # Extract result
     return final_state["generation"]
+<!-- END CHUNK: codif-layer2-part1 -->
+<!-- CHUNK: codif-layer2-part2 | Lines: 451-580 | Keywords: add-edge, compile, conditional-edges | Tokens: ~1350 -->
 
 # 5. MEMORY INTEGRATION (Persistence)
 # File: src/features/conversation/conversation_graph.py (Lines 72-140)
@@ -578,6 +587,8 @@ class RAGState(TypedDict):
     question: str
     complexity: Literal["simple", "complex"]  # Type-safe enum
     documents: list
+<!-- END CHUNK: codif-layer2-part2 -->
+<!-- CHUNK: codif-layer2-part3 | Lines: 581-655 | Keywords: graph-patterns, routing-logic | Tokens: ~780 -->
     generation: str
     quality_score: Annotated[float, Field(ge=0.0, le=1.0)]  # Bounded
     iterations: Annotated[int, Field(ge=0)]  # Non-negative
@@ -653,6 +664,8 @@ Dependency_Direction:
 
 Type_Safety:
   'TypedDict': 'Compile-time schema validation'
+<!-- END CHUNK: codif-layer2-part3 -->
+<!-- CHUNK: codif-layer3-part1 | Lines: 656-740 | Keywords: business-logic, retrieve-adaptive, rag-nodes | Tokens: ~880 -->
   'Literal': 'Enum-safe values (simple/complex)'
   'Annotated': 'Field constraints (0.0-1.0, ge=0)'
   'Mypy': 'All type hints checked'
@@ -738,6 +751,8 @@ def rerank_documents(state: RAGState) -> RAGState:
     reranker.top_n = top_n
     reranked_docs = reranker.compress_documents(doc_objects, state["question"])
     reranker.top_n = original_top_n
+<!-- END CHUNK: codif-layer3-part1 -->
+<!-- CHUNK: codif-layer3-part2 | Lines: 741-820 | Keywords: rerank-documents, crossencoder | Tokens: ~840 -->
     return {"documents": [doc.page_content for doc in reranked_docs]}
 
 # 4. Geração de respostas (strategy: generation)
@@ -818,6 +833,8 @@ def rerank_documents(query: str, documents: List[str], top_n: Optional[int] = No
 **Pipeline Camada 3 (Pseudocódigo)**
 
 ```python
+<!-- END CHUNK: codif-layer3-part2 -->
+<!-- CHUNK: codif-layer3-part3 | Lines: 821-887 | Keywords: generate-answer, llm-node | Tokens: ~700 -->
 def business_logic_pipeline(question: str) -> str:
     state = {"question": question, "documents": [], "iterations": 0}
     state |= classify_question(state)
@@ -885,6 +902,8 @@ Observability:
 7. ✅ Fallbacks funcionando (quando reranker desabilitado ou sem documentos).
 
 **Limites e Fronteiras**
+<!-- END CHUNK: codif-layer3-part3 -->
+<!-- CHUNK: codif-layer4-part1 | Lines: 888-980 | Keywords: specialized-services, infrastructure, settings | Tokens: ~960 -->
 
 - Inclui: prompts, heurísticas, thresholds, manipulação de documentos, cálculos de score, loops de refinamento.
 - Exclui: definição do grafo (Layer 2), gerenciamento de sessões (Layer 4), UI/IO (Layer 1).
@@ -978,6 +997,8 @@ def configure_logging() -> None:
             processors=processors,
             logger_factory=structlog.PrintLoggerFactory(file=sys.stdout),
         )
+<!-- END CHUNK: codif-layer4-part1 -->
+<!-- CHUNK: codif-layer4-part2 | Lines: 981-1087 | Keywords: faiss-integration, langsmith-observability | Tokens: ~1100 -->
 
 # ✅ ADAPTER DE MEMÓRIA (MemorySaver + sessões isoladas)
 # File: src/core/services/memory_manager.py (Linhas 10-110)
@@ -1085,6 +1106,8 @@ Segurança:
 4. ✅ `get_reranker()` suporta primeira carga lenta, demais instantâneas
 5. ✅ `FAISS.load_local` documentado com requisito de índices confiáveis
 6. ✅ Falhas externas (LangSmith, FAISS, Torch) são logadas e retornam fallback seguro
+<!-- END CHUNK: codif-layer4-part2 -->
+<!-- CHUNK: codif-inventory | Lines: 1088-1123 | Keywords: structured-inventory, module-mapping | Tokens: ~370 -->
 
 > 🔐 **Nota:** Caso novos serviços especializados sejam adicionados (cache Redis,
 > webhooks, filas), manter o mesmo contrato: módulo isolado, sem imports para camadas
@@ -1121,6 +1144,8 @@ Segurança:
 
 - `src/core/domain/session.py::SessionConfig` — entidade imutável que descreve parâmetros de sessão.
 - `src/core/domain/state.py::RAGState`
+<!-- END CHUNK: codif-inventory -->
+<!-- CHUNK: codif-communication | Lines: 1124-1219 | Keywords: universal-language, thread-safety, validation | Tokens: ~1000 -->
 - `src/core/domain/state.py::ConversationalRAGState`
 - `src/infrastructure/config/settings.py::Settings` — agregado de configuração com validação automática.
 
@@ -1217,6 +1242,8 @@ def build_session_config(max_turns: int = 10, memory_window: int = 6) -> Session
     raise
 
 
+<!-- END CHUNK: codif-communication -->
+<!-- CHUNK: codif-strategy-pattern | Lines: 1220-1293 | Keywords: strategy-pattern, callable, complexity-routing | Tokens: ~780 -->
 # Uso combinado: Layer 4 monta dependências thread-safe e validadas antes de entregá-las às camadas superiores.
 ```
 
@@ -1291,6 +1318,8 @@ def rerank_documents(state: RAGState) -> RAGState:
   return {"documents": reranked}
 ```
 
+<!-- END CHUNK: codif-strategy-pattern -->
+<!-- CHUNK: codif-dependency-injection | Lines: 1294-1380 | Keywords: di-pattern, sessionconfig, lazy-load | Tokens: ~900 -->
 - **Benefícios comprovados:**
   - Testes independentes por estratégia (`tests/unit/test_reranker.py`).
   - Toggle em runtime via `settings.reranker_enabled` sem alterar `graph_rag.py`.
@@ -1378,6 +1407,8 @@ def handle_question(question: str, *, service: RagService = rag_service) -> str:
   return service.run(question)
 ```
 
+<!-- END CHUNK: codif-dependency-injection -->
+<!-- CHUNK: codif-exception-hierarchy | Lines: 1381-1470 | Keywords: custom-exceptions, error-handling, retry-logic | Tokens: ~950 -->
 - **Benefícios comprovados:**
   - Permite substituir implementações em testes/unit (mocks de retriever e reranker).
   - Evita instanciar recursos pesados repetidamente (CrossEncoder, FAISS).
@@ -1468,6 +1499,8 @@ def handle_cli(question: str, user_id: str = "cli_user") -> None:
 - **Diretrizes:**
   - Logs devem usar `exc_info=True` e campos estruturados (`error_type`, `error_message`, `dependency`).
   - Somente a camada que adiciona contexto loga; camadas superiores reempacotam sem duplicar logs.
+<!-- END CHUNK: codif-exception-hierarchy -->
+<!-- CHUNK: codif-immutable-rules | Lines: 1471-1504 | Keywords: hierarchy-enforcement, no-bypass | Tokens: ~350 -->
   - `BaseProjectError` (e derivados) SEMPRE devem ser propagados intactos para preservar o encadeamento.
   - Exceções de validação (`ValueError`, `ValidationError`) devem ser convertidas em `BusinessRuleViolation` antes de retornar à Layer 2.
 
@@ -1502,6 +1535,8 @@ OBRIGATÓRIO: ""
 ```yaml
 PERMITIDO: "Camada superior → Camada inferior"
 PROIBIDO: "Camada inferior → Camada superior"
+<!-- END CHUNK: codif-immutable-rules -->
+<!-- CHUNK: codif-validation | Lines: 1505-1530 | Keywords: architectural-validation, compliance-tests | Tokens: ~270 -->
 PROIBIDO: "Dependências circulares entre camadas"
 ```
 
@@ -1528,6 +1563,8 @@ Code_Duplication: 'Zero duplicação via Constants Factory'
 Architecture_Layers: 'Máximo 4 camadas na hierarquia'
 GraphState_Usage: '100% nas funções principais'
 Strategy_Pattern: 'Obrigatório para algoritmos plugáveis'
+<!-- END CHUNK: codif-validation -->
+<!-- CHUNK: codif-cross-reference | Lines: 1531-1597 | Keywords: cross-reference-table, bidirectional-links | Tokens: ~700 -->
 Thread_Safety: 'Obrigatório para estado compartilhado'
 ```
 
@@ -1595,3 +1632,4 @@ Rule Compliance:
 ---
 
 _Este padrão arquitetural é **IMUTÁVEL** e deve ser seguido em toda expansão futura do projeto._
+<!-- END CHUNK: codif-cross-reference -->

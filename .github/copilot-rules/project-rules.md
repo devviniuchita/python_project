@@ -1,3 +1,4 @@
+<!-- CHUNK: rules-metadata | Lines: 1-76 | Keywords: metadata, quick-navigation-index, search-shortcuts | Tokens: ~600 -->
 ---
 metadata: |
 name: '.github/copilot-rules/project-rules.md'
@@ -74,6 +75,8 @@ syncWith: ['.github/copilot-rules/project-codification.md'](project-codification
 ## Regras Arquiteturais e Comportamentais Permanentes para Python
 
 ## 🏗️ ARQUITETURA FUNDAMENTAL
+<!-- END CHUNK: rules-metadata -->
+<!-- CHUNK: rules-clean-arch | Lines: 77-95 | Keywords: clean-architecture, 4-layers, dependency-boundaries | Tokens: ~200 -->
 
 ### Clean Architecture (OBRIGATÓRIO)
 
@@ -93,6 +96,8 @@ _Quick Wins (Implementation Tips):_
 ---
 
 ## 🎯 SOLID PRINCIPLES - OVERVIEW
+<!-- END CHUNK: rules-clean-arch -->
+<!-- CHUNK: rules-solid-overview | Lines: 96-123 | Keywords: solid-principles, srp, ocp, lsp, isp, dip | Tokens: ~300 -->
 
 **SOLID** são 5 princípios fundamentais de design orientado a objetos que garantem código manutenível, escalável e testável. Cada princípio é aplicado rigorosamente no Python RAG Project:
 
@@ -121,6 +126,8 @@ _Quick Wins (Implementation Tips):_
 Os 4 pilares de Programação Orientada a Objetos aplicados ao Python RAG Project, com exemplos executáveis e integração com SOLID principles.
 
 ### **1. Abstraction - Contratos Tipados que isolam responsabilidades**
+<!-- END CHUNK: rules-solid-overview -->
+<!-- CHUNK: rules-abstraction | Lines: 124-171 | Keywords: typeddict, ragstate, literal, pep-589 | Tokens: ~500 -->
 
 **Conceito**: Separar o **"o quê"** do **"como"**, expondo apenas interfaces essenciais e ocultando detalhes de implementação.
 
@@ -169,6 +176,8 @@ _Quick Wins:_ reutilize `TypedDict` sempre que precisar de contratos leves; `Bas
 ---
 
 ### **2. Encapsulation - Validação automática + propriedades calculadas**
+<!-- END CHUNK: rules-abstraction -->
+<!-- CHUNK: rules-encapsulation | Lines: 172-218 | Keywords: pydantic, basesettings, field, computed-field | Tokens: ~500 -->
 
 **Conceito**: Ocultar detalhes internos e expor apenas métodos/propriedades públicas, garantindo que o estado interno permaneça consistente.
 
@@ -216,6 +225,8 @@ _Quick Wins:_ Em objetos de configuração, use `frozen=True` para forçar imuta
 ---
 
 ### **3. Inheritance - Reuso seguro com classes base Pydantic**
+<!-- END CHUNK: rules-encapsulation -->
+<!-- CHUNK: rules-inheritance | Lines: 219-254 | Keywords: sessionconfig, settings, pydantic-inheritance | Tokens: ~400 -->
 
 **Conceito**: Criar hierarquias de classes onde subclasses herdam comportamento da classe base, permitindo reuso de código.
 
@@ -252,6 +263,8 @@ _Quick Wins:_ Centralize toda configuração sensível em subclasses de `BaseSet
 ---
 
 ### **4. Polymorphism - Implementações intercambiáveis no pipeline RAG**
+<!-- END CHUNK: rules-inheritance -->
+<!-- CHUNK: rules-polymorphism | Lines: 255-311 | Keywords: callable, strategy-pattern, adaptive-retrieval | Tokens: ~600 -->
 
 **Conceito**: Permitir que diferentes implementações sejam usadas de forma intercambiável através de uma interface comum.
 
@@ -309,6 +322,8 @@ _Quick Wins (Architectural):_
 ---
 
 ### **5. Abstract Base Classes (ABC) - Contratos Rígidos com Enforcement**
+<!-- END CHUNK: rules-polymorphism -->
+<!-- CHUNK: rules-abc-part1 | Lines: 312-380 | Keywords: abstractmethod, metricscollector, abc-protocol | Tokens: ~700 -->
 
 **Conceito**: ABC (Abstract Base Classes) fornecem contratos de interface que subclasses **devem** implementar, garantindo **O (Open/Closed)** de SOLID - aberto para extensão, fechado para modificação.
 
@@ -378,6 +393,8 @@ class AdaptiveRetrievalStrategy(RAGNodeStrategy):
         """Retrieve documents based on question complexity."""
         complexity = state.get("complexity", "simple")
         k = self.top_k * 2 if complexity == "complex" else self.top_k
+<!-- END CHUNK: rules-abc-part1 -->
+<!-- CHUNK: rules-abc-part2 | Lines: 381-443 | Keywords: embeddingprovider, protocol-enforcement | Tokens: ~650 -->
 
         documents = self.vector_store.similarity_search(
             state["question"], k=k
@@ -441,6 +458,8 @@ _Quick Wins:_
 ---
 
 ### **6. Composition vs Inheritance - Trade-offs e Decision Framework**
+<!-- END CHUNK: rules-abc-part2 -->
+<!-- CHUNK: rules-composition-part1 | Lines: 444-520 | Keywords: dependency-injection, aggregation, composition | Tokens: ~800 -->
 
 **Conceito**: Escolher entre **"Is-a"** (Inheritance) e **"Has-a"** (Composition) é uma decisão arquitetural crítica que impacta flexibilidade, testabilidade e manutenção.
 
@@ -518,6 +537,8 @@ class RAGPipeline:
     - Testabilidade: mock components facilmente
     - Desacoplamento: components não dependem de RAGPipeline
     """
+<!-- END CHUNK: rules-composition-part1 -->
+<!-- CHUNK: rules-composition-part2 | Lines: 521-594 | Keywords: decision-matrix, trade-offs | Tokens: ~750 -->
     vector_store: VectorStore  # Composition: HAS-A
     reranker: Reranker          # Composition: HAS-A
     llm: Any                    # Composition: HAS-A
@@ -592,6 +613,8 @@ class Service:
 ---
 
 ## 🎖️ COMPLIANCE ENFORCEMENT
+<!-- END CHUNK: rules-composition-part2 -->
+<!-- CHUNK: rules-compliance-immutable | Lines: 595-632 | Keywords: immutable-rules, approval-criteria, quality-gates | Tokens: ~400 -->
 
 ### Immutable Rules & Validation
 
@@ -630,6 +653,8 @@ Rule Compliance:
 ```
 
 ### Validation Tools & Methods
+<!-- END CHUNK: rules-compliance-immutable -->
+<!-- CHUNK: rules-compliance-tools | Lines: 633-682 | Keywords: validation-tools, pre-commit, sonarqube | Tokens: ~500 -->
 
 | Rule                   | Tool                     | Method                         | Trigger    | Consequence       |
 | ---------------------- | ------------------------ | ------------------------------ | ---------- | ----------------- |
@@ -680,6 +705,8 @@ echo "✅ All compliance checks passed!"
 ```
 
 ### Git Commit Hook Enforcement
+<!-- END CHUNK: rules-compliance-tools -->
+<!-- CHUNK: rules-compliance-git | Lines: 683-738 | Keywords: git-commit-hooks, github-actions, ci-cd | Tokens: ~600 -->
 
 ```bash
 # Location: .githooks/commit-msg
@@ -736,6 +763,8 @@ jobs:
 ```
 
 ### Compliance Verification Checklist
+<!-- END CHUNK: rules-compliance-git -->
+<!-- CHUNK: rules-compliance-checklist | Lines: 739-773 | Keywords: compliance-checklist, verification-steps | Tokens: ~350 -->
 
 **Before Every Commit:**
 
@@ -771,6 +800,8 @@ jobs:
 | Layer 3: Business Logic        | 79-95            | 656-887                               | `src/features/rag/nodes.py`, `src/features/reranking/reranker.py`     |
 | Layer 4: Services              | 79-95            | 888-1087                              | `src/infrastructure/config/settings.py`, `src/core/services/`         |
 | **SOLID Principles**           | 96-119           | Implicit (see patterns)               | Applied throughout codebase                                           |
+<!-- END CHUNK: rules-compliance-checklist -->
+<!-- CHUNK: rules-cross-reference | Lines: 774-811 | Keywords: cross-reference-table, bidirectional-links | Tokens: ~400 -->
 | Single Responsibility          | 96-119           | 1471-1504 (Rule 3)                    | All modules                                                           |
 | Dependency Inversion           | 96-119           | 1294-1380 (DI pattern)                | `src/core/domain/session.py`                                          |
 | **Abstraction (TypedDict)**    | 124-171          | 91-303 (RAGState examples)            | `src/core/domain/state.py`                                            |
@@ -809,3 +840,4 @@ jobs:
 ---
 
 _This document defines the development, coding, security and deployment rules for the PROJECT PYTHON PROJECT_
+<!-- END CHUNK: rules-cross-reference -->
