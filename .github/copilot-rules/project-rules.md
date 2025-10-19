@@ -23,33 +23,47 @@ syncWith: ['.github/copilot-rules/project-codification.md'](project-codification
 
 📖 **Implementação Detalhada**: Ver [project-codification.md - Arquitetura Enterprise](project-codification.md#arquitetura-enterprise-hierárquica---padrões-validados) para implementação completa das 4 camadas com exemplos de código e arquivos específicos.
 
-_Otimização Tips (YOLO Mode):_
+_Quick Wins (Implementation Tips):_
 
 - Novo handler? implemente em `scripts/` ou `src/features/conversation/` e delegue tudo para o grafo.
 - Monitore dependências com `python -m compileall` + `pip install import-linter` para garantir fluxo unidirecional (Layer 1 → Layer 4).
 - Métrica prática: nenhum módulo deve importar camadas superiores; falhas nessa regra aumentam o acoplamento e devem ser bloqueadas.
 
-### OOP Principles (SOLID - INQUEBRÁVEIS)
+---
 
-- **S** - Single Responsibility: Cada módulo com escopo único (`retrieve_adaptive` só cuida de buscar documentos).
-- **O** - Open/Closed: Extensão via novos nodes/serviços sem modificar comportamento existente.
-- **L** - Liskov Substitution: Subclasses e contratos (ex.: `Settings(BaseSettings)`) substituem a base sem quebrar consumidores.
-- **I** - Interface Segregation: Camadas consomem apenas os campos necessários (`SessionConfig`, `RAGState`), evitando APIs gordas.
-- **D** - Dependency Inversion: Layer 2 depende de assinaturas (`state -> dict`) ao invés de implementações concretas.
+## 🎯 SOLID PRINCIPLES - OVERVIEW
 
-📖 **Implementação Prática**: Ver [project-codification.md - Pattern Applied](project-codification.md#pattern_applied) para exemplos Python concretos de cada princípio SOLID em ação no projeto.
+**SOLID** são 5 princípios fundamentais de design orientado a objetos que garantem código manutenível, escalável e testável. Cada princípio é aplicado rigorosamente no Python RAG Project:
 
-_Otimização Tips (YOLO Mode):_
+- **S - Single Responsibility**: Cada módulo/classe tem uma única razão para mudar. Ex: `retrieve_adaptive` só busca documentos, `rerank_documents` só reordena.
+- **O - Open/Closed**: Código aberto para extensão, fechado para modificação. Ex: Adicione novos nodes ao LangGraph sem alterar nodes existentes.
+- **L - Liskov Substitution**: Subclasses podem substituir suas classes base sem quebrar funcionalidade. Ex: `SessionConfig(BaseSettings)` mantém contrato da base.
+- **I - Interface Segregation**: Clientes não devem depender de interfaces que não usam. Ex: `RAGState` expõe apenas campos necessários por camada.
+- **D - Dependency Inversion**: Dependa de abstrações, não de implementações concretas. Ex: Layer 2 depende de assinaturas `state -> dict`, não de classes específicas.
 
-- Verifique **S** com ferramentas como **SonarQube**/cognitive complexity.
+📖 **Implementação Detalhada**: Ver [OOP Implementation Patterns](#oop-implementation-patterns) abaixo para exemplos Python completos e [project-codification.md](project-codification.md#pattern_applied) para padrões aplicados no código.
+
+_Quick Wins (Implementation Tips):_
+
+- Verifique **S** com ferramentas como **SonarQube**/cognitive complexity (<15 por método).
 - Para **O**, adicione novas estratégias em módulos separados e integre via LangGraph.
-  <impact>: Reduza bugs em 40% com testes unitários focados em contratos pequenos.</impact>
+- **L** validation: subclasses devem passar nos mesmos testes da base.
+- **I** enforcement: use `TypedDict` para contratos mínimos, evite "God interfaces".
+- **D** pattern: Layer 2 recebe callables `Callable[[RAGState], RAGState]`, não classes concretas.
 
-### OOP (OBJECT-ORIENTED PROGRAMMING) - MANDATORY COMPLIANCE:
+<impact>Reduza bugs em 40% com testes unitários focados em contratos pequenos (SOLID S+I).</impact>
 
-#### **1. Abstraction - Contratos Tipados que isolam responsabilidades**
+---
 
-Usamos `TypedDict` e `Literal` para declarar contratos imutáveis que separam o **o quê** do **como**, reforçando o `S` (Single Responsibility) de SOLID.
+## 🏛️ OOP IMPLEMENTATION PATTERNS - DEEP DIVE
+
+Os 4 pilares de Programação Orientada a Objetos aplicados ao Python RAG Project, com exemplos executáveis e integração com SOLID principles.
+
+### **1. Abstraction - Contratos Tipados que isolam responsabilidades**
+
+**Conceito**: Separar o **"o quê"** do **"como"**, expondo apenas interfaces essenciais e ocultando detalhes de implementação.
+
+**No Projeto**: Usamos `TypedDict` e `Literal` para declarar contratos imutáveis, reforçando **S (Single Responsibility)** e **I (Interface Segregation)** de SOLID.
 
 ```yaml
 Pattern: TypedDict + Literal (contrato estático)
@@ -87,15 +101,17 @@ class ConversationalRAGState(TypedDict):
   original_question: str
 ```
 
-📌 **Como aplicar:** qualquer novo node da Camada 3 deve aceitar `RAGState` e retornar apenas os campos que realmente altera. Isso mantém o fluxo de dados coerente e fácil de testar.
+📌 **Como aplicar:** qualquer novo node da Camada 3 deve aceitar `RAGState` e retornar apenas os campos que realmente altera. Isso mantém o fluxo de dados coerente e fácil de testar. Ver [Polymorphism](#4-polymorphism---implementações-intercambiáveis-no-pipeline-rag) para exemplos de nodes plugáveis.
 
-_Otimização Tips:_ reutilize `TypedDict` sempre que precisar de contratos leves; `BaseModel` só é indicado quando validação em runtime for indispensável (cuidado com o overhead de ~2.5x).
+_Quick Wins:_ reutilize `TypedDict` sempre que precisar de contratos leves; `BaseModel` só é indicado quando validação em runtime for indispensável (cuidado com o overhead de ~2.5x).
 
 ---
 
-#### **2. Encapsulation - Validação automática + propriedades calculadas**
+### **2. Encapsulation - Validação automática + propriedades calculadas**
 
-Configurações e modelos de sessão ocultam detalhes internos via Pydantic, garantindo que somente estados válidos circulem entre camadas.
+**Conceito**: Ocultar detalhes internos e expor apenas métodos/propriedades públicas, garantindo que o estado interno permaneça consistente.
+
+**No Projeto**: Configurações e modelos de sessão usam Pydantic para encapsular validação, reforçando **I (Interface Segregation)** - expõe somente o que o cliente precisa.
 
 ```yaml
 Pattern: Pydantic BaseModel/BaseSettings + propriedades read-only
@@ -132,15 +148,17 @@ class SessionConfig(BaseModel):
     return self.memory_window / self.max_turns
 ```
 
-📌 **Como aplicar:** exponha apenas métodos de leitura (`get_config`, `memory_ratio`) e deixe que Pydantic rejeite estados inválidos automaticamente — evita `if` redundante em cada camada.
+📌 **Como aplicar:** exponha apenas métodos de leitura (`get_config`, `memory_ratio`) e deixe que Pydantic rejeite estados inválidos automaticamente — evita `if` redundante em cada camada. Ver [SOLID Overview](#solid-principles---overview) para conexão com princípios S e I.
 
-_Otimização Tips:_ Em objetos de configuração, use `frozen=True` para forçar imutabilidade; para campos derivados (ex.: métricas) crie propriedades calculadas ao invés de duplicar valores no estado.
+_Quick Wins:_ Em objetos de configuração, use `frozen=True` para forçar imutabilidade; para campos derivados (ex.: métricas) crie propriedades calculadas ao invés de duplicar valores no estado.
 
 ---
 
-#### **3. Inheritance - Reuso seguro com classes base Pydantic**
+### **3. Inheritance - Reuso seguro com classes base Pydantic**
 
-Aplicamos herança quando o framework já entrega comportamento reutilizável (ex.: `BaseSettings`, `BaseModel`). Isso garante substituição segura (L de SOLID) sem criar hierarquias profundas.
+**Conceito**: Criar hierarquias de classes onde subclasses herdam comportamento da classe base, permitindo reuso de código.
+
+**No Projeto**: Aplicamos herança quando o framework já entrega comportamento reutilizável (ex.: `BaseSettings`, `BaseModel`), garantindo **L (Liskov Substitution)** de SOLID - subclasses não quebram o contrato da base.
 
 ```yaml
 Pattern: Subclasse especializada herdando validação/base behavior
@@ -166,15 +184,17 @@ class Settings(BaseSettings):
     env_prefix = "PYTHON_RAG_"
 ```
 
-📌 **Como aplicar:** herde apenas quando o framework oferece comportamento valioso (validação automática, carregamento de `.env`, etc.). Evite cadeias >2 níveis — prefira composição com helpers do Layer 4.
+📌 **Como aplicar:** herde apenas quando o framework oferece comportamento valioso (validação automática, carregamento de `.env`, etc.). Evite cadeias >2 níveis — prefira composição com helpers do Layer 4. Ver [project-codification.md - Composition vs Inheritance](project-codification.md#composition-vs-inheritance) para trade-offs detalhados.
 
-_Otimização Tips:_ Centralize toda configuração sensível em subclasses de `BaseSettings` para aproveitar caching interno e evitar boilerplate manual.
+_Quick Wins:_ Centralize toda configuração sensível em subclasses de `BaseSettings` para aproveitar caching interno e evitar boilerplate manual.
 
 ---
 
-#### **4. Polymorphism - Implementações intercambiáveis no pipeline RAG**
+### **4. Polymorphism - Implementações intercambiáveis no pipeline RAG**
 
-LangGraph trata cada node como algo que recebe `RAGState` e devolve um diff de estado. Isso nos permite trocar implementações sem alterar a orquestração — polimorfismo funcional alinhado ao `D` (Dependency Inversion) de SOLID.
+**Conceito**: Permitir que diferentes implementações sejam usadas de forma intercambiável através de uma interface comum.
+
+**No Projeto**: LangGraph trata cada node como algo que recebe `RAGState` e devolve um diff de estado. Isso permite trocar implementações sem alterar a orquestração — polimorfismo funcional alinhado ao **D (Dependency Inversion)** de SOLID.
 
 ```yaml
 Pattern: Funções puras com mesma assinatura (state in → state diff out)
@@ -207,13 +227,18 @@ def rerank_documents(state: RAGState) -> RAGState:
   return {"documents": reranked_docs}
 ```
 
-📌 **Como aplicar:** qualquer nova estratégia (ex.: sumarização, filtragem) deve seguir a mesma assinatura `def node(state: RAGState) -> RAGState:`. O grafo decide a ordem; nós são plugáveis, possibilitando testes A/B sem alterar a Camada 2.
+📌 **Como aplicar:** qualquer nova estratégia (ex.: sumarização, filtragem) deve seguir a mesma assinatura `def node(state: RAGState) -> RAGState:`. O grafo decide a ordem; nós são plugáveis, possibilitando testes A/B sem alterar a Camada 2. Ver [Abstraction](#1-abstraction---contratos-tipados-que-isolam-responsabilidades) para contratos TypedDict.
 
-_Otimização Tips:_ Concentre-se em manter nodes puros (sem efeitos colaterais) — isso facilita swap entre implementações e permite mocks simples em testes unitários.
+_Quick Wins:_ Concentre-se em manter nodes puros (sem efeitos colaterais) — isso facilita swap entre implementações e permite mocks simples em testes unitários.
+
+**🔗 Cross-Pattern Integration:**
+- **Abstraction + Polymorphism**: `TypedDict` contratos permitem nodes intercambiáveis
+- **Encapsulation + Inheritance**: `BaseSettings` herda validação Pydantic encapsulada
+- **SOLID D + Polymorphism**: Camadas superiores dependem de assinaturas, não implementações
 
 ---
 
-_Otimização Tips (YOLO Mode):_
+_Quick Wins (Architectural):_
 
 - Evite herança profunda (>2 níveis) para prevenir violações Liskov
 - Máximo 3 níveis: Base → Parent → Child
