@@ -10,6 +10,68 @@ syncWith: ['.github/copilot-rules/project-codification.md'](project-codification
 
 # 🔒 SISTEMA DE REGRAS IMUTÁVEIS - MCP TreeOfThoughts
 
+---
+
+# 🗺️ QUICK NAVIGATION INDEX
+
+> **For AI Agents:** Use `read_file(offset, limit)` with line ranges below for token-efficient context retrieval (70% reduction vs full file read)
+
+## 📂 ARCHITECTURE & DESIGN (Lines 77-119)
+
+- [Clean Architecture](#clean-architecture-obrigatório) → Lines 79-95 | **Keywords:** Layer1-4, Dependency Boundaries, RAGState, SessionConfig, Separation of Concerns
+- [SOLID Principles Overview](#-solid-principles---overview) → Lines 96-119 | **Keywords:** Single Responsibility, Open/Closed, Liskov, Interface Segregation, Dependency Inversion
+
+## 🏛️ OOP PATTERNS (Lines 120-594)
+
+- [Abstraction - TypedDict Contracts](#1-abstraction---contratos-tipados-que-isolam-responsabilidades) → Lines 124-171 | **Keywords:** TypedDict, Literal, RAGState, ConversationalRAGState, PEP 589
+- [Encapsulation - Pydantic Validation](#2-encapsulation---validação-automática--propriedades-calculadas) → Lines 172-218 | **Keywords:** BaseSettings, Field, ConfigDict, computed_field, lazy_load
+- [Inheritance - BaseSettings Reuse](#3-inheritance---reuso-seguro-com-classes-base-pydantic) → Lines 219-254 | **Keywords:** SessionConfig, Settings, pydantic inheritance, model_validate
+- [Polymorphism - Strategy Pattern](#4-polymorphism---implementações-intercambiáveis-no-pipeline-rag) → Lines 255-311 | **Keywords:** Callable, adaptive_retrieval, rerank_documents, strategy pattern
+- [ABC - Protocol Enforcement](#5-abstract-base-classes-abc---contratos-rígidos-com-enforcement) → Lines 312-443 | **Keywords:** abstractmethod, MetricsCollector, EmbeddingProvider, ABC, Protocol
+- [Composition - Aggregation Patterns](#6-composition-vs-inheritance---trade-offs-e-decision-framework) → Lines 444-594 | **Keywords:** dependency injection, SessionConfig composition, aggregation, decision matrix
+
+## 🎖️ COMPLIANCE (Lines 595-773)
+
+- [Immutable Rules & Validation](#immutable-rules--validation) → Lines 597-632 | **Keywords:** approval criteria, code quality, SonarQube, B grade minimum
+- [Validation Tools](#validation-tools--methods) → Lines 633-645 | **Keywords:** sonar-scanner, pytest-cov, ruff check
+- [Pre-Commit Hooks](#pre-commit-hooks-enforcement) → Lines 646-682 | **Keywords:** .pre-commit-config.yaml, ruff format, pytest coverage 80%
+- [Git Commit Hooks](#git-commit-hook-enforcement) → Lines 683-711 | **Keywords:** conventional commits, semantic versioning, .githooks
+- [GitHub Actions](#github-actions-automation) → Lines 712-738 | **Keywords:** CI/CD, automated testing, quality gates
+- [Compliance Checklist](#compliance-verification-checklist) → Lines 739-773 | **Keywords:** verification steps, approval matrix, rollback procedures
+
+## 🔍 SEARCH SHORTCUTS
+
+### By Concept
+- **Architecture Layers:** Lines 79-95 (Clean Architecture + 4 camadas)
+- **SOLID Principles:** Lines 96-119 (S.O.L.I.D overview + Quick Wins)
+- **State Contracts:** Lines 124-171 (RAGState, ConversationalRAGState)
+- **Validation Patterns:** Lines 172-218 (Pydantic BaseSettings + Field)
+- **Strategy Pattern:** Lines 255-311 (Polymorphism + Callable signatures)
+- **ABC Protocols:** Lines 312-443 (abstractmethod + enforcement)
+- **Composition Pattern:** Lines 444-594 (SessionConfig + decision framework)
+- **Quality Gates:** Lines 597-632 (Approval criteria + metrics)
+
+### By File Reference
+- **State Definitions:** `src/core/domain/state.py` → Lines 124-171 (RAGState examples)
+- **Session Config:** `src/core/domain/session.py` → Lines 172-218, 219-254, 444-594
+- **RAG Nodes:** `src/features/rag/nodes.py` → Lines 255-311 (retrieve_adaptive, rerank_documents)
+- **Metrics ABC:** `src/shared/types/protocols.py` → Lines 312-443 (MetricsCollector, EmbeddingProvider)
+- **Infrastructure:** `src/infrastructure/config/settings.py` → Lines 219-254 (Settings implementation)
+- **Compliance Tools:** `.pre-commit-config.yaml`, `.githooks/`, `.github/workflows/` → Lines 646-738
+
+### By Keyword (Grep-Optimized)
+- **RAGState:** Lines 124-171, 255-311 (definition + usage)
+- **SessionConfig:** Lines 172-218, 219-254, 444-594 (validation + composition)
+- **Pydantic:** Lines 172-218, 219-254 (BaseSettings + Field + computed_field)
+- **LangGraph:** Lines 79-95, 255-311 (architecture + node signatures)
+- **abstractmethod:** Lines 312-443 (ABC protocols + enforcement)
+- **dependency injection:** Lines 444-594 (composition patterns)
+- **SonarQube:** Lines 597-632, 633-645 (quality criteria + commands)
+- **pre-commit:** Lines 646-682 (hook configuration + enforcement)
+- **conventional commits:** Lines 683-711 (commit message format)
+
+---
+
 ## Regras Arquiteturais e Comportamentais Permanentes para Python
 
 ## 🏗️ ARQUITETURA FUNDAMENTAL
