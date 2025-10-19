@@ -107,20 +107,20 @@ def configure_logging() -> None:
     # Determine output format based on settings and environment
     log_format_lower = settings.log_format.lower()
 
+    def _console_renderer() -> Processor:
+        """Return a ConsoleRenderer wrapped as a Processor (cast for typing)."""
+        return cast(Processor, structlog.dev.ConsoleRenderer(colors=True))
+
     if log_format_lower == "json":
         # Force JSON output (production mode)
         processors: list[Processor] = [*shared_processors, json_renderer]
     elif log_format_lower == "console":
         # Force pretty console output (development mode)
-        console_renderer = cast(Processor, structlog.dev.ConsoleRenderer(colors=True))
-        processors = [*shared_processors, console_renderer]
+        processors = [*shared_processors, _console_renderer()]
     else:  # auto (default)
         # Auto-detect: TTY = console, pipe/file = JSON
         if sys.stderr.isatty():
-            console_renderer = cast(
-                Processor, structlog.dev.ConsoleRenderer(colors=True)
-            )
-            processors = [*shared_processors, console_renderer]
+            processors = [*shared_processors, _console_renderer()]
         else:
             processors = [*shared_processors, json_renderer]
 
