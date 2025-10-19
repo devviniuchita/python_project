@@ -44,18 +44,21 @@ syncWith: ['.github\copilot-rules\project-rules.md'](project-rules.md)
 ## 🔍 SEARCH SHORTCUTS
 
 ### By Layer (Clean Architecture)
+
 - **Layer 1 (Presentation):** Lines 91-303 → `scripts/chat.py`, `src/features/conversation/conversation.py`
 - **Layer 2 (Orchestration):** Lines 304-655 → `src/features/conversation/graph.py`, `src/features/rag/graph.py`
 - **Layer 3 (Business Logic):** Lines 656-887 → `src/features/rag/nodes.py`, `src/features/reranking/reranker.py`
 - **Layer 4 (Services):** Lines 888-1087 → `src/infrastructure/`, `src/core/services/`
 
 ### By Pattern (Enterprise)
+
 - **Strategy Pattern:** Lines 1222-1293 (adaptive retrieval, complexity routing)
 - **Dependency Injection:** Lines 1294-1380 (SessionConfig, Settings composition)
 - **Exception Hierarchy:** Lines 1381-1470 (custom exceptions, error handling)
 - **Communication Pattern:** Lines 1124-1219 (thread-safety, validation)
 
 ### By File Reference
+
 - **CLI Handler:** `scripts/chat.py` → Lines 91-303 (Layer 1 example)
 - **Conversation Graph:** `src/features/conversation/graph.py` → Lines 304-655 (Layer 2 example)
 - **RAG Nodes:** `src/features/rag/nodes.py` → Lines 656-887, 1222-1293 (Layer 3 + Strategy)
@@ -65,6 +68,7 @@ syncWith: ['.github\copilot-rules\project-rules.md'](project-rules.md)
 - **State Definition:** `src/core/domain/state.py` → Lines 91-303 (RAGState, ConversationalRAGState)
 
 ### By Class/Function (Grep-Optimized)
+
 - **RAGState:** Lines 91-303 (definition), 304-655 (graph usage), 656-887 (node transformations)
 - **SessionConfig:** Lines 1294-1380 (DI pattern), 888-1087 (Layer 4 integration)
 - **graph.invoke():** Lines 91-303 (Layer 1 call), 304-655 (graph compilation)
@@ -76,6 +80,7 @@ syncWith: ['.github\copilot-rules\project-rules.md'](project-rules.md)
 - **BaseSettings:** Lines 1294-1380 (Pydantic DI), 888-1087 (Layer 4 Settings)
 
 ### Cross-Reference to project-rules.md
+
 - **SOLID Principles:** [project-rules.md Lines 96-119](project-rules.md#-solid-principles---overview)
 - **OOP Patterns (Abstract):** [project-rules.md Lines 120-594](project-rules.md#-oop-implementation-patterns---deep-dive)
 - **Compliance Details:** [project-rules.md Lines 595-773](project-rules.md#-compliance-lines-595-773)
@@ -1538,6 +1543,45 @@ Rule Compliance:
   - 🔒 apply_manually: >
       this rule needs to be mentioned to be included
 ```
+
+---
+
+## 🔗 CROSS-REFERENCE TABLE
+
+> **Quick Navigation:** Jump between implementations (this doc) and architectural concepts ([project-rules.md](project-rules.md))
+
+| Implementation                    | This Doc (Lines)          | project-rules.md (Lines)   | Files                                                                 |
+| --------------------------------- | ------------------------- | -------------------------- | --------------------------------------------------------------------- |
+| **Clean Architecture (4 Layers)** | 91-1087                   | 79-95                      | Multiple (see below)                                                  |
+| Layer 1: Presentation             | 91-303                    | 79-95                      | `scripts/chat.py`, `src/features/conversation/conversation.py`        |
+| Layer 2: Orchestration            | 304-655                   | 79-95                      | `src/features/conversation/graph.py`, `src/features/rag/graph.py`     |
+| Layer 3: Business Logic           | 656-887                   | 79-95                      | `src/features/rag/nodes.py`, `src/features/reranking/reranker.py`     |
+| Layer 4: Services                 | 888-1087                  | 79-95                      | `src/infrastructure/config/settings.py`, `src/core/services/`         |
+| **RAGState (TypedDict)**          | 91-303, 304-655, 656-887  | 124-171 (Abstraction)      | `src/core/domain/state.py`                                            |
+| **SessionConfig (Pydantic)**      | 1294-1380 (DI pattern)    | 172-218, 444-594           | `src/core/domain/session.py`                                          |
+| **LangGraph Integration**         | 304-655 (Layer 2)         | 79-95, 255-311             | `src/features/conversation/graph.py`, `src/features/rag/graph.py`     |
+| **Strategy Pattern**              | 1222-1293                 | 255-311 (Polymorphism)     | `src/features/rag/nodes.py` (retrieve_adaptive, rerank_documents)     |
+| **Dependency Injection**          | 1294-1380                 | 444-594 (Composition)      | `src/core/domain/session.py` (SessionConfig composition)              |
+| **Exception Hierarchy**           | 1381-1470                 | Implicit in error handling | Custom exceptions, retry logic                                        |
+| **Communication Patterns**        | 1124-1219                 | Implicit                   | Thread-safety, validation enterprise                                  |
+| **Architectural Rules**           | 1471-1504                 | 595-773 (Compliance)       | Hierarchy enforcement, no bypass, single responsibility               |
+| **Validation & Metrics**          | 1505-1530                 | 595-773 (Compliance)       | Compliance tests, import-linter, coverage metrics                     |
+| **SOLID Principles**              | Applied throughout        | 96-119                     | All implementation files                                              |
+| **Abstraction (TypedDict)**       | 91-303 (RAGState)         | 124-171                    | `src/core/domain/state.py`                                            |
+| **Encapsulation (Pydantic)**      | 1294-1380 (SessionConfig) | 172-218                    | `src/core/domain/session.py`, `src/infrastructure/config/settings.py` |
+| **Inheritance (BaseSettings)**    | 1294-1380 (DI)            | 219-254                    | `src/core/domain/session.py`, `src/infrastructure/config/settings.py` |
+| **Polymorphism (Strategy)**       | 1222-1293                 | 255-311                    | `src/features/rag/nodes.py`                                           |
+| **Composition**                   | 1294-1380 (SessionConfig) | 444-594                    | `src/core/domain/session.py`                                          |
+
+## 📚 RELATED DOCUMENTS
+
+| Document                                     | Relevant Sections                                               | Description                                          |
+| -------------------------------------------- | --------------------------------------------------------------- | ---------------------------------------------------- |
+| [project-rules.md](project-rules.md)         | Lines 79-119 (Architecture+SOLID), Lines 124-594 (OOP Patterns) | Architectural concepts, SOLID principles, OOP theory |
+| [behavioral-rules.md](behavioral-rules.md)   | Lines 45-78 (ROI Framework), Lines 135-175 (Token Efficiency)   | Execution protocols, efficiency standards            |
+| [methodology-rules.md](methodology-rules.md) | Lines 25-60 (TDD), Lines 85-120 (XP+Kanban+OOP)                 | Development workflow, quality metrics                |
+| [tools-rules.md](tools-rules.md)             | Lines 30-80 (CLI tools), Lines 120-180 (Terminal)               | Tool usage, performance optimization                 |
+| [mcp-rules.md](mcp-rules.md)                 | Lines 16-34 (Pattern 1), Lines 36-51 (Pattern 2)                | MCP integration patterns, workflow                   |
 
 ---
 

@@ -8,10 +8,6 @@ applyManually: true
 syncWith: ['.github/copilot-rules/project-codification.md'](project-codification.md)
 ---
 
-# 🔒 SISTEMA DE REGRAS IMUTÁVEIS - MCP TreeOfThoughts
-
----
-
 # 🗺️ QUICK NAVIGATION INDEX
 
 > **For AI Agents:** Use `read_file(offset, limit)` with line ranges below for token-efficient context retrieval (70% reduction vs full file read)
@@ -42,6 +38,7 @@ syncWith: ['.github/copilot-rules/project-codification.md'](project-codification
 ## 🔍 SEARCH SHORTCUTS
 
 ### By Concept
+
 - **Architecture Layers:** Lines 79-95 (Clean Architecture + 4 camadas)
 - **SOLID Principles:** Lines 96-119 (S.O.L.I.D overview + Quick Wins)
 - **State Contracts:** Lines 124-171 (RAGState, ConversationalRAGState)
@@ -52,6 +49,7 @@ syncWith: ['.github/copilot-rules/project-codification.md'](project-codification
 - **Quality Gates:** Lines 597-632 (Approval criteria + metrics)
 
 ### By File Reference
+
 - **State Definitions:** `src/core/domain/state.py` → Lines 124-171 (RAGState examples)
 - **Session Config:** `src/core/domain/session.py` → Lines 172-218, 219-254, 444-594
 - **RAG Nodes:** `src/features/rag/nodes.py` → Lines 255-311 (retrieve_adaptive, rerank_documents)
@@ -60,6 +58,7 @@ syncWith: ['.github/copilot-rules/project-codification.md'](project-codification
 - **Compliance Tools:** `.pre-commit-config.yaml`, `.githooks/`, `.github/workflows/` → Lines 646-738
 
 ### By Keyword (Grep-Optimized)
+
 - **RAGState:** Lines 124-171, 255-311 (definition + usage)
 - **SessionConfig:** Lines 172-218, 219-254, 444-594 (validation + composition)
 - **Pydantic:** Lines 172-218, 219-254 (BaseSettings + Field + computed_field)
@@ -757,6 +756,45 @@ jobs:
 - [ ] Code review approved
 - [ ] Copyright check passed
 - [ ] DCO signed by all commits
+
+---
+
+## 🔗 CROSS-REFERENCE TABLE
+
+> **Quick Navigation:** Jump between architectural concepts (this doc) and their implementations ([project-codification.md](project-codification.md))
+
+| Concept                        | This Doc (Lines) | project-codification.md (Lines)       | Files                                                                 |
+| ------------------------------ | ---------------- | ------------------------------------- | --------------------------------------------------------------------- |
+| **Clean Architecture**         | 79-95            | 91-1087 (4 layers overview)           | Multiple (see layers below)                                           |
+| Layer 1: Presentation          | 79-95            | 91-303                                | `scripts/chat.py`, `src/features/conversation/conversation.py`        |
+| Layer 2: Orchestration         | 79-95            | 304-655                               | `src/features/conversation/graph.py`, `src/features/rag/graph.py`     |
+| Layer 3: Business Logic        | 79-95            | 656-887                               | `src/features/rag/nodes.py`, `src/features/reranking/reranker.py`     |
+| Layer 4: Services              | 79-95            | 888-1087                              | `src/infrastructure/config/settings.py`, `src/core/services/`         |
+| **SOLID Principles**           | 96-119           | Implicit (see patterns)               | Applied throughout codebase                                           |
+| Single Responsibility          | 96-119           | 1471-1504 (Rule 3)                    | All modules                                                           |
+| Dependency Inversion           | 96-119           | 1294-1380 (DI pattern)                | `src/core/domain/session.py`                                          |
+| **Abstraction (TypedDict)**    | 124-171          | 91-303 (RAGState examples)            | `src/core/domain/state.py`                                            |
+| **Encapsulation (Pydantic)**   | 172-218          | 1294-1380 (SessionConfig)             | `src/core/domain/session.py`, `src/infrastructure/config/settings.py` |
+| **Inheritance (BaseSettings)** | 219-254          | 1294-1380 (DI pattern)                | `src/core/domain/session.py`, `src/infrastructure/config/settings.py` |
+| **Polymorphism (Strategy)**    | 255-311          | 1222-1293 (Strategy pattern)          | `src/features/rag/nodes.py`                                           |
+| **ABC (Protocols)**            | 312-443          | Implicit in interfaces                | `src/shared/types/protocols.py`                                       |
+| **Composition**                | 444-594          | 1294-1380 (SessionConfig composition) | `src/core/domain/session.py`                                          |
+| **RAGState**                   | 124-171          | 91-303, 304-655, 656-887              | `src/core/domain/state.py`                                            |
+| **SessionConfig**              | 172-218, 444-594 | 1294-1380                             | `src/core/domain/session.py`                                          |
+| **LangGraph Integration**      | 79-95, 255-311   | 304-655 (Layer 2)                     | `src/features/conversation/graph.py`, `src/features/rag/graph.py`     |
+| **Strategy Pattern**           | 255-311          | 1222-1293                             | `src/features/rag/nodes.py` (retrieve_adaptive, rerank_documents)     |
+| **Dependency Injection**       | 444-594          | 1294-1380                             | `src/core/domain/session.py` (SessionConfig composition)              |
+| **Compliance Enforcement**     | 595-773          | 1531-1554                             | `.pre-commit-config.yaml`, `.githooks/`, `.github/workflows/`         |
+
+## 📚 RELATED DOCUMENTS
+
+| Document                                           | Relevant Sections                                                         | Description                                                                |
+| -------------------------------------------------- | ------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| [behavioral-rules.md](behavioral-rules.md)         | Lines 45-78 (ROI Framework), Lines 135-175 (Token Efficiency)             | Execution protocols, efficiency standards, ROI decision framework          |
+| [methodology-rules.md](methodology-rules.md)       | Lines 25-60 (TDD), Lines 85-120 (XP+Kanban+OOP)                           | Development methodology, sprint structure, quality metrics                 |
+| [tools-rules.md](tools-rules.md)                   | Lines 30-80 (CLI tools), Lines 120-180 (Terminal techniques)              | Tool usage standards, anti-truncation strategies, performance optimization |
+| [mcp-rules.md](mcp-rules.md)                       | Lines 16-34 (Pattern 1), Lines 36-51 (Pattern 2), Lines 53-68 (Pattern 3) | MCP integration patterns, workflow examples, enforcement rules             |
+| [project-codification.md](project-codification.md) | Lines 91-1087 (Architecture), Lines 1222-1470 (Patterns)                  | Implementation details, code examples, enterprise patterns                 |
 
 ---
 
