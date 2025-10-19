@@ -232,6 +232,7 @@ def rerank_documents(state: RAGState) -> RAGState:
 _Quick Wins:_ Concentre-se em manter nodes puros (sem efeitos colaterais) — isso facilita swap entre implementações e permite mocks simples em testes unitários.
 
 **🔗 Cross-Pattern Integration:**
+
 - **Abstraction + Polymorphism**: `TypedDict` contratos permitem nodes intercambiáveis
 - **Encapsulation + Inheritance**: `BaseSettings` herda validação Pydantic encapsulada
 - **SOLID D + Polymorphism**: Camadas superiores dependem de assinaturas, não implementações
@@ -242,7 +243,285 @@ _Quick Wins (Architectural):_
 
 - Evite herança profunda (>2 níveis) para prevenir violações Liskov
 - Máximo 3 níveis: Base → Parent → Child
-- Prefira composição sobre herança quando possível (Strategy pattern)
+- Prefira composição sobre herança quando possível (Strategy pattern) - Ver [Composition vs Inheritance](#6-composition-vs-inheritance---trade-offs-e-decision-framework) abaixo
+
+---
+
+### **5. Abstract Base Classes (ABC) - Contratos Rígidos com Enforcement**
+
+**Conceito**: ABC (Abstract Base Classes) fornecem contratos de interface que subclasses **devem** implementar, garantindo **O (Open/Closed)** de SOLID - aberto para extensão, fechado para modificação.
+
+**No Projeto**: Usamos ABC para definir interfaces de RAG nodes, garantindo que todas as implementações sigam o mesmo contrato `execute(state: RAGState) -> RAGState`.
+
+```yaml
+Pattern: abc.ABC + @abstractmethod
+Module: abc.ABC, abc.abstractmethod
+Reference: PEP 3119 (Abstract Base Classes)
+Enforcement: Python raises TypeError se subclass não implementar métodos abstratos
+SOLID Connection: Open/Closed Principle (O) - extensível via novas subclasses sem modificar base
+```
+
+📖 **Implementação no Codebase**: Ver [project-codification.md - RAGNodeStrategy](project-codification.md#ragnodestrategy) para padrão aplicado em LangGraph nodes.
+
+**Python Example 1 - Interface Abstract para RAG Nodes:**
+
+```python
+from abc import ABC, abstractmethod
+from typing import Dict, Any
+
+# File: src/core/domain/strategies.py (exemplo proposto)
+class RAGNodeStrategy(ABC):
+    """
+    Abstract interface for RAG workflow nodes.
+
+    All nodes must implement execute() to be compatible with LangGraph.
+    Enforces SOLID O: new strategies extend this base without modifying it.
+    """
+
+    @abstractmethod
+    def execute(self, state: RAGState) -> Dict[str, Any]:
+        """
+        Process RAG state and return updated fields.
+
+        Args:
+            state: Current RAG state (TypedDict contract)
+
+        Returns:
+            Dict with updated state fields (merged by LangGraph)
+
+        Raises:
+            NotImplementedError: If subclass doesn't implement
+        """
+        pass
+
+    def validate_state(self, state: RAGState) -> bool:
+        """Optional: Common validation logic (não-abstrato)."""
+        return "question" in state and len(state["question"]) > 0
+```
+
+**Python Example 2 - Implementações Concretas:**
+
+```python
+from langsmith import traceable
+
+# File: src/features/rag/strategies/retrieval.py (exemplo proposto)
+class AdaptiveRetrievalStrategy(RAGNodeStrategy):
+    """Concrete implementation: adaptive document retrieval."""
+
+    def __init__(self, vector_store, top_k: int = 10):
+        self.vector_store = vector_store
+        self.top_k = top_k
+
+    @traceable(run_type="retriever", name="Adaptive Retrieval")
+    def execute(self, state: RAGState) -> Dict[str, Any]:
+        """Retrieve documents based on question complexity."""
+        complexity = state.get("complexity", "simple")
+        k = self.top_k * 2 if complexity == "complex" else self.top_k
+
+        documents = self.vector_store.similarity_search(
+            state["question"], k=k
+        )
+
+        return {"documents": [doc.page_content for doc in documents]}
+
+
+# File: src/features/reranking/strategies/semantic.py (exemplo proposto)
+class SemanticRerankingStrategy(RAGNodeStrategy):
+    """Concrete implementation: BGE semantic reranking."""
+
+    def __init__(self, reranker_model: str = "BAAI/bge-reranker-base"):
+        self.reranker = get_reranker(reranker_model)
+
+    @traceable(run_type="chain", name="Semantic Reranking")
+    def execute(self, state: RAGState) -> Dict[str, Any]:
+        """Rerank documents using cross-encoder."""
+        if not self.reranker:
+            return {}  # Graceful degradation
+
+        reranked = rerank_documents(
+            query=state["question"],
+            documents=state["documents"],
+            threshold=0.5
+        )
+
+        return {"documents": reranked, "quality_score": 0.9}
+```
+
+📌 **Como aplicar:**
+1. Defina interface ABC para cada categoria de strategy (Retrieval, Reranking, Generation)
+2. Implemente múltiplas variantes concretas (ex: `DenseRetrieval`, `HybridRetrieval`)
+3. LangGraph recebe strategy via dependency injection, não hard-coded class
+4. Teste cada strategy isoladamente (ABC garante compatibilidade)
+
+_Quick Wins:_
+- ABC > Protocol quando você quer **enforcement** (Python raises TypeError)
+- Protocol > ABC quando você quer **duck typing** (mais flexível)
+- Use ABC para **core abstractions** (RAGNodeStrategy), Protocol para **helpers**
+- Combine com [Polymorphism](#4-polymorphism---implementações-intercambiáveis-no-pipeline-rag) para nodes plugáveis
+
+**🔗 ABC vs Protocol Comparison:**
+
+| Critério | ABC (`abc.ABC`) | Protocol (`typing.Protocol`) |
+|----------|-----------------|------------------------------|
+| **Enforcement** | Runtime TypeError se não implementado | Type checker warning only |
+| **Flexibility** | Requires explicit inheritance | Duck typing (structural) |
+| **Use Case** | Core contracts, mandatory interface | Optional helpers, type hints |
+| **Performance** | Slight overhead (isinstance checks) | Zero overhead (compile-time) |
+| **Projeto** | RAGNodeStrategy (core) | Helper protocols (optional) |
+
+**⚠️ Edge Cases:**
+- **Multiple Inheritance**: ABC suporta, mas cuidado com diamond problem (use `super()` corretamente)
+- **Python <3.8**: ABC funciona, mas type hints podem precisar `from __future__ import annotations`
+- **Abstract Properties**: Use `@property + @abstractmethod` para propriedades abstratas obrigatórias
+
+---
+
+### **6. Composition vs Inheritance - Trade-offs e Decision Framework**
+
+**Conceito**: Escolher entre **"Is-a"** (Inheritance) e **"Has-a"** (Composition) é uma decisão arquitetural crítica que impacta flexibilidade, testabilidade e manutenção.
+
+**No Projeto**: Usamos **Inheritance** para reutilizar validação Pydantic (`SessionConfig(BaseSettings)`) e **Composition** para combinar funcionalidades independentes (`RAGState` possui `List[Document]`, não herda de `Document`).
+
+```yaml
+Decision Rule: Favor Composition over Inheritance (GoF principle)
+Exception: Inherit quando framework já oferece comportamento valioso (Pydantic, ABC)
+Reference: "Design Patterns" (Gang of Four), Effective Python (Item 37)
+SOLID Connection: Liskov Substitution (L) - herança segura quando subclass não quebra contrato
+```
+
+**Decision Framework - Quando usar cada um:**
+
+| Critério | Use Inheritance | Use Composition |
+|----------|-----------------|-----------------|
+| **Relacionamento** | "Is-a" claro (Circle IS-A Shape) | "Has-a" ou "Uses-a" (Car HAS-A Engine) |
+| **Reuso** | Comportamento da base é 80%+ relevante | Precisa apenas parte da funcionalidade |
+| **Flexibilidade** | Hierarquia estável, poucas variações | Múltiplas combinações de componentes |
+| **Acoplamento** | Aceitável (framework bem estabelecido) | Desacoplamento crítico |
+| **Testabilidade** | Base já tem testes completos | Mock de componentes independentes |
+| **Exemplo Projeto** | `SessionConfig(BaseSettings)` | `RAGState` has `List[Document]` |
+
+**Python Example 1 - Inheritance (quando apropriado):**
+
+```python
+from pydantic import BaseSettings, Field
+
+# ✅ CORRETO: Herança quando framework oferece valor
+# File: src/infrastructure/config/settings.py
+class Settings(BaseSettings):
+    """
+    Herda de BaseSettings para aproveitar:
+    - Validação automática de tipos
+    - Carregamento de .env
+    - Caching de configuração
+    - Type hints enforcement
+    """
+    langsmith_api_key: str = Field(..., description="LangSmith API Key")
+    llm_model: str = Field(default="gemini-2.0-flash-exp")
+    reranker_enabled: bool = Field(default=True)
+
+    class Config:
+        env_file = ".env"
+        env_prefix = "PYTHON_RAG_"
+
+    # ✅ Liskov Substitution: Settings pode substituir BaseSettings
+    # ✅ Open/Closed: Extensível via novos campos sem modificar BaseSettings
+```
+
+**Python Example 2 - Composition (alternativa moderna):**
+
+```python
+from dataclasses import dataclass
+from typing import Protocol
+
+# File: src/core/domain/protocols.py (exemplo proposto)
+class VectorStore(Protocol):
+    """Interface para vector stores (Protocol, não ABC)."""
+    def similarity_search(self, query: str, k: int) -> list: ...
+
+class Reranker(Protocol):
+    """Interface para rerankers."""
+    def rerank(self, query: str, docs: list) -> list: ...
+
+# ✅ CORRETO: Composição para combinar componentes independentes
+# File: src/features/rag/pipeline.py (exemplo proposto)
+@dataclass
+class RAGPipeline:
+    """
+    Composição: HAS-A VectorStore, HAS-A Reranker.
+
+    Vantagens vs Herança:
+    - Flexibilidade: swap vector_store sem alterar classe
+    - Testabilidade: mock components facilmente
+    - Desacoplamento: components não dependem de RAGPipeline
+    """
+    vector_store: VectorStore  # Composition: HAS-A
+    reranker: Reranker          # Composition: HAS-A
+    llm: Any                    # Composition: HAS-A
+
+    def execute(self, question: str) -> str:
+        """Pipeline usando componentes compostos."""
+        # 1. Retrieval (usa vector_store)
+        documents = self.vector_store.similarity_search(question, k=10)
+
+        # 2. Reranking (usa reranker)
+        reranked = self.reranker.rerank(question, documents)
+
+        # 3. Generation (usa llm)
+        context = "\n".join(reranked)
+        answer = self.llm.generate(question, context)
+
+        return answer
+
+# ✅ Dependency Injection: componentes injetados via construtor
+pipeline = RAGPipeline(
+    vector_store=FAISSStore(),
+    reranker=BGEReranker(),
+    llm=GeminiLLM()
+)
+```
+
+📌 **Como aplicar no Projeto:**
+
+1. **Herde de Pydantic** quando precisar validação (`BaseModel`, `BaseSettings`)
+2. **Herde de ABC** quando precisar enforcement de interface ([ver ABC acima](#5-abstract-base-classes-abc---contratos-rígidos-com-enforcement))
+3. **Use Composition** para combinar funcionalidades independentes (RAGPipeline com VectorStore + Reranker)
+4. **Prefira Protocol** sobre ABC quando flexibilidade > enforcement
+5. **Evite herança >2 níveis** - cria acoplamento rígido
+
+_Quick Wins:_
+- **Refactoring smell**: Se você herda mas override 50%+ dos métodos → use Composition
+- **Test smell**: Se mockar base class é difícil → use Composition
+- **Design smell**: Se subclass quebra testes da base → viola Liskov (L), use Composition
+- **Performance**: Composition é ~5-10% mais rápido (sem overhead de method resolution order)
+
+**🔗 Cross-References:**
+- Ver [Inheritance](#3-inheritance---reuso-seguro-com-classes-base-pydantic) para padrão Pydantic
+- Ver [Abstract Base Classes](#5-abstract-base-classes-abc---contratos-rígidos-com-enforcement) para interfaces rígidas
+- Ver [Polymorphism](#4-polymorphism---implementações-intercambiáveis-no-pipeline-rag) para strategy injection
+- Ver [project-codification.md - Composition Patterns](project-codification.md#composition-patterns) para exemplos reais do código
+
+**⚠️ Anti-Patterns (Evitar):**
+
+```python
+# ❌ ERRADO: Herança profunda (>2 níveis)
+class Animal: pass
+class Mammal(Animal): pass
+class Dog(Mammal): pass
+class Labrador(Dog): pass  # ❌ 4 níveis = frágil
+
+# ❌ ERRADO: Herdar só para reusar 1 método
+class Logger:
+    def log(self, msg): print(msg)
+
+class Service(Logger):  # ❌ Só usa log(), não IS-A Logger
+    def process(self): self.log("processing")
+
+# ✅ CORRETO: Composição
+class Service:
+    def __init__(self, logger: Logger):
+        self.logger = logger  # HAS-A Logger
+    def process(self): self.logger.log("processing")
+```
 
 ---
 
