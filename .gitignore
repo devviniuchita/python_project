@@ -25,6 +25,9 @@
 !PROJECT_STRUCTURE.md
 !REORGANIZATION_SUMMARY.md
 
+# Entry points and demos
+!app.py
+
 # Source code (src-layout)
 !src/
 !src/**
