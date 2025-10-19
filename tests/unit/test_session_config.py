@@ -1,10 +1,11 @@
 """Test script to validate SessionConfig Pydantic model."""
 
-from uuid import uuid4
+from typing import cast
+from uuid import UUID, uuid4
 
 from pydantic import ValidationError
 
-from src.core.models.session import SessionConfig
+from src.core.domain.session import SessionConfig
 
 print("=" * 80)
 print("SESSIONCONFIG PYDANTIC VALIDATION TESTS")
@@ -26,7 +27,8 @@ except Exception as e:
 print("\n[Test 2] UUID auto-conversion from string:")
 try:
     config = SessionConfig(
-        thread_id="12345678-1234-1234-1234-123456789012", max_turns=5
+        thread_id=cast(UUID, "12345678-1234-1234-1234-123456789012"),
+        max_turns=5,
     )
     print("✅ PASS - UUID converted from string")
     print("   Input: str")
@@ -79,7 +81,7 @@ except Exception as e:
 # Test 7: Invalid UUID type
 print("\n[Test 7] Invalid UUID type (integer):")
 try:
-    config = SessionConfig(thread_id=1234567812412341234567812345678)
+    config = SessionConfig(thread_id=cast(UUID, 1234567812412341234567812345678))
     print("❌ FAIL - Should have raised ValidationError")
 except ValidationError as e:
     print("✅ PASS - ValidationError raised as expected")

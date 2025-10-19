@@ -3,8 +3,12 @@ LangGraph RAG System
 Assembles the stateful graph workflow with nodes and conditional edges
 """
 
+from typing import Any, Protocol, cast
+
 from langgraph.graph import END, START, StateGraph
-from nodes import (
+
+from src.core.domain.state import RAGState
+from src.features.rag.nodes import (
     classify_question,
     generate_answer,
     refine_answer,
@@ -13,10 +17,16 @@ from nodes import (
     validate_quality,
 )
 
-from src.core.domain.state import RAGState
-
 # Maximum refinement iterations to prevent infinite loops
 MAX_ITERATIONS = 2
+
+
+class RAGGraphRunner(Protocol):
+    """Protocol representing the compiled LangGraph executor."""
+
+    def invoke(
+        self, state: RAGState, config: Any | None = None
+    ) -> dict[str, object]: ...
 
 
 def should_refine(state: RAGState) -> str:
@@ -27,18 +37,18 @@ def should_refine(state: RAGState) -> str:
         END: If quality is good (>=0.7) or max iterations reached
         "refine": If answer needs improvement and iterations < MAX
     """
-    quality_score = state.get("quality_score", 0.0)
-    iterations = state.get("iterations", 0)
+    quality_score = state["quality_score"]
+    iterations = state["iterations"]
 
     # Good quality - stop here
     if quality_score >= 0.7:
         print(f"[DECISION] Quality good ({quality_score:.2f}) - ENDING")
-        return END
+        return str(END)
 
     # Max iterations reached - stop to prevent infinite loop
     if iterations >= MAX_ITERATIONS:
         print(f"[DECISION] Max iterations ({MAX_ITERATIONS}) reached - ENDING")
-        return END
+        return str(END)
 
     # Needs refinement
     print(
@@ -47,7 +57,7 @@ def should_refine(state: RAGState) -> str:
     return "refine"
 
 
-def create_rag_graph():
+def create_rag_graph() -> RAGGraphRunner:
     """
     Creates and compiles the RAG workflow graph.
 
@@ -89,7 +99,7 @@ def create_rag_graph():
     graph = workflow.compile()
 
     print("[GRAPH] RAG workflow compiled successfully")
-    return graph
+    return cast(RAGGraphRunner, graph)
 
 
 def run_rag_query(question: str) -> str:
@@ -105,9 +115,9 @@ def run_rag_query(question: str) -> str:
     graph = create_rag_graph()
 
     # Initialize state
-    initial_state = {
+    initial_state: RAGState = {
         "question": question,
-        "complexity": "",
+        "complexity": "simple",
         "documents": [],
         "generation": "",
         "quality_score": 0.0,
@@ -119,7 +129,7 @@ def run_rag_query(question: str) -> str:
     print(f"{'='*60}\n")
 
     # Run graph
-    final_state = graph.invoke(initial_state)
+    final_state = cast(RAGState, graph.invoke(initial_state))
 
     # Extract results
     answer = final_state["generation"]
@@ -128,7 +138,7 @@ def run_rag_query(question: str) -> str:
     complexity = final_state["complexity"]
 
     print(f"\n{'='*60}")
-    print(f"[COMPLETE] Workflow finished")
+    print("[COMPLETE] Workflow finished")
     print(f"  - Complexity: {complexity}")
     print(f"  - Quality Score: {quality:.2f}")
     print(f"  - Refinement Iterations: {iterations}")

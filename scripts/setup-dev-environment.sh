@@ -107,6 +107,10 @@ normalize_ssl_cert_envs() {
         print_warning "Detected PIP_CERT=$PIP_CERT which does not exist. Unsetting."
         unset PIP_CERT
     fi
+    if [ -n "$CURL_CA_BUNDLE" ] && [ ! -f "$CURL_CA_BUNDLE" ]; then
+        print_warning "Detected CURL_CA_BUNDLE=$CURL_CA_BUNDLE which does not exist. Unsetting."
+        unset CURL_CA_BUNDLE
+    fi
 
     # If certifi is already available in the activated Python, use it to set
     # SSL_CERT_FILE / REQUESTS_CA_BUNDLE for the current shell so child
@@ -245,7 +249,7 @@ fi
 
 print_header "Setting Up Pre-Commit Hooks"
 
-# Install pre-commit package
+# Install pre-commit package (framework used by CI and developers)
 print_info "Installing pre-commit framework..."
 pip install pre-commit -q
 print_success "pre-commit installed"
@@ -259,11 +263,40 @@ print_info "Validating pre-commit configuration..."
 pre-commit validate-config
 print_success "Pre-commit configuration validated"
 
-# Install hooks
-print_info "Installing pre-commit hooks..."
-cd "$PROJECT_DIR"
-pre-commit install
-print_success "Pre-commit hooks installed at .git/hooks/pre-commit"
+# Configure Git to use the repository-tracked hooks folder (.githooks).
+# This ensures the TLS/CA normalization wrapper (committed in the repo)
+# runs early (before any pip invocation) so hook venv creation won't fail
+# when system environment variables point to invalid CA bundles.
+print_info "Configuring Git to use repository hooks at .githooks (local setting)..."
+mkdir -p "${PROJECT_DIR}/.githooks"
+git config --local core.hooksPath .githooks || print_warning "Could not set core.hooksPath; you can run 'git config core.hooksPath .githooks' manually."
+print_success "Git core.hooksPath set to .githooks (local)"
+
+# Copy the repository wrapper into .git/hooks for immediate use in this clone
+# (some GUIs/tools still call .git/hooks directly). We keep a backup to be
+# non-destructive.
+if [ -d "${PROJECT_DIR}/.git" ]; then
+    if [ -f "${PROJECT_DIR}/.git/hooks/pre-commit" ]; then
+        cp "${PROJECT_DIR}/.git/hooks/pre-commit" "${PROJECT_DIR}/.git/hooks/pre-commit.backup" 2>/dev/null || true
+    fi
+    if [ -f "${PROJECT_DIR}/.githooks/pre-commit" ]; then
+        cp "${PROJECT_DIR}/.githooks/pre-commit" "${PROJECT_DIR}/.git/hooks/pre-commit"
+        chmod +x "${PROJECT_DIR}/.git/hooks/pre-commit"
+        print_success "Installed tracked hook wrapper into .git/hooks/pre-commit for immediate use"
+    else
+        print_warning "Tracked hook wrapper (.githooks/pre-commit) not found. Ensure repository includes .githooks/pre-commit"
+    fi
+fi
+
+# Ensure local mypy & type-stubs are available so the wrapper can run static
+# type checks using the project's virtualenv (avoids pre-commit creating its
+# own venvs and failing if TLS env vars are broken).
+print_info "Ensuring mypy and type-stubs are available in the virtualenv..."
+if python -m pip install --upgrade mypy types-requests types-PyYAML typing_extensions -q; then
+    print_success "mypy and common type-stubs installed"
+else
+    print_warning "Failed to install mypy/type-stubs. If pre-commit hook venvs still fail, see docs/TROUBLESHOOT_PRECOMMIT_TLS.md"
+fi
 
 ################################################################################
 # Final Status Report

@@ -6,9 +6,9 @@ import os
 os.environ["LOG_FORMAT"] = "json"
 os.environ["LOG_LEVEL"] = "INFO"
 
-from structlog.contextvars import bind_contextvars
+from structlog.contextvars import bind_contextvars  # noqa: E402
 
-from src.infrastructure.logging.logger import get_logger
+from src.infrastructure.logging.logger import get_logger  # noqa: E402
 
 logger = get_logger("test")
 

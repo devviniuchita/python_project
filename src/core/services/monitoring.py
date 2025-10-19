@@ -8,7 +8,7 @@ from typing import Dict, List, Optional
 from langsmith import Client
 
 from src.infrastructure.config.settings import settings
-from src.infrastructure.utils.logger import get_logger
+from src.infrastructure.logging.logger import get_logger
 
 # Module logger
 logger = get_logger(__name__)
@@ -103,7 +103,7 @@ def get_run_stats(run_id: str) -> Optional[Dict]:
         return None
 
 
-def print_monitoring_summary():
+def print_monitoring_summary() -> None:
     """
     Prints a summary of LangSmith monitoring configuration and recent activity.
     """

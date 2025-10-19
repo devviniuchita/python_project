@@ -1,13 +1,13 @@
-"""
-Demonstração Automática do Sistema Conversacional RAG
-Simula uma conversa completa para validar todas as funcionalidades
+"""Demonstração Automática do Sistema Conversacional RAG.
+
+Simula uma conversa completa para validar todas as funcionalidades.
 """
 
 import os
 
 from dotenv import load_dotenv
-from memory_manager import get_conversation_config, reset_conversation
 
+from src.core.services.memory_manager import get_conversation_config, reset_conversation
 from src.features.conversation.conversation_graph import run_conversational_query
 
 # Load environment
@@ -16,7 +16,7 @@ if os.path.exists(venv_env_path):
     load_dotenv(venv_env_path)
 
 
-def print_separator(title=""):
+def print_separator(title: str = "") -> None:
     """Print section separator."""
     print("\n" + "=" * 80)
     if title:
@@ -24,9 +24,8 @@ def print_separator(title=""):
         print("=" * 80)
 
 
-def demo_conversation():
+def demo_conversation() -> None:
     """Run demonstration conversation."""
-
     print_separator("🚀 DEMONSTRAÇÃO COMPLETA DO SISTEMA CONVERSACIONAL RAG")
     print("\n📋 Funcionalidades a serem testadas:")
     print("  ✅ Memória persistente com thread_id")

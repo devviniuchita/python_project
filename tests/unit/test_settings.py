@@ -1,6 +1,6 @@
 """Test script to validate Pydantic Settings loading."""
 
-from src.config.settings import settings
+from src.infrastructure.config.settings import settings
 
 print("=" * 80)
 print("PYDANTIC SETTINGS VALIDATION")

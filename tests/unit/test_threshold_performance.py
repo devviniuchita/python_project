@@ -10,7 +10,8 @@ Tests cover:
 """
 
 import time
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import Future, ThreadPoolExecutor, as_completed
+from typing import List
 from unittest.mock import MagicMock, patch
 
 import numpy as np
@@ -32,11 +33,20 @@ class TestThresholdPerformance:
         documents = []
         for i in range(n_docs):
             if i < n_docs // 3:  # 33% highly relevant
-                doc = f"This document discusses {query} in detail with technical accuracy and comprehensive examples."
+                doc = (
+                    f"This document discusses {query} in detail with technical "
+                    "accuracy and comprehensive examples."
+                )
             elif i < 2 * n_docs // 3:  # 33% medium relevant
-                doc = "This contains some information about machine learning and AI concepts."
+                doc = (
+                    "This contains some information about machine learning "
+                    "and AI concepts."
+                )
             else:  # 34% low relevant
-                doc = f"This document is about cooking recipes and has nothing to do with {query}."
+                doc = (
+                    f"This document is about cooking recipes and has nothing to "
+                    f"do with {query}."
+                )
 
             documents.append(doc)
 
@@ -47,12 +57,12 @@ class TestThresholdPerformance:
 
         with patch("reranker.get_reranker") as mock_get_reranker:
             mock_reranker = MagicMock()
-            # Simulate realistic scoring times (faster for testing)
-            mock_scores = np.random.random(n_docs) * 0.8 + 0.1  # Scores between 0.1-0.9
+            rng = np.random.default_rng(42)
+            mock_scores = rng.random(n_docs) * 0.8 + 0.1  # Scores between 0.1-0.9
             mock_reranker.predict.return_value = mock_scores
             mock_get_reranker.return_value = mock_reranker
 
-            result = rerank_documents(query, documents, top_n=50)
+            result: List[str] = rerank_documents(query, documents, top_n=50)
 
         end_time = time.time()
         execution_time = end_time - start_time
@@ -83,11 +93,12 @@ class TestThresholdPerformance:
 
         with patch("reranker.get_reranker") as mock_get_reranker:
             mock_reranker = MagicMock()
-            mock_scores = np.random.random(n_docs)
+            rng = np.random.default_rng(42)
+            mock_scores = rng.random(n_docs)
             mock_reranker.predict.return_value = mock_scores
             mock_get_reranker.return_value = mock_reranker
 
-            result = rerank_documents(query, documents, top_n=25)
+            result: List[str] = rerank_documents(query, documents, top_n=25)
 
         # Get final memory usage
         final_memory = process.memory_info().rss / 1024 / 1024  # MB
@@ -124,7 +135,7 @@ class TestThresholdPerformance:
             "predictive analytics models",
         ]
 
-        def process_query(query_idx):
+        def process_query(query_idx: int) -> List[str]:
             query = queries[query_idx]
             documents = [
                 f"Document {i} relevant to {query}" for i in range(n_docs_per_query)
@@ -132,17 +143,21 @@ class TestThresholdPerformance:
 
             with patch("reranker.get_reranker") as mock_get_reranker:
                 mock_reranker = MagicMock()
-                mock_scores = np.random.random(n_docs_per_query)
+                rng = np.random.default_rng(42 + query_idx)
+                mock_scores = rng.random(n_docs_per_query)
                 mock_reranker.predict.return_value = mock_scores
                 mock_get_reranker.return_value = mock_reranker
 
-                return rerank_documents(query, documents, top_n=20)
+                result = rerank_documents(query, documents, top_n=20)
+                return list(result)
 
         # Execute concurrent requests
         start_time = time.time()
 
         with ThreadPoolExecutor(max_workers=n_concurrent) as executor:
-            futures = [executor.submit(process_query, i) for i in range(n_concurrent)]
+            futures: List[Future[List[str]]] = [
+                executor.submit(process_query, i) for i in range(n_concurrent)
+            ]
             results = [future.result() for future in as_completed(futures)]
 
         end_time = time.time()
@@ -157,12 +172,13 @@ class TestThresholdPerformance:
         # Validate results
         assert len(results) == n_concurrent, "Not all requests completed"
         for i, result in enumerate(results):
+            result_len = len(result) if hasattr(result, '__len__') else 0
             assert (
-                len(result) <= 20
-            ), f"Query {i} returned too many results: {len(result)}"
-            assert len(result) > 0, f"Query {i} returned no results"
+                result_len <= 20
+            ), f"Query {i} returned too many results: {result_len}"
+            assert result_len > 0, f"Query {i} returned no results"
 
-        # Performance should be reasonable (less than 30 seconds for 10 concurrent requests)
+        # Performance should be reasonable (<30s for 10 concurrent requests)
         assert total_time < 30, f"Concurrent processing too slow: {total_time:.3f}s"
 
         print(f"✅ PASS - Concurrent processing: {total_time:.3f}s")
@@ -181,11 +197,14 @@ class TestThresholdPerformance:
 
             with patch("reranker.get_reranker") as mock_get_reranker:
                 mock_reranker = MagicMock()
-                mock_scores = np.random.random(n_docs)
+                rng = np.random.default_rng(42)
+                mock_scores = rng.random(n_docs)
                 mock_reranker.predict.return_value = mock_scores
                 mock_get_reranker.return_value = mock_reranker
 
-                result = rerank_documents(query, documents, top_n=min(25, n_docs))
+                result: List[str] = rerank_documents(
+                    query, documents, top_n=min(25, n_docs)
+                )
                 assert result is not None
 
             end_time = time.time()
@@ -193,7 +212,8 @@ class TestThresholdPerformance:
             execution_times.append(execution_time)
 
             print(
-                f"  {n_docs:4d} docs: {execution_time:6.3f}s ({n_docs/execution_time:6.1f} docs/s)"
+                f"  {n_docs:4d} docs: {execution_time:6.3f}s "
+                f"({n_docs/execution_time:6.1f} docs/s)"
             )
 
         # Validate scalability - execution time should not grow exponentially
@@ -203,13 +223,16 @@ class TestThresholdPerformance:
             dataset_ratio = dataset_sizes[i] / dataset_sizes[i - 1]
 
             print(
-                f"  Growth {dataset_sizes[i-1]}→{dataset_sizes[i]}: {growth_ratio:.2f}x time, {dataset_ratio:.2f}x data"
+                f"  Growth {dataset_sizes[i-1]}→{dataset_sizes[i]}: "
+                f"{growth_ratio:.2f}x time, {dataset_ratio:.2f}x data"
             )
 
             # Growth should be roughly linear (not much higher than dataset ratio)
-            assert (
-                growth_ratio < dataset_ratio * 2.5
-            ), f"Non-linear growth detected: {growth_ratio:.2f}x time for {dataset_ratio:.2f}x data"
+            msg = (
+                f"Non-linear growth detected: {growth_ratio:.2f}x time for "
+                f"{dataset_ratio:.2f}x data"
+            )
+            assert growth_ratio < dataset_ratio * 2.5, msg
 
         print("✅ PASS - Scalability analysis shows linear performance growth")
 
@@ -230,22 +253,23 @@ class TestThresholdStressTesting:
 
                 with patch("reranker.get_reranker") as mock_get_reranker:
                     mock_reranker = MagicMock()
-                    mock_scores = np.random.random(n_docs)
+                    rng = np.random.default_rng(42)
+                    mock_scores = rng.random(n_docs)
                     mock_reranker.predict.return_value = mock_scores
                     mock_get_reranker.return_value = mock_reranker
 
-                    result = rerank_documents("test query", documents)
+                    result: List[str] = rerank_documents("test query", documents)
 
                     print(f"  Threshold {threshold:.3f}: {len(result)} results")
 
                     # Validate edge case behavior
                     if threshold >= 1.0:
-                        # Very high threshold should return at most 1 document (highest score)
+                        # Very high threshold should return at most 1 doc
                         assert (
                             len(result) <= 1
                         ), f"High threshold returned too many: {len(result)}"
                     elif threshold <= 0.0:
-                        # Very low threshold should return top_n documents (no filtering)
+                        # Very low threshold should return top_n docs (no filtering)
                         assert (
                             len(result) <= 25
                         ), f"Low threshold returned too many: {len(result)}"
@@ -265,14 +289,15 @@ class TestThresholdStressTesting:
                 mock_reranker = MagicMock()
 
                 if documents:  # Only mock scores if documents exist
-                    mock_scores = np.random.random(len(documents))
+                    rng = np.random.default_rng(42)
+                    mock_scores = rng.random(len(documents))
                     mock_reranker.predict.return_value = mock_scores
                 else:
                     mock_reranker.predict.return_value = np.array([])
 
                 mock_get_reranker.return_value = mock_reranker
 
-                result = rerank_documents("test query", documents)
+                result: List[str] = rerank_documents("test query", documents)
 
                 print(f"  {description}: {len(result)} results")
 

@@ -48,9 +48,7 @@ def main():
         return False
 
     try:
-        from tests.test_threshold_performance import (
-            TestThresholdPerformance,
-        )
+        from tests.test_threshold_performance import TestThresholdPerformance
 
         print("✅ Performance tests imported")
     except ImportError as e:

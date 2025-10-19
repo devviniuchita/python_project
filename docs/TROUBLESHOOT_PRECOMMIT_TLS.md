@@ -95,6 +95,16 @@ Automação aplicada (atualização do repositório)
 
 - O hook local `.githooks/pre-commit` foi atualizado para validar as variáveis TLS no momento do commit: ele tenta localizar o Python do `.venv` e, se `certifi` estiver instalado, define as variáveis para o bundle do `certifi`; caso contrário, ele remove apenas as variáveis que apontam para arquivos inexistentes para evitar falhas de ferramentas (black/isort/flake8) durante o commit.
 
+- Adicionado um executor seguro `scripts/precommit_wrapper.py` que normaliza as variáveis TLS/CA e repassa a execução para o `pre-commit` do ambiente atual.
+  - Uso rápido (sessão):
+
+    ```bash
+    # Executa pre-commit com normalização TLS usando o python do venv ativado
+    python scripts/precommit_wrapper.py run --all-files
+    ```
+
+  - O wrapper é cross-platform e assegura que o processo que cria venvs para hooks (p.ex. mirrors-mypy) herde um CA bundle válido (via certifi) ou não utilize variáveis inválidas.
+
 Comandos rápidos para recuperar um ambiente quebrado:
 
 ```bash

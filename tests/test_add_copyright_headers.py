@@ -11,22 +11,22 @@ Digital Signature: 8f3c9d2e1a4b7f6c5e9d8a3b2c1f4e7d
 
 import sys
 import tempfile
+
 from pathlib import Path
 
 import pytest
 
+
 # Add scripts directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
 
-from add_copyright_headers import (
-    FileType,
-    add_copyright_header,
-    detect_file_type,
-    extract_docstring_from_content,
-    has_copyright,
-    has_shebang,
-    process_directory,
-)
+from add_copyright_headers import FileType
+from add_copyright_headers import add_copyright_header
+from add_copyright_headers import detect_file_type
+from add_copyright_headers import extract_docstring_from_content
+from add_copyright_headers import has_copyright
+from add_copyright_headers import has_shebang
+from add_copyright_headers import process_directory
 
 
 class TestFileTypeDetection:

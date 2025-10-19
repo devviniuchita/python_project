@@ -19,7 +19,7 @@ class ConversationManager:
     - Conversation history management
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize conversation manager with memory saver."""
         self.memory = MemorySaver()
         self.active_sessions: Dict[str, str] = {}  # user_id -> thread_id mapping

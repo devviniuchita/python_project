@@ -41,6 +41,14 @@ else
         echo "  -> REQUESTS_CA_BUNDLE aponta para arquivo inexistente ($REQUESTS_CA_BUNDLE). Unsetting..."
         unset REQUESTS_CA_BUNDLE
     fi
+    if [ -n "$PIP_CERT" ] && [ ! -f "$PIP_CERT" ]; then
+        echo "  -> PIP_CERT aponta para arquivo inexistente ($PIP_CERT). Unsetting..."
+        unset PIP_CERT
+    fi
+    if [ -n "$CURL_CA_BUNDLE" ] && [ ! -f "$CURL_CA_BUNDLE" ]; then
+        echo "  -> CURL_CA_BUNDLE aponta para arquivo inexistente ($CURL_CA_BUNDLE). Unsetting..."
+        unset CURL_CA_BUNDLE
+    fi
     echo "  -> Certifi não encontrado no venv; mantendo variáveis válidas (se existirem)."
 fi
 
@@ -128,7 +136,16 @@ isort --check-only $STAGED_PY_FILES || {
 echo "✅ isort passed"
 echo ""
 
-echo "🔍 Running flake8..."
+echo "� Running mypy..."
+if $VENV_PYTHON -m mypy --ignore-missing-imports --allow-untyped-decorators src tests/unit; then
+    echo "✅ mypy passed"
+else
+    echo "❌ mypy failed"
+    echo "Run: $VENV_PYTHON -m pip install mypy types-requests types-PyYAML typing_extensions && re-run the commit"
+    exit 1
+fi
+
+echo "�🔍 Running flake8..."
 flake8 $STAGED_PY_FILES || {
     echo "❌ flake8 failed"
     exit 1

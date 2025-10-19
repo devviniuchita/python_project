@@ -12,8 +12,12 @@ Usage:
     python test_langsmith_integration.py
 """
 
-from src.config.settings import settings
+import math
+
 from src.features.reranking.reranker import rerank_documents, reset_reranker
+from src.infrastructure.config.settings import (
+    settings,  # pyright: ignore[reportMissingImports]
+)
 
 
 def test_basic_tracing() -> None:
@@ -103,7 +107,8 @@ def test_threshold_filtering() -> None:
 
         reranked = rerank_documents(query, irrelevant_docs, top_n=2)
         print(
-            f"  Result: Returned {len(reranked)} document(s) (expected: 1, highest score)"
+            f"  Result: Returned {len(reranked)} document(s) "
+            f"(expected: 1, highest score)"
         )
 
         print("\n  → Check LangSmith for 'all_documents_below_threshold' warning")
@@ -139,13 +144,14 @@ def test_sampling_configuration() -> None:
     print("  - 0.1 = 10% of requests traced (production)")
     print("  - 0.0 = 0% (tracing disabled)")
 
-    if settings.langsmith_trace_sample_rate == 1.0:
+    if math.isclose(settings.langsmith_trace_sample_rate, 1.0):
         print("\n✓ Development mode: All requests traced")
-    elif settings.langsmith_trace_sample_rate == 0.0:
+    elif math.isclose(settings.langsmith_trace_sample_rate, 0.0):
         print("\n⚠ Tracing disabled: No traces will appear in LangSmith")
     else:
         print(
-            f"\n✓ Production mode: {settings.langsmith_trace_sample_rate * 100}% sampled"
+            f"\n✓ Production mode: "
+            f"{settings.langsmith_trace_sample_rate * 100}% sampled"
         )
 
     print("\n  → To change sampling rate, update .env:")
@@ -179,7 +185,7 @@ def test_latency_breakdown() -> None:
     print("     - Metadata: scoring_time_ms (CrossEncoder.predict latency)")
 
 
-def main():
+def main() -> None:
     """Run all tests."""
     print("\n" + "=" * 80)
     print("LANGSMITH INTEGRATION VALIDATION")

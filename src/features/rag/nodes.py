@@ -3,23 +3,32 @@ LangGraph Nodes for RAG System
 Each node is a function that receives state and returns updated state
 """
 
-import os
-from typing import List
+from typing import Literal
 
 from langchain.prompts import ChatPromptTemplate
 from langchain_community.vectorstores import FAISS
-from langchain_core.documents import Document
 from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
 from langsmith import traceable
-from reranker import get_reranker
 
 from src.core.domain.state import RAGState
+from src.features.reranking.reranker import rerank_documents as apply_reranking
 from src.infrastructure.config.settings import settings
 
 # Initialize components
 embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
 db_path = "banco_faiss"
 llm = ChatGoogleGenerativeAI(model=settings.llm_model, temperature=0)
+
+
+def _normalize_complexity(value: str) -> Literal["simple", "complex"]:
+    """Normalize LLM output to the supported complexity literals."""
+    normalized = value.strip().lower()
+    if normalized.startswith("simp"):
+        return "simple"
+    if normalized.startswith("compl"):
+        return "complex"
+    # Prefer conservative default when uncertain to keep retrieval broad.
+    return "complex"
 
 
 @traceable(run_type="chain", name="Classify Question Complexity")
@@ -41,14 +50,11 @@ def classify_question(state: RAGState) -> RAGState:
 
     chain = prompt | llm
     response = chain.invoke({"question": question})
-    complexity = response.content.strip().lower()
-
-    # Validate response
-    if complexity not in ["simple", "complex"]:
-        complexity = "complex"  # Default to complex if unclear
+    complexity = _normalize_complexity(str(response.content))
 
     print(f"[CLASSIFY] Question classified as: {complexity}")
-    return {"complexity": complexity}
+    state["complexity"] = complexity
+    return state
 
 
 @traceable(run_type="retriever", name="Adaptive Document Retrieval")
@@ -88,7 +94,8 @@ def retrieve_adaptive(state: RAGState) -> RAGState:
     documents = [doc.page_content for doc in docs]
 
     print(f"[RETRIEVE] Retrieved {len(documents)} documents")
-    return {"documents": documents}
+    state["documents"] = documents
+    return state
 
 
 @traceable(run_type="chain", name="BGE Semantic Reranking")
@@ -97,7 +104,7 @@ def rerank_documents(state: RAGState) -> RAGState:
     Reranks retrieved documents using BGE cross-encoder for semantic relevance.
 
     This node is conditionally executed based on settings.reranker_enabled.
-    If disabled, it passes through without modification (returns empty dict).
+    If disabled, it passes through without modification (returns the current state).
 
     Process:
     1. Check if reranking is enabled
@@ -114,7 +121,7 @@ def rerank_documents(state: RAGState) -> RAGState:
     """
     if not settings.reranker_enabled:
         print("[RERANK] Disabled - skipping reranking")
-        return {}  # No-op: pass through without changes
+        return state
 
     question = state["question"]
     documents = state["documents"]
@@ -122,45 +129,19 @@ def rerank_documents(state: RAGState) -> RAGState:
 
     if not documents:
         print("[RERANK] No documents to rerank")
-        return {}
+        return state
 
     print(f"[RERANK] Reranking {len(documents)} documents")
 
-    try:
-        # Get reranker instance (lazy loaded)
-        reranker = get_reranker()
+    # Determine top_n based on complexity (override settings)
+    top_n = 5 if complexity == "simple" else 7
 
-        if reranker is None:
-            print("[RERANK] Reranker not available - skipping")
-            return {}
+    reranked_content = apply_reranking(question, documents, top_n=top_n)
 
-        # Convert to Document objects for LangChain
-        doc_objects = [Document(page_content=doc) for doc in documents]
+    print(f"[RERANK] Reranked {len(documents)} → {len(reranked_content)} documents")
 
-        # Determine top_n based on complexity (override settings)
-        top_n = 5 if complexity == "simple" else 7
-
-        # Override top_n temporarily
-        original_top_n = reranker.top_n
-        reranker.top_n = top_n
-
-        # Perform reranking
-        reranked_docs = reranker.compress_documents(doc_objects, question)
-
-        # Restore original top_n
-        reranker.top_n = original_top_n
-
-        # Convert back to strings
-        reranked_content = [doc.page_content for doc in reranked_docs]
-
-        print(f"[RERANK] Reranked {len(documents)} → {len(reranked_content)} documents")
-
-        return {"documents": reranked_content}
-
-    except Exception as e:
-        print(f"[RERANK] Error during reranking: {e}")
-        print("[RERANK] Falling back to original documents")
-        return {}  # Fallback: keep original documents
+    state["documents"] = reranked_content
+    return state
 
 
 @traceable(run_type="llm", name="Generate Answer")
@@ -191,10 +172,11 @@ def generate_answer(state: RAGState) -> RAGState:
 
     chain = prompt | llm
     response = chain.invoke({"contexto": contexto, "pergunta": question})
-    generation = response.content
+    generation = str(response.content)
 
     print(f"[GENERATE] Generated answer ({len(generation)} chars)")
-    return {"generation": generation}
+    state["generation"] = generation
+    return state
 
 
 @traceable(run_type="chain", name="Validate Answer Quality")
@@ -228,7 +210,7 @@ def validate_quality(state: RAGState) -> RAGState:
     )
 
     try:
-        quality_score = float(response.content.strip())
+        quality_score = float(str(response.content).strip())
         # Clamp between 0 and 1
         quality_score = max(0.0, min(1.0, quality_score))
     except ValueError:
@@ -236,7 +218,8 @@ def validate_quality(state: RAGState) -> RAGState:
         quality_score = 0.6
 
     print(f"[VALIDATE] Quality score: {quality_score:.2f}")
-    return {"quality_score": quality_score}
+    state["quality_score"] = quality_score
+    return state
 
 
 @traceable(run_type="chain", name="Refine Answer with Feedback")
@@ -278,8 +261,10 @@ def refine_answer(state: RAGState) -> RAGState:
         }
     )
 
-    refined_generation = response.content
+    refined_generation = str(response.content)
     new_iterations = iterations + 1
 
     print(f"[REFINE] Refined answer (iteration {new_iterations})")
-    return {"generation": refined_generation, "iterations": new_iterations}
+    state["generation"] = refined_generation
+    state["iterations"] = new_iterations
+    return state

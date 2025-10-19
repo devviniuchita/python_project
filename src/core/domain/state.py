@@ -6,11 +6,12 @@ Type hints with Literal and Field provide static type checking without
 runtime validation overhead (~2.5x faster than BaseModel).
 """
 
-from typing import Annotated, List, Literal, Sequence, TypedDict
+from typing import List, Literal, Sequence, TypedDict
 
 from langchain_core.messages import BaseMessage
 from langgraph.graph.message import add_messages
 from pydantic import Field
+from typing_extensions import Annotated
 
 
 class RAGState(TypedDict):

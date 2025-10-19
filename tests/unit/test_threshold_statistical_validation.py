@@ -48,7 +48,8 @@ class TestThresholdStatisticalValidation:
         # Find optimal threshold using Youden's J statistic
         youden_threshold = thresholds[np.argmax(tpr - fpr)]
         print(
-            f"✅ PASS - ROC analysis identifies optimal threshold: {youden_threshold:.3f}"
+            f"✅ PASS - ROC analysis identifies optimal threshold: "
+            f"{youden_threshold:.3f}"
         )
 
     def test_precision_recall_curve_analysis(self) -> None:
@@ -81,7 +82,8 @@ class TestThresholdStatisticalValidation:
 
         assert pr_auc > 0.3, f"PR AUC {pr_auc:.3f} is too low"
         print(
-            f"✅ PASS - PR curve analysis identifies balanced threshold: {best_threshold:.3f}"
+            f"✅ PASS - PR curve analysis identifies balanced threshold: "
+            f"{best_threshold:.3f}"
         )
 
     def test_threshold_confidence_intervals(self) -> None:
@@ -131,7 +133,8 @@ class TestThresholdStatisticalValidation:
         assert ci_lower > 0.0 and ci_upper < 1.0, "CI should be within valid range"
 
         print(
-            f"✅ PASS - Threshold CI analysis: {mean_threshold:.3f} ± {(ci_upper-ci_lower)/2:.3f}"
+            f"✅ PASS - Threshold CI analysis: {mean_threshold:.3f} ± "
+            f"{(ci_upper-ci_lower)/2:.3f}"
         )
 
 
@@ -252,8 +255,8 @@ class TestThresholdOptimization:
 
         # Test multiple threshold candidates
         threshold_candidates = np.linspace(0.1, 0.9, 50)
-        best_f1 = 0
-        best_threshold = 0
+        best_f1: float = 0.0
+        best_threshold: float = 0.0
 
         for threshold in threshold_candidates:
             predictions = (all_scores >= threshold).astype(int)
@@ -262,12 +265,12 @@ class TestThresholdOptimization:
             fp = np.sum((ground_truth == 0) & (predictions == 1))
             fn = np.sum((ground_truth == 1) & (predictions == 0))
 
-            precision = tp / (tp + fp) if (tp + fp) > 0 else 0
-            recall = tp / (tp + fn) if (tp + fn) > 0 else 0
+            precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
+            recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
             f1 = (
                 2 * precision * recall / (precision + recall)
                 if (precision + recall) > 0
-                else 0
+                else 0.0
             )
 
             if f1 > best_f1:

@@ -17,9 +17,10 @@ Example:
 
 import logging
 import sys
-from typing import Optional
+from typing import Any, Optional, cast
 
 import structlog
+from structlog.typing import Processor
 
 from src.infrastructure.config.settings import settings
 
@@ -27,14 +28,16 @@ from src.infrastructure.config.settings import settings
 try:
     import orjson
 
-    def orjson_serializer(obj, **kwargs):
+    def orjson_serializer(obj: Any, **kwargs: Any) -> str:
         """Orjson serializer that returns str (not bytes)."""
-        return orjson.dumps(obj).decode("utf-8")
+        return str(orjson.dumps(obj).decode("utf-8"))
 
-    json_renderer = structlog.processors.JSONRenderer(serializer=orjson_serializer)
+    json_renderer = cast(
+        Processor, structlog.processors.JSONRenderer(serializer=orjson_serializer)
+    )
 except ImportError:
     # Fallback to standard JSON
-    json_renderer = structlog.processors.JSONRenderer()
+    json_renderer = cast(Processor, structlog.processors.JSONRenderer())
 
 
 def get_logger(name: Optional[str] = None) -> structlog.BoundLogger:
@@ -53,7 +56,7 @@ def get_logger(name: Optional[str] = None) -> structlog.BoundLogger:
         >>> logger.info("user_logged_in", user_id=42, session="abc123")
         {"event": "user_logged_in", "user_id": 42, "session": "abc123", ...}
     """
-    return structlog.get_logger(name)
+    return cast(structlog.BoundLogger, structlog.get_logger(name))
 
 
 def configure_logging() -> None:
@@ -84,22 +87,20 @@ def configure_logging() -> None:
         >>> logger.info("system_started")
     """
     # Shared processors (always applied)
-    shared_processors = [
-        # Include context variables (query, user_id, etc.)
-        structlog.contextvars.merge_contextvars,
-        # Add log level field
-        structlog.processors.add_log_level,
-        # Format exceptions as structured data
-        structlog.processors.format_exc_info,
-        # Add ISO8601 UTC timestamp
-        structlog.processors.TimeStamper(fmt="iso", utc=True),
-        # Add callsite info (filename, function, line) for debugging
-        structlog.processors.CallsiteParameterAdder(
-            {
-                structlog.processors.CallsiteParameter.FILENAME,
-                structlog.processors.CallsiteParameter.FUNC_NAME,
-                structlog.processors.CallsiteParameter.LINENO,
-            }
+    shared_processors: list[Processor] = [
+        cast(Processor, structlog.contextvars.merge_contextvars),
+        cast(Processor, structlog.processors.add_log_level),
+        cast(Processor, structlog.processors.format_exc_info),
+        cast(Processor, structlog.processors.TimeStamper(fmt="iso", utc=True)),
+        cast(
+            Processor,
+            structlog.processors.CallsiteParameterAdder(
+                {
+                    structlog.processors.CallsiteParameter.FILENAME,
+                    structlog.processors.CallsiteParameter.FUNC_NAME,
+                    structlog.processors.CallsiteParameter.LINENO,
+                }
+            ),
         ),
     ]
 
@@ -108,18 +109,20 @@ def configure_logging() -> None:
 
     if log_format_lower == "json":
         # Force JSON output (production mode)
-        processors = shared_processors + [json_renderer]
+        processors: list[Processor] = [*shared_processors, json_renderer]
     elif log_format_lower == "console":
         # Force pretty console output (development mode)
-        processors = shared_processors + [structlog.dev.ConsoleRenderer(colors=True)]
+        console_renderer = cast(Processor, structlog.dev.ConsoleRenderer(colors=True))
+        processors = [*shared_processors, console_renderer]
     else:  # auto (default)
         # Auto-detect: TTY = console, pipe/file = JSON
         if sys.stderr.isatty():
-            processors = shared_processors + [
-                structlog.dev.ConsoleRenderer(colors=True)
-            ]
+            console_renderer = cast(
+                Processor, structlog.dev.ConsoleRenderer(colors=True)
+            )
+            processors = [*shared_processors, console_renderer]
         else:
-            processors = shared_processors + [json_renderer]
+            processors = [*shared_processors, json_renderer]
 
     # Parse log level from settings
     try:

@@ -3,10 +3,19 @@ Conversational RAG Graph with Memory
 Integrates chat history, context analysis, and follow-up handling
 """
 
+from typing import Any, Protocol, cast
+
 from langchain_core.messages import HumanMessage
 from langgraph.graph import END, START, StateGraph
-from memory_manager import get_memory_saver
-from nodes import (
+
+from src.core.domain.state import ConversationalRAGState
+from src.core.services.memory_manager import get_conversation_config, get_memory_saver
+from src.features.conversation import (
+    analyze_context,
+    check_clarification,
+    expand_question,
+)
+from src.features.rag.nodes import (
     classify_question,
     generate_answer,
     refine_answer,
@@ -15,15 +24,16 @@ from nodes import (
     validate_quality,
 )
 
-from src.core.domain.state import ConversationalRAGState
-from src.features.conversation import (
-    analyze_context,
-    check_clarification,
-    expand_question,
-)
-
 # Maximum refinement iterations
 MAX_ITERATIONS = 2
+
+
+class ConversationalGraphRunner(Protocol):
+    """Protocol for the conversational graph executor."""
+
+    def invoke(
+        self, state: ConversationalRAGState, config: Any | None = None
+    ) -> dict[str, object]: ...
 
 
 def should_refine(state: ConversationalRAGState) -> str:
@@ -34,16 +44,16 @@ def should_refine(state: ConversationalRAGState) -> str:
         END: If quality is good (>=0.7) or max iterations reached
         "refine": If answer needs improvement
     """
-    quality_score = state.get("quality_score", 0.0)
-    iterations = state.get("iterations", 0)
+    quality_score = state["quality_score"]
+    iterations = state["iterations"]
 
     if quality_score >= 0.7:
         print(f"[DECISION] Quality good ({quality_score:.2f}) - ENDING")
-        return END
+        return str(END)
 
     if iterations >= MAX_ITERATIONS:
         print(f"[DECISION] Max iterations ({MAX_ITERATIONS}) reached - ENDING")
-        return END
+        return str(END)
 
     print(
         f"[DECISION] Quality low ({quality_score:.2f}) - REFINING (iteration {iterations + 1})"
@@ -61,16 +71,16 @@ def should_proceed_or_clarify(state: ConversationalRAGState) -> str:
     """
     # If generation already set (clarification), end here
     # Using approximate comparison for float to avoid precision issues
-    quality_score = state.get("quality_score", 0)
-    if state.get("generation") and abs(quality_score - 0.5) < 0.01:
+    quality_score = state["quality_score"]
+    if state["generation"] and abs(quality_score - 0.5) < 0.01:
         print("[DECISION] Clarification needed - ENDING for user response")
-        return END
+        return str(END)
 
     print("[DECISION] Question clear - PROCEEDING to classification")
     return "classify"
 
 
-def create_conversational_rag_graph():
+def create_conversational_rag_graph() -> ConversationalGraphRunner:
     """
     Creates and compiles the conversational RAG workflow graph with memory.
 
@@ -139,11 +149,13 @@ def create_conversational_rag_graph():
     graph = workflow.compile(checkpointer=memory)
 
     print("[GRAPH] Conversational RAG workflow compiled successfully with memory")
-    return graph
+    return cast(ConversationalGraphRunner, graph)
 
 
 def run_conversational_query(
-    question: str, user_id: str = "default", config: dict | None = None
+    question: str,
+    user_id: str = "default",
+    config: dict[str, Any] | None = None,
 ) -> str:
     """
     Executes conversational RAG query with memory.
@@ -156,8 +168,6 @@ def run_conversational_query(
     Returns:
         Generated answer string
     """
-    from memory_manager import get_conversation_config
-
     graph = create_conversational_rag_graph()
 
     # Get or create config
@@ -165,10 +175,10 @@ def run_conversational_query(
         config = get_conversation_config(user_id)
 
     # Create initial state with human message
-    initial_state = {
+    initial_state: ConversationalRAGState = {
         "messages": [HumanMessage(content=question)],
         "question": question,
-        "complexity": "",
+        "complexity": "simple",
         "documents": [],
         "generation": "",
         "quality_score": 0.0,
@@ -184,16 +194,17 @@ def run_conversational_query(
     print(f"{'='*60}\n")
 
     # Run graph with memory
-    final_state = graph.invoke(
-        initial_state, config  # pyright: ignore[reportArgumentType]
-    )  # pyright: ignore[reportArgumentType]
+    final_state = cast(
+        ConversationalRAGState,
+        graph.invoke(initial_state, config),
+    )
 
     # Extract results
     answer = final_state["generation"]
-    quality = final_state.get("quality_score", 0.0)
-    iterations = final_state.get("iterations", 0)
-    complexity = final_state.get("complexity", "N/A")
-    is_followup = final_state.get("is_followup", False)
+    quality = final_state["quality_score"]
+    iterations = final_state["iterations"]
+    complexity = final_state["complexity"]
+    is_followup = final_state["is_followup"]
 
     print(f"\n{'='*60}")
     print("[COMPLETE] Workflow finished")

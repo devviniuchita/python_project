@@ -3,11 +3,10 @@ Conversational Nodes for RAG System
 Handles context analysis, follow-up detection, and question expansion
 """
 
-import os
-from typing import Any, Dict
+from typing import Any
 
 from langchain.prompts import ChatPromptTemplate
-from langchain_core.messages import AIMessage, HumanMessage
+from langchain_core.messages import HumanMessage
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langsmith import traceable
 
@@ -18,8 +17,17 @@ from src.infrastructure.config.settings import settings
 llm = ChatGoogleGenerativeAI(model=settings.llm_model, temperature=0)
 
 
+def _coerce_content(content: Any) -> str:
+    """Normalize message or LLM content to a plain string."""
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        return " ".join(str(part) for part in content)
+    return str(content)
+
+
 @traceable(run_type="chain", name="Analyze Context for Follow-up")
-def analyze_context(state: ConversationalRAGState) -> Dict[str, Any]:
+def analyze_context(state: ConversationalRAGState) -> ConversationalRAGState:
     """
     Analyzes if the current question is a follow-up or standalone.
 
@@ -33,7 +41,7 @@ def analyze_context(state: ConversationalRAGState) -> Dict[str, Any]:
         Dict with is_followup, question, original_question fields
     """
     messages = state["messages"]
-    current_question = messages[-1].content if messages else ""
+    current_question = _coerce_content(messages[-1].content) if messages else ""
 
     # Store original question
     original_question = current_question
@@ -41,17 +49,16 @@ def analyze_context(state: ConversationalRAGState) -> Dict[str, Any]:
     # If first message, can't be follow-up
     if len(messages) <= 1:
         print("[CONTEXT] First message - not a follow-up")
-        return {
-            "is_followup": False,
-            "question": current_question,
-            "original_question": original_question,
-        }
+        state["is_followup"] = False
+        state["question"] = current_question
+        state["original_question"] = original_question
+        return state
 
     # Get recent conversation history (last 4 messages)
     recent_messages = messages[-4:] if len(messages) > 4 else messages[:-1]
     history_text = "\n".join(
         [
-            f"{'User' if isinstance(msg, HumanMessage) else 'Assistant'}: {msg.content}"
+            f"{'User' if isinstance(msg, HumanMessage) else 'Assistant'}: {_coerce_content(msg.content)}"
             for msg in recent_messages
         ]
     )
@@ -75,14 +82,7 @@ def analyze_context(state: ConversationalRAGState) -> Dict[str, Any]:
     response = chain.invoke({"history": history_text, "question": current_question})
 
     # Safely extract content (can be str or list in some cases)
-    content = response.content
-    if isinstance(content, str):
-        is_followup_text = content.strip().lower()
-    elif isinstance(content, list):
-        # Join list parts if multimodal response
-        is_followup_text = " ".join(str(part) for part in content).lower()
-    else:
-        is_followup_text = str(content).lower()
+    is_followup_text = _coerce_content(response.content).lower()
 
     is_followup = "sim" in is_followup_text
 
@@ -91,15 +91,14 @@ def analyze_context(state: ConversationalRAGState) -> Dict[str, Any]:
     else:
         print(f"[CONTEXT] Standalone question: {current_question}")
 
-    return {
-        "is_followup": is_followup,
-        "question": current_question,  # Will be expanded later if follow-up
-        "original_question": original_question,
-    }
+    state["is_followup"] = is_followup
+    state["question"] = current_question  # Will be expanded later if follow-up
+    state["original_question"] = original_question
+    return state
 
 
 @traceable(run_type="chain", name="Expand Follow-up Question")
-def expand_question(state: ConversationalRAGState) -> Dict[str, Any]:
+def expand_question(state: ConversationalRAGState) -> ConversationalRAGState:
     """
     Expands follow-up questions with context from conversation history.
 
@@ -112,10 +111,10 @@ def expand_question(state: ConversationalRAGState) -> Dict[str, Any]:
     Returns:
         Dict with expanded question field
     """
-    if not state.get("is_followup", False):
+    if not state["is_followup"]:
         # Not a follow-up, return as-is
         print("[EXPAND] Standalone question - no expansion needed")
-        return {}
+        return state
 
     messages = state["messages"]
     current_question = state["original_question"]
@@ -124,7 +123,7 @@ def expand_question(state: ConversationalRAGState) -> Dict[str, Any]:
     recent_messages = messages[-6:] if len(messages) > 6 else messages[:-1]
     history_text = "\n".join(
         [
-            f"{'User' if isinstance(msg, HumanMessage) else 'Assistant'}: {msg.content}"
+            f"{'User' if isinstance(msg, HumanMessage) else 'Assistant'}: {_coerce_content(msg.content)}"
             for msg in recent_messages
         ]
     )
@@ -147,22 +146,17 @@ def expand_question(state: ConversationalRAGState) -> Dict[str, Any]:
     response = chain.invoke({"history": history_text, "question": current_question})
 
     # Safely extract content
-    content = response.content
-    if isinstance(content, str):
-        expanded_question = content.strip()
-    elif isinstance(content, list):
-        expanded_question = " ".join(str(part) for part in content)
-    else:
-        expanded_question = str(content)
+    expanded_question = _coerce_content(response.content).strip()
 
     print(f"[EXPAND] Original: {current_question}")
     print(f"[EXPAND] Expanded: {expanded_question}")
 
-    return {"question": expanded_question}
+    state["question"] = expanded_question
+    return state
 
 
 @traceable(run_type="chain", name="Check if Clarification Needed")
-def check_clarification(state: ConversationalRAGState) -> Dict[str, Any]:
+def check_clarification(state: ConversationalRAGState) -> ConversationalRAGState:
     """
     Checks if the question is ambiguous and needs clarification.
 
@@ -172,10 +166,10 @@ def check_clarification(state: ConversationalRAGState) -> Dict[str, Any]:
         Dict with generation and quality_score if clarification needed, empty dict otherwise
     """
     question = state["question"]
-    documents = state.get("documents", [])
+    documents = state["documents"]
 
     # If no documents retrieved, might need clarification
-    if not documents or len(documents) == 0:
+    if not documents:
         prompt = ChatPromptTemplate.from_template(
             "Analise se a seguinte pergunta é clara o suficiente ou se precisa de clarificação.\n\n"
             "PERGUNTA: {question}\n\n"
@@ -190,13 +184,7 @@ def check_clarification(state: ConversationalRAGState) -> Dict[str, Any]:
         response = chain.invoke({"question": question})
 
         # Safely extract content
-        content = response.content
-        if isinstance(content, str):
-            response_text = content.strip().lower()
-        elif isinstance(content, list):
-            response_text = " ".join(str(part) for part in content).lower()
-        else:
-            response_text = str(content).lower()
+        response_text = _coerce_content(response.content).lower()
 
         needs_clarification = "sim" in response_text
 
@@ -213,21 +201,16 @@ def check_clarification(state: ConversationalRAGState) -> Dict[str, Any]:
             clarification_response = clarification_chain.invoke({"question": question})
 
             # Safely extract clarification content
-            clarif_content = clarification_response.content
-            if isinstance(clarif_content, str):
-                clarification = clarif_content.strip()
-            elif isinstance(clarif_content, list):
-                clarification = " ".join(str(part) for part in clarif_content)
-            else:
-                clarification = str(clarif_content)
+            clarification = _coerce_content(clarification_response.content).strip()
 
             print(f"[CLARIFY] Needs clarification: {question}")
             print(f"[CLARIFY] Asking: {clarification}")
 
-            return {
-                "generation": f"Desculpe, preciso de mais informações. {clarification}",
-                "quality_score": 0.5,  # Medium score - needs user input
-            }
+            state["generation"] = (
+                f"Desculpe, preciso de mais informações. {clarification}"
+            )
+            state["quality_score"] = 0.5  # Medium score - needs user input
+            return state
 
     print("[CLARIFY] Question is clear enough")
-    return {}  # Proceed normally
+    return state

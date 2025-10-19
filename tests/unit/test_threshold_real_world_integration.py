@@ -10,6 +10,7 @@ Tests cover:
 """
 
 import os
+from typing import Any
 from unittest.mock import MagicMock, patch
 
 import numpy as np
@@ -26,7 +27,7 @@ class TestThresholdRealWorldIntegration:
     """Real-world integration testing with FAISS and actual documents."""
 
     @pytest.fixture(scope="class")
-    def faiss_store(self):
+    def faiss_store(self) -> Any:
         """Create FAISS store with real documents for testing."""
         # Load and process the Perceptron PDF
         pdf_path = "Perceptron.pdf"
@@ -55,7 +56,7 @@ class TestThresholdRealWorldIntegration:
 
         return vectorstore
 
-    def test_faiss_retrieval_with_threshold_reranking(self, faiss_store):
+    def test_faiss_retrieval_with_threshold_reranking(self, faiss_store: Any) -> None:
         """Test FAISS retrieval followed by threshold-based reranking."""
         test_queries = [
             "What are the limitations of the Perceptron?",
@@ -74,10 +75,13 @@ class TestThresholdRealWorldIntegration:
             print(f"  Retrieved {len(retrieved_texts)} documents from FAISS")
 
             # Step 2: Apply threshold reranking
-            with patch("reranker.get_reranker") as mock_get_reranker:
+            with patch("src.features.reranking.reranker.get_reranker") as (
+                mock_get_reranker
+            ):
                 mock_reranker = MagicMock()
                 # Use actual similarity scores from FAISS as mock reranker scores
-                # FAISS doesn't return scores directly, so we'll simulate based on retrieval order
+                # FAISS doesn't return scores directly; we'll simulate
+                # scores based on retrieval order
                 mock_scores = np.array(
                     [0.9 - i * 0.05 for i in range(len(retrieved_texts))]
                 )
@@ -102,7 +106,7 @@ class TestThresholdRealWorldIntegration:
 
             print("  ✅ PASS - FAISS + threshold reranking integration")
 
-    def test_end_to_end_rag_workflow_with_threshold(self, faiss_store):
+    def test_end_to_end_rag_workflow_with_threshold(self, faiss_store: Any) -> None:
         """Test complete RAG workflow with threshold filtering."""
         query = "What are the key limitations of single-layer perceptrons?"
 
@@ -118,7 +122,9 @@ class TestThresholdRealWorldIntegration:
         for complexity, top_n in complexity_scores.items():
             print(f"\nTesting {complexity} complexity (top_n={top_n})")
 
-            with patch("reranker.get_reranker") as mock_get_reranker:
+            with patch("src.features.reranking.reranker.get_reranker") as (
+                mock_get_reranker
+            ):
                 mock_reranker = MagicMock()
                 # Simulate realistic scores for the query
                 mock_scores = np.array([0.85, 0.78, 0.65, 0.52, 0.41, 0.33, 0.28, 0.15])
@@ -138,7 +144,7 @@ class TestThresholdRealWorldIntegration:
                 # In a real implementation, we'd check actual quality scores
                 print(f"  ✅ PASS - {complexity} complexity workflow")
 
-    def test_threshold_adaptation_to_query_type(self, faiss_store):
+    def test_threshold_adaptation_to_query_type(self, faiss_store: Any) -> None:
         """Test how threshold adapts to different query types."""
         query_types = [
             ("technical", "Explain the mathematical proof of perceptron convergence"),
@@ -161,10 +167,12 @@ class TestThresholdRealWorldIntegration:
             ]
 
             for strategy_name, threshold in threshold_strategies:
-                with patch("reranker.settings") as mock_settings:
+                with patch("src.features.reranking.reranker.settings") as mock_settings:
                     mock_settings.reranker_score_threshold = threshold
 
-                    with patch("reranker.get_reranker") as mock_get_reranker:
+                    with patch(
+                        "src.features.reranking.reranker.get_reranker"
+                    ) as mock_get_reranker:
                         mock_reranker = MagicMock()
                         # Simulate scores that vary by query type
                         if query_type == "technical":
@@ -179,17 +187,24 @@ class TestThresholdRealWorldIntegration:
 
                         reranked_docs = rerank_documents(query, retrieved_texts)
 
-                        expected_min_docs = (
-                            1 if threshold >= 0.7 else (2 if threshold >= 0.5 else 3)
-                        )
+                        if threshold >= 0.7:
+                            expected_min_docs = 1
+                        elif threshold >= 0.5:
+                            expected_min_docs = 2
+                        else:
+                            expected_min_docs = 3
+                        num_docs = len(reranked_docs)
                         print(
-                            f"    {strategy_name} threshold {threshold:.1f}: {len(reranked_docs)} docs (min expected: {expected_min_docs})"
+                            f"    {strategy_name} threshold {threshold:.1f}: "
+                            f"{num_docs} docs (min expected: {expected_min_docs})"
                         )
 
                         # Validate threshold effectiveness
-                        assert (
-                            len(reranked_docs) >= expected_min_docs
-                        ), f"{strategy_name} threshold too strict: got {len(reranked_docs)}, expected >= {expected_min_docs}"
+                        msg = (
+                            f"{strategy_name} threshold too strict: got {num_docs}, "
+                            f"expected >= {expected_min_docs}"
+                        )
+                        assert len(reranked_docs) >= expected_min_docs, msg
 
             print(f"  ✅ PASS - {query_type} query threshold adaptation")
 
@@ -197,7 +212,7 @@ class TestThresholdRealWorldIntegration:
 class TestThresholdQualityValidation:
     """Quality validation with real-world data."""
 
-    def test_quality_score_improvement_measurement(self, faiss_store):
+    def test_quality_score_improvement_measurement(self, faiss_store: Any) -> None:
         """Test that threshold filtering improves result quality."""
         query = "What are the fundamental limitations of perceptrons?"
 
@@ -206,7 +221,9 @@ class TestThresholdQualityValidation:
         baseline_texts = [doc.page_content for doc in baseline_docs]
 
         # Get threshold-filtered results
-        with patch("reranker.get_reranker") as mock_get_reranker:
+        with patch("src.features.reranking.reranker.get_reranker") as (
+            mock_get_reranker
+        ):
             mock_reranker = MagicMock()
             # Simulate realistic quality scores (higher = better quality)
             mock_scores = np.array(
@@ -240,13 +257,18 @@ class TestThresholdQualityValidation:
 
         print(f"✅ PASS - Quality improvement: +{filtered_avg - baseline_avg:.3f}")
 
-    def test_adaptive_threshold_based_on_query_complexity(self, faiss_store):
+    def test_adaptive_threshold_based_on_query_complexity(
+        self, faiss_store: Any
+    ) -> None:
         """Test adaptive threshold selection based on query complexity."""
         test_cases = [
             ("simple", "What is a perceptron?", 5),
             (
                 "complex",
-                "Explain the mathematical foundations of neural network convergence theorems",
+                (
+                    "Explain the mathematical foundations of neural network "
+                    "convergence theorems"
+                ),
                 7,
             ),
         ]
@@ -259,11 +281,13 @@ class TestThresholdQualityValidation:
             retrieved_texts = [doc.page_content for doc in retrieved_docs]
 
             # Apply complexity-based top_n
-            with patch("reranker.get_reranker") as mock_get_reranker:
+            with patch("src.features.reranking.reranker.get_reranker") as (
+                mock_get_reranker
+            ):
                 mock_reranker = MagicMock()
-                mock_scores = (
-                    np.random.random(len(retrieved_texts)) * 0.6 + 0.2
-                )  # Scores 0.2-0.8
+                rng = np.random.default_rng(42)
+                mock_scores = rng.random(len(retrieved_texts)) * 0.6 + 0.2
+                # Scores 0.2-0.8
                 mock_reranker.predict.return_value = mock_scores
                 mock_get_reranker.return_value = mock_reranker
 
@@ -275,9 +299,12 @@ class TestThresholdQualityValidation:
                 print(f"  Actual results: {len(reranked_docs)}")
 
                 # Validate adaptive behavior
-                assert (
-                    len(reranked_docs) <= expected_top_n
-                ), f"Complexity-based top_n not respected: got {len(reranked_docs)}, expected <= {expected_top_n}"
+                num_docs = len(reranked_docs)
+                msg = (
+                    f"Complexity-based top_n not respected: got {num_docs}, "
+                    f"expected <= {expected_top_n}"
+                )
+                assert num_docs <= expected_top_n, msg
 
                 # For complex queries, we should get more results (up to top_n)
                 if complexity == "complex":
@@ -301,13 +328,23 @@ if __name__ == "__main__":
 
     try:
         # Run integration tests (commented out for faster execution)
-        # integration_suite.test_faiss_retrieval_with_threshold_reranking(integration_suite.faiss_store)
-        # integration_suite.test_end_to_end_rag_workflow_with_threshold(integration_suite.faiss_store)
-        # integration_suite.test_threshold_adaptation_to_query_type(integration_suite.faiss_store)
+        # integration_suite.test_faiss_retrieval_with_threshold_reranking(
+        #     integration_suite.faiss_store
+        # )
+        # integration_suite.test_end_to_end_rag_workflow_with_threshold(
+        #     integration_suite.faiss_store
+        # )
+        # integration_suite.test_threshold_adaptation_to_query_type(
+        #     integration_suite.faiss_store
+        # )
 
         # Run quality validation tests (commented out for faster execution)
-        # quality_suite.test_quality_score_improvement_measurement(quality_suite.faiss_store)
-        # quality_suite.test_adaptive_threshold_based_on_query_complexity(quality_suite.faiss_store)
+        # quality_suite.test_quality_score_improvement_measurement(
+        #     quality_suite.faiss_store
+        # )
+        # quality_suite.test_adaptive_threshold_based_on_query_complexity(
+        #     quality_suite.faiss_store
+        # )
 
         print("\n🎉 Real-world integration tests completed!")
         print("✅ All tests demonstrate threshold system effectiveness with real data")

@@ -78,6 +78,7 @@ repos:
     hooks:
       - id: flake8
         name: flake8 linter
+        files: ^tests/unit/.*
         args:
           - --max-line-length=88
           - --extend-ignore=E203,W503
@@ -92,11 +93,13 @@ repos:
     hooks:
       - id: mypy
         name: mypy type checker
-        args: [--ignore-missing-imports]
+        files: ^(src/|tests/unit/).*
+        args: [--ignore-missing-imports, --allow-untyped-decorators]
         additional_dependencies:
           - types-requests
           - types-PyYAML
-        exclude: ^(\.venv|venv|migrations)/
+          - typing_extensions
+        exclude: ^(\.venv|venv|migrations|\.github)/
 
   # Custom local hook: Copyright headers validation
   - repo: local

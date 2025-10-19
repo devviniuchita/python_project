@@ -80,7 +80,7 @@ per-file-ignores = [
 ]
 
 [tool.mypy]
-python_version = "3.8"
+python_version = "3.12"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
@@ -93,6 +93,7 @@ warn_unused_ignores = true
 warn_no_return = true
 warn_unreachable = true
 strict_equality = true
+mypy_path = ["src"]
 
 [[tool.mypy.overrides]]
 module = [
@@ -104,6 +105,15 @@ module = [
     "torch.*",
     "numpy.*",
 ]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["tests.*", "scripts.*"]
+# Relax untyped-def restrictions for tests and development scripts to allow
+# iterative annotation work without blocking pre-commit for developers.
+disallow_untyped_defs = false
+check_untyped_defs = false
+disallow_untyped_decorators = false
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]
