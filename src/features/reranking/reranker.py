@@ -12,11 +12,15 @@ Example:
 """
 
 import time
-from typing import List, Optional, Tuple
+
+from typing import List
+from typing import Optional
+from typing import Tuple
 
 import langsmith
 import numpy as np
 import torch
+
 from langchain_core.documents import Document
 from langsmith import traceable
 from sentence_transformers import CrossEncoder
@@ -24,6 +28,7 @@ from structlog.contextvars import bind_contextvars
 
 from src.infrastructure.config.settings import settings
 from src.infrastructure.logging.logger import get_logger
+
 
 # Module logger
 logger = get_logger(__name__)
