@@ -21,6 +21,8 @@ syncWith: ['.github/copilot-rules/project-codification.md'](project-codification
 - **Separation of Concerns**: Camada 1 trata entrada/saída e comandos; Camada 2 monta o grafo `StateGraph`; Camada 3 transforma o estado com estratégias especializadas; Camada 4 encapsula integrações externas (FAISS, LangSmith, CrossEncoder, Settings).
 - **Domain Independence**: Contratos em `src/core/domain` permanecem puros (sem dependências de infraestrutura) e são reutilizados em todas as camadas.
 
+📖 **Implementação Detalhada**: Ver [project-codification.md - Arquitetura Enterprise](project-codification.md#arquitetura-enterprise-hierárquica---padrões-validados) para implementação completa das 4 camadas com exemplos de código e arquivos específicos.
+
 _Otimização Tips (YOLO Mode):_
 
 - Novo handler? implemente em `scripts/` ou `src/features/conversation/` e delegue tudo para o grafo.
@@ -34,6 +36,8 @@ _Otimização Tips (YOLO Mode):_
 - **L** - Liskov Substitution: Subclasses e contratos (ex.: `Settings(BaseSettings)`) substituem a base sem quebrar consumidores.
 - **I** - Interface Segregation: Camadas consomem apenas os campos necessários (`SessionConfig`, `RAGState`), evitando APIs gordas.
 - **D** - Dependency Inversion: Layer 2 depende de assinaturas (`state -> dict`) ao invés de implementações concretas.
+
+📖 **Implementação Prática**: Ver [project-codification.md - Pattern Applied](project-codification.md#pattern_applied) para exemplos Python concretos de cada princípio SOLID em ação no projeto.
 
 _Otimização Tips (YOLO Mode):_
 
@@ -53,6 +57,8 @@ Module: typing.TypedDict, typing.Literal, pydantic.Field
 Reference: PEP 589 (TypedDict)
 Enforcement: Camada 2 (LangGraph) aceita apenas dicionários compatíveis com RAGState
 ```
+
+📖 **Arquivo de Implementação**: Ver [project-codification.md - RAGState](project-codification.md#ragstate) (linhas específicas com implementação completa e validação Pydantic).
 
 **Python Example - Contrato de estado compartilhado:**
 
