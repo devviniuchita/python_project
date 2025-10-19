@@ -348,12 +348,14 @@ class SemanticRerankingStrategy(RAGNodeStrategy):
 ```
 
 📌 **Como aplicar:**
+
 1. Defina interface ABC para cada categoria de strategy (Retrieval, Reranking, Generation)
 2. Implemente múltiplas variantes concretas (ex: `DenseRetrieval`, `HybridRetrieval`)
 3. LangGraph recebe strategy via dependency injection, não hard-coded class
 4. Teste cada strategy isoladamente (ABC garante compatibilidade)
 
 _Quick Wins:_
+
 - ABC > Protocol quando você quer **enforcement** (Python raises TypeError)
 - Protocol > ABC quando você quer **duck typing** (mais flexível)
 - Use ABC para **core abstractions** (RAGNodeStrategy), Protocol para **helpers**
@@ -361,15 +363,16 @@ _Quick Wins:_
 
 **🔗 ABC vs Protocol Comparison:**
 
-| Critério | ABC (`abc.ABC`) | Protocol (`typing.Protocol`) |
-|----------|-----------------|------------------------------|
-| **Enforcement** | Runtime TypeError se não implementado | Type checker warning only |
-| **Flexibility** | Requires explicit inheritance | Duck typing (structural) |
-| **Use Case** | Core contracts, mandatory interface | Optional helpers, type hints |
-| **Performance** | Slight overhead (isinstance checks) | Zero overhead (compile-time) |
-| **Projeto** | RAGNodeStrategy (core) | Helper protocols (optional) |
+| Critério        | ABC (`abc.ABC`)                       | Protocol (`typing.Protocol`) |
+| --------------- | ------------------------------------- | ---------------------------- |
+| **Enforcement** | Runtime TypeError se não implementado | Type checker warning only    |
+| **Flexibility** | Requires explicit inheritance         | Duck typing (structural)     |
+| **Use Case**    | Core contracts, mandatory interface   | Optional helpers, type hints |
+| **Performance** | Slight overhead (isinstance checks)   | Zero overhead (compile-time) |
+| **Projeto**     | RAGNodeStrategy (core)                | Helper protocols (optional)  |
 
 **⚠️ Edge Cases:**
+
 - **Multiple Inheritance**: ABC suporta, mas cuidado com diamond problem (use `super()` corretamente)
 - **Python <3.8**: ABC funciona, mas type hints podem precisar `from __future__ import annotations`
 - **Abstract Properties**: Use `@property + @abstractmethod` para propriedades abstratas obrigatórias
@@ -391,14 +394,14 @@ SOLID Connection: Liskov Substitution (L) - herança segura quando subclass não
 
 **Decision Framework - Quando usar cada um:**
 
-| Critério | Use Inheritance | Use Composition |
-|----------|-----------------|-----------------|
-| **Relacionamento** | "Is-a" claro (Circle IS-A Shape) | "Has-a" ou "Uses-a" (Car HAS-A Engine) |
-| **Reuso** | Comportamento da base é 80%+ relevante | Precisa apenas parte da funcionalidade |
-| **Flexibilidade** | Hierarquia estável, poucas variações | Múltiplas combinações de componentes |
-| **Acoplamento** | Aceitável (framework bem estabelecido) | Desacoplamento crítico |
-| **Testabilidade** | Base já tem testes completos | Mock de componentes independentes |
-| **Exemplo Projeto** | `SessionConfig(BaseSettings)` | `RAGState` has `List[Document]` |
+| Critério            | Use Inheritance                        | Use Composition                        |
+| ------------------- | -------------------------------------- | -------------------------------------- |
+| **Relacionamento**  | "Is-a" claro (Circle IS-A Shape)       | "Has-a" ou "Uses-a" (Car HAS-A Engine) |
+| **Reuso**           | Comportamento da base é 80%+ relevante | Precisa apenas parte da funcionalidade |
+| **Flexibilidade**   | Hierarquia estável, poucas variações   | Múltiplas combinações de componentes   |
+| **Acoplamento**     | Aceitável (framework bem estabelecido) | Desacoplamento crítico                 |
+| **Testabilidade**   | Base já tem testes completos           | Mock de componentes independentes      |
+| **Exemplo Projeto** | `SessionConfig(BaseSettings)`          | `RAGState` has `List[Document]`        |
 
 **Python Example 1 - Inheritance (quando apropriado):**
 
@@ -489,12 +492,14 @@ pipeline = RAGPipeline(
 5. **Evite herança >2 níveis** - cria acoplamento rígido
 
 _Quick Wins:_
+
 - **Refactoring smell**: Se você herda mas override 50%+ dos métodos → use Composition
 - **Test smell**: Se mockar base class é difícil → use Composition
 - **Design smell**: Se subclass quebra testes da base → viola Liskov (L), use Composition
 - **Performance**: Composition é ~5-10% mais rápido (sem overhead de method resolution order)
 
 **🔗 Cross-References:**
+
 - Ver [Inheritance](#3-inheritance---reuso-seguro-com-classes-base-pydantic) para padrão Pydantic
 - Ver [Abstract Base Classes](#5-abstract-base-classes-abc---contratos-rígidos-com-enforcement) para interfaces rígidas
 - Ver [Polymorphism](#4-polymorphism---implementações-intercambiáveis-no-pipeline-rag) para strategy injection
@@ -694,13 +699,13 @@ jobs:
 ---
 
 ```markdown
-**📅 Created:** 06/08/2025
-**🔄 Last Update:** 17/10/2025
+**📅 Created:** 2025-08-06
+**🔄 Last Update:** 2025-10-19
 **📋 Status:** ACTIVE AND MANDATORY
-**🎯 Application:** AWAYS WHEN THE USER MENTIONS OR WHEN THE AGENT NEEDS CONTEXT OR RELEVANT INFORMATION ABOUT THE PROJECT
+**🎯 Application:** ALWAYS WHEN THE USER MENTIONS OR WHEN THE AGENT NEEDS CONTEXT OR RELEVANT INFORMATION ABOUT THE PROJECT
 **🔍 Linked:** .github/copilot-rules/project-codification.md
 ```
 
 ---
 
-_This document defines the development, coding, security and deployment rules for the PROJEC PYTHON_
+_This document defines the development, coding, security and deployment rules for the PROJECT PYTHON_PROJECT_
