@@ -1,4 +1,5 @@
 <!-- CHUNK: rules-metadata | Lines: 1-76 | Keywords: metadata, quick-navigation-index, search-shortcuts | Tokens: ~600 -->
+<!-- CHUNK: rules-metadata | Lines: 1-76 | Keywords: metadata, quick-navigation-index, search-shortcuts | Tokens: ~600 -->
 ---
 metadata: |
 name: '.github/copilot-rules/project-rules.md'
@@ -74,6 +75,8 @@ syncWith: ['.github/copilot-rules/project-codification.md'](project-codification
 
 ## Regras Arquiteturais e Comportamentais Permanentes para Python
 
+<!-- END CHUNK: rules-metadata -->
+<!-- CHUNK: rules-clean-arch | Lines: 77-95 | Keywords: clean-architecture, 4-layers, dependency-boundaries | Tokens: ~200 -->
 ## 🏗️ ARQUITETURA FUNDAMENTAL
 <!-- END CHUNK: rules-metadata -->
 <!-- CHUNK: rules-clean-arch | Lines: 77-95 | Keywords: clean-architecture, 4-layers, dependency-boundaries | Tokens: ~200 -->
@@ -93,6 +96,8 @@ _Quick Wins (Implementation Tips):_
 - Monitore dependências com `python -m compileall` + `pip install import-linter` para garantir fluxo unidirecional (Layer 1 → Layer 4).
 - Métrica prática: nenhum módulo deve importar camadas superiores; falhas nessa regra aumentam o acoplamento e devem ser bloqueadas.
 
+<!-- END CHUNK: rules-clean-arch -->
+<!-- CHUNK: rules-solid-overview | Lines: 96-123 | Keywords: solid-principles, srp, ocp, lsp, isp, dip | Tokens: ~300 -->
 ---
 
 ## 🎯 SOLID PRINCIPLES - OVERVIEW
@@ -121,6 +126,8 @@ _Quick Wins (Implementation Tips):_
 
 ---
 
+<!-- END CHUNK: rules-solid-overview -->
+<!-- CHUNK: rules-abstraction | Lines: 124-171 | Keywords: typeddict, ragstate, literal, pep-589 | Tokens: ~500 -->
 ## 🏛️ OOP IMPLEMENTATION PATTERNS - DEEP DIVE
 
 Os 4 pilares de Programação Orientada a Objetos aplicados ao Python RAG Project, com exemplos executáveis e integração com SOLID principles.
@@ -169,6 +176,8 @@ class ConversationalRAGState(TypedDict):
   original_question: str
 ```
 
+<!-- END CHUNK: rules-abstraction -->
+<!-- CHUNK: rules-encapsulation | Lines: 172-218 | Keywords: pydantic, basesettings, field, computed-field | Tokens: ~500 -->
 📌 **Como aplicar:** qualquer novo node da Camada 3 deve aceitar `RAGState` e retornar apenas os campos que realmente altera. Isso mantém o fluxo de dados coerente e fácil de testar. Ver [Polymorphism](#4-polymorphism---implementações-intercambiáveis-no-pipeline-rag) para exemplos de nodes plugáveis.
 
 _Quick Wins:_ reutilize `TypedDict` sempre que precisar de contratos leves; `BaseModel` só é indicado quando validação em runtime for indispensável (cuidado com o overhead de ~2.5x).
@@ -216,6 +225,8 @@ class SessionConfig(BaseModel):
   def memory_ratio(self) -> float:
     """Return utilization ratio between memory window and max_turns."""
     return self.memory_window / self.max_turns
+<!-- END CHUNK: rules-encapsulation -->
+<!-- CHUNK: rules-inheritance | Lines: 219-254 | Keywords: sessionconfig, settings, pydantic-inheritance | Tokens: ~400 -->
 ```
 
 📌 **Como aplicar:** exponha apenas métodos de leitura (`get_config`, `memory_ratio`) e deixe que Pydantic rejeite estados inválidos automaticamente — evita `if` redundante em cada camada. Ver [SOLID Overview](#solid-principles---overview) para conexão com princípios S e I.
@@ -252,6 +263,8 @@ class Settings(BaseSettings):
   reranker_model: str = Field(default="BAAI/bge-reranker-base")
 
   class Config:
+<!-- END CHUNK: rules-inheritance -->
+<!-- CHUNK: rules-polymorphism | Lines: 255-311 | Keywords: callable, strategy-pattern, adaptive-retrieval | Tokens: ~600 -->
     env_file = ".env"
     env_prefix = "PYTHON_RAG_"
 ```
@@ -309,6 +322,8 @@ _Quick Wins:_ Concentre-se em manter nodes puros (sem efeitos colaterais) — is
 
 - **Abstraction + Polymorphism**: `TypedDict` contratos permitem nodes intercambiáveis
 - **Encapsulation + Inheritance**: `BaseSettings` herda validação Pydantic encapsulada
+<!-- END CHUNK: rules-polymorphism -->
+<!-- CHUNK: rules-abc-part1 | Lines: 312-380 | Keywords: abstractmethod, metricscollector, abc-protocol | Tokens: ~700 -->
 - **SOLID D + Polymorphism**: Camadas superiores dependem de assinaturas, não implementações
 
 ---
@@ -378,6 +393,8 @@ class RAGNodeStrategy(ABC):
 **Python Example 2 - Implementações Concretas:**
 
 ```python
+<!-- END CHUNK: rules-abc-part1 -->
+<!-- CHUNK: rules-abc-part2 | Lines: 381-443 | Keywords: embeddingprovider, protocol-enforcement | Tokens: ~650 -->
 from langsmith import traceable
 
 # File: src/features/rag/strategies/retrieval.py (exemplo proposto)
@@ -441,6 +458,8 @@ _Quick Wins:_
 
 **🔗 ABC vs Protocol Comparison:**
 
+<!-- END CHUNK: rules-abc-part2 -->
+<!-- CHUNK: rules-composition-part1 | Lines: 444-520 | Keywords: dependency-injection, aggregation, composition | Tokens: ~800 -->
 | Critério        | ABC (`abc.ABC`)                       | Protocol (`typing.Protocol`) |
 | --------------- | ------------------------------------- | ---------------------------- |
 | **Enforcement** | Runtime TypeError se não implementado | Type checker warning only    |
@@ -518,6 +537,8 @@ from typing import Protocol
 
 # File: src/core/domain/protocols.py (exemplo proposto)
 class VectorStore(Protocol):
+<!-- END CHUNK: rules-composition-part1 -->
+<!-- CHUNK: rules-composition-part2 | Lines: 521-594 | Keywords: decision-matrix, trade-offs | Tokens: ~750 -->
     """Interface para vector stores (Protocol, não ABC)."""
     def similarity_search(self, query: str, k: int) -> list: ...
 
@@ -592,6 +613,8 @@ _Quick Wins:_
 ```python
 # ❌ ERRADO: Herança profunda (>2 níveis)
 class Animal: pass
+<!-- END CHUNK: rules-composition-part2 -->
+<!-- CHUNK: rules-compliance-immutable | Lines: 595-632 | Keywords: immutable-rules, approval-criteria, quality-gates | Tokens: ~400 -->
 class Mammal(Animal): pass
 class Dog(Mammal): pass
 class Labrador(Dog): pass  # ❌ 4 níveis = frágil
@@ -630,6 +653,8 @@ Rule Compliance:
       Validation: SonarQube (cognitive complexity <15, duplication 0%)
       Trigger: Every commit via pre-commit hook
       Consequence: Build failure if S/O/I/D violated
+<!-- END CHUNK: rules-compliance-immutable -->
+<!-- CHUNK: rules-compliance-tools | Lines: 633-682 | Keywords: validation-tools, pre-commit, sonarqube | Tokens: ~500 -->
 
     - 🔒 Type_Hints_Mandatory: true
       Validation: mypy strict mode, SonarQube
@@ -680,6 +705,8 @@ echo "🔒 COMPLIANCE CHECKS - Starting validation..."
 # 1. Type hints
 echo "📌 Checking type hints with mypy..."
 mypy src/ --strict || exit 1
+<!-- END CHUNK: rules-compliance-tools -->
+<!-- CHUNK: rules-compliance-git | Lines: 683-738 | Keywords: git-commit-hooks, github-actions, ci-cd | Tokens: ~600 -->
 
 # 2. Code style
 echo "🎨 Formatting code with Black..."
@@ -736,6 +763,8 @@ echo "✅ Commit message valid"
 ```
 
 ### GitHub Actions Automation
+<!-- END CHUNK: rules-compliance-git -->
+<!-- CHUNK: rules-compliance-checklist | Lines: 739-773 | Keywords: compliance-checklist, verification-steps | Tokens: ~350 -->
 
 ```yaml
 # Location: .github/workflows/copyright-check.yml
@@ -771,6 +800,8 @@ jobs:
 - [ ] Type hints added (mypy strict)
 - [ ] SOLID principles respected (<15 cognitive complexity)
 - [ ] Clean Architecture maintained (4 layers)
+<!-- END CHUNK: rules-compliance-checklist -->
+<!-- CHUNK: rules-cross-reference | Lines: 774-811 | Keywords: cross-reference-table, bidirectional-links | Tokens: ~400 -->
 - [ ] Code formatted (Black 88 chars)
 - [ ] Imports organized (isort)
 - [ ] Copyright headers present
@@ -809,6 +840,7 @@ jobs:
 | **Inheritance (BaseSettings)** | 219-254          | 1294-1380 (DI pattern)                | `src/core/domain/session.py`, `src/infrastructure/config/settings.py` |
 | **Polymorphism (Strategy)**    | 255-311          | 1222-1293 (Strategy pattern)          | `src/features/rag/nodes.py`                                           |
 | **ABC (Protocols)**            | 312-443          | Implicit in interfaces                | `src/shared/types/protocols.py`                                       |
+<!-- END CHUNK: rules-cross-reference -->
 | **Composition**                | 444-594          | 1294-1380 (SessionConfig composition) | `src/core/domain/session.py`                                          |
 | **RAGState**                   | 124-171          | 91-303, 304-655, 656-887              | `src/core/domain/state.py`                                            |
 | **SessionConfig**              | 172-218, 444-594 | 1294-1380                             | `src/core/domain/session.py`                                          |

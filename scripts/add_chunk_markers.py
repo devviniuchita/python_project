@@ -248,7 +248,10 @@ def add_chunk_markers(
 
         # Add chunk start marker
         keywords_str = ", ".join(keywords)
-        start_marker = f"<!-- CHUNK: {chunk_id} | Lines: {start_line}-{end_line} | Keywords: {keywords_str} | Tokens: ~{token_count} -->\n"
+        start_marker = (
+            f"<!-- CHUNK: {chunk_id} | Lines: {start_line}-{end_line} | "
+            f"Keywords: {keywords_str} | Tokens: ~{token_count} -->\n"
+        )
         new_lines.append(start_marker)
 
         # Add chunk content

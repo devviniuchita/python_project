@@ -1,4 +1,5 @@
 <!-- CHUNK: codif-metadata | Lines: 1-89 | Keywords: metadata, quick-navigation-index, search-shortcuts | Tokens: ~700 -->
+<!-- CHUNK: codif-metadata | Lines: 1-89 | Keywords: metadata, quick-navigation-index, search-shortcuts | Tokens: ~700 -->
 ---
 metadata: |
 name: '.github/copilot-rules/project-codification.md'
@@ -87,6 +88,8 @@ syncWith: ['.github\copilot-rules\project-rules.md'](project-rules.md)
 - **Compliance Details:** [project-rules.md Lines 595-773](project-rules.md#-compliance-lines-595-773)
 
 ---
+<!-- END CHUNK: codif-metadata -->
+<!-- CHUNK: codif-layer1-part1 | Lines: 90-195 | Keywords: presentation-layer, cli-interface, command-pattern | Tokens: ~1100 -->
 
 <!-- END CHUNK: codif-metadata -->
 <!-- CHUNK: codif-layer1-part1 | Lines: 90-195 | Keywords: presentation-layer, cli-interface, command-pattern | Tokens: ~1100 -->
@@ -193,6 +196,8 @@ def get_conversation_config(user_id: str = "default") -> dict:
     return conversation_manager.get_config(user_id)
 
 def reset_conversation(user_id: str = "default") -> None:
+<!-- END CHUNK: codif-layer1-part1 -->
+<!-- CHUNK: codif-layer1-part2 | Lines: 196-303 | Keywords: traceable, graph-invoke, handler-pattern | Tokens: ~1100 -->
     """Delegate session reset to Layer 4."""
     conversation_manager.reset_session(user_id)
 ```
@@ -301,6 +306,8 @@ Performance_Targets:
   Response_Formatting: '< 50ms (string extraction)'
 
 Layer_1_Boundaries:
+<!-- END CHUNK: codif-layer1-part2 -->
+<!-- CHUNK: codif-layer2-part1 | Lines: 304-450 | Keywords: orchestration, stategraph, add-node | Tokens: ~1500 -->
   '✅ Includes': 'CLI parsing, command dispatch, request formatting, response formatting, session mgmt'
   '❌ Excludes': 'LLM processing, vector search, database ops, reranking'
 
@@ -448,6 +455,8 @@ def run_rag_query(question: str) -> str:
         "generation": "",
         "quality_score": 0.0,
         "iterations": 0,
+<!-- END CHUNK: codif-layer2-part1 -->
+<!-- CHUNK: codif-layer2-part2 | Lines: 451-580 | Keywords: add-edge, compile, conditional-edges | Tokens: ~1350 -->
     }
 
     # Invoke graph (state machine execution)
@@ -578,6 +587,8 @@ def run_conversational_query(question: str, user_id: str, config: dict) -> str:
 ```
 
 **Exemplos Reais de Código:**
+<!-- END CHUNK: codif-layer2-part2 -->
+<!-- CHUNK: codif-layer2-part3 | Lines: 581-655 | Keywords: graph-patterns, routing-logic | Tokens: ~780 -->
 
 _Exemplo 1: StateGraph with Typed State_
 
@@ -653,6 +664,8 @@ Performance_Targets:
   Graph_Invocation: '< 100ms total overhead (excludes Layer 3)'
 
 Layer_2_Boundaries:
+<!-- END CHUNK: codif-layer2-part3 -->
+<!-- CHUNK: codif-layer3-part1 | Lines: 656-740 | Keywords: business-logic, retrieve-adaptive, rag-nodes | Tokens: ~880 -->
   '✅ Includes': 'StateGraph, node registration, edge definition, routing logic, memory integration'
   '❌ Excludes': 'Individual node business logic, LLM calls, database operations'
 
@@ -738,6 +751,8 @@ def retrieve_adaptive(state: RAGState) -> RAGState:
 
 # 3. Reranking BGE (strategy: reranker com fallback)
 # File: src/features/rag/nodes.py (Linhas 120-185)
+<!-- END CHUNK: codif-layer3-part1 -->
+<!-- CHUNK: codif-layer3-part2 | Lines: 741-820 | Keywords: rerank-documents, crossencoder | Tokens: ~840 -->
 @traceable(run_type="chain", name="BGE Semantic Reranking")
 def rerank_documents(state: RAGState) -> RAGState:
     if not settings.reranker_enabled or not state["documents"]:
@@ -818,6 +833,8 @@ def rerank_documents(query: str, documents: List[str], top_n: Optional[int] = No
     mask = scores >= threshold if threshold > 0 else np.ones_like(scores, dtype=bool)
     filtered_docs = [doc for doc, keep in zip(documents, mask) if keep]
     if not filtered_docs:
+<!-- END CHUNK: codif-layer3-part2 -->
+<!-- CHUNK: codif-layer3-part3 | Lines: 821-887 | Keywords: generate-answer, llm-node | Tokens: ~700 -->
         best_idx = int(np.argmax(scores))
         return [documents[best_idx]]
     sorted_indices = np.argsort(scores[mask])[::-1][:effective_top_n]
@@ -885,6 +902,8 @@ Observability:
 
 **Testes Essenciais (Cobertura atual)**
 
+<!-- END CHUNK: codif-layer3-part3 -->
+<!-- CHUNK: codif-layer4-part1 | Lines: 888-980 | Keywords: specialized-services, infrastructure, settings | Tokens: ~960 -->
 - `tests/unit/test_reranker.py` — valida singleton, top-N, threshold, fallback e conversões de documentos.
 - `tests/unit/test_threshold_filtering.py` — garante estatísticas de corte e distribuição de scores.
 - `tests/unit/test_threshold_performance.py` — mede tempo de reranking e garante cumprimento dos SLAs.
@@ -978,6 +997,8 @@ settings = Settings()  # Instância única validada no import
 def configure_logging() -> None:
         shared_processors = [
                 structlog.contextvars.merge_contextvars,
+<!-- END CHUNK: codif-layer4-part1 -->
+<!-- CHUNK: codif-layer4-part2 | Lines: 981-1087 | Keywords: faiss-integration, langsmith-observability | Tokens: ~1100 -->
                 structlog.processors.add_log_level,
                 structlog.processors.format_exc_info,
                 structlog.processors.TimeStamper(fmt="iso", utc=True),
@@ -1085,6 +1106,8 @@ Segurança:
   Secrets: 'Nunca logar API keys; usar Pydantic para validação'
   IO: 'Carregar índices FAISS apenas de diretórios versionados (./banco_faiss/)'
   Observabilidade: 'Logs JSON incluem correlation ids via contextvars'
+<!-- END CHUNK: codif-layer4-part2 -->
+<!-- CHUNK: codif-inventory | Lines: 1088-1123 | Keywords: structured-inventory, module-mapping | Tokens: ~370 -->
 ```
 
 **Testes Essenciais & Cobertura:**
@@ -1121,6 +1144,8 @@ Segurança:
 - `scripts/chat.py::print_header` — controller de apresentação, inicializa instruções e branding.
 - `scripts/chat.py::print_help` — endpoint de ajuda exposto via `/help`.
 - `src/features/conversation/conversation_graph.py::run_conversational_query` — façade orquestradora chamada pela CLI (entrada/saída de Layer 1).
+<!-- END CHUNK: codif-inventory -->
+<!-- CHUNK: codif-communication | Lines: 1124-1219 | Keywords: universal-language, thread-safety, validation | Tokens: ~1000 -->
 - `src/features/conversation/conversation.py::{analyze_context, expand_question, check_clarification}` — tratadores de entrada responsáveis por preparar o estado antes da Layer 2.
 
 **Services / Business Logic (5+):**
@@ -1217,6 +1242,8 @@ logger = get_logger(__name__)
 
 
 class ThreadSafeRerankerPool:
+<!-- END CHUNK: codif-communication -->
+<!-- CHUNK: codif-strategy-pattern | Lines: 1220-1293 | Keywords: strategy-pattern, callable, complexity-routing | Tokens: ~780 -->
   """Garante instância única do CrossEncoder mesmo em cenários multi-thread."""
 
   _instance: Optional[Any] = None
@@ -1291,6 +1318,8 @@ class BgeCrossEncoderStrategy(RerankingStrategy):
     if self._model is None:
       return documents
     doc_objects = [Document(page_content=d) for d in documents]
+<!-- END CHUNK: codif-strategy-pattern -->
+<!-- CHUNK: codif-dependency-injection | Lines: 1294-1380 | Keywords: di-pattern, sessionconfig, lazy-load | Tokens: ~900 -->
     return [doc.page_content for doc in self._model.compress_documents(doc_objects, question)]
 
 
@@ -1378,6 +1407,8 @@ class RagService:
 
 
 # Layer 4 efetua o wiring com adapters existentes
+<!-- END CHUNK: codif-dependency-injection -->
+<!-- CHUNK: codif-exception-hierarchy | Lines: 1381-1470 | Keywords: custom-exceptions, error-handling, retry-logic | Tokens: ~950 -->
 def _retrieve_documents(question: str) -> list[str]:
   state = {"question": question, "complexity": "simple", "documents": []}
   return retrieve_adaptive(state)["documents"]
@@ -1468,6 +1499,8 @@ def list_recent_runs(limit: int = 10) -> list:
 def run_conversational_query(question: str, user_id: str, config: dict) -> str:
   try:
     graph = create_conversational_rag_graph()
+<!-- END CHUNK: codif-exception-hierarchy -->
+<!-- CHUNK: codif-immutable-rules | Lines: 1471-1504 | Keywords: hierarchy-enforcement, no-bypass | Tokens: ~350 -->
     state = {
       "messages": [],
       "question": question,
@@ -1502,6 +1535,8 @@ def handle_cli(question: str, user_id: str = "cli_user") -> None:
 <!-- END CHUNK: codif-exception-hierarchy -->
 <!-- CHUNK: codif-immutable-rules | Lines: 1471-1504 | Keywords: hierarchy-enforcement, no-bypass | Tokens: ~350 -->
   - `BaseProjectError` (e derivados) SEMPRE devem ser propagados intactos para preservar o encadeamento.
+<!-- END CHUNK: codif-immutable-rules -->
+<!-- CHUNK: codif-validation | Lines: 1505-1530 | Keywords: architectural-validation, compliance-tests | Tokens: ~270 -->
   - Exceções de validação (`ValueError`, `ValidationError`) devem ser convertidas em `BusinessRuleViolation` antes de retornar à Layer 2.
 
 ---
@@ -1528,6 +1563,8 @@ OBRIGATÓRIO: ""
 
 ```yaml
 
+<!-- END CHUNK: codif-validation -->
+<!-- CHUNK: codif-cross-reference | Lines: 1531-1597 | Keywords: cross-reference-table, bidirectional-links | Tokens: ~700 -->
 ```
 
 #### **REGRA 4: DEPENDENCY DIRECTION**
@@ -1595,6 +1632,7 @@ Rule Compliance:
 | Layer 3: Business Logic           | 656-887                   | 79-95                      | `src/features/rag/nodes.py`, `src/features/reranking/reranker.py`     |
 | Layer 4: Services                 | 888-1087                  | 79-95                      | `src/infrastructure/config/settings.py`, `src/core/services/`         |
 | **RAGState (TypedDict)**          | 91-303, 304-655, 656-887  | 124-171 (Abstraction)      | `src/core/domain/state.py`                                            |
+<!-- END CHUNK: codif-cross-reference -->
 | **SessionConfig (Pydantic)**      | 1294-1380 (DI pattern)    | 172-218, 444-594           | `src/core/domain/session.py`                                          |
 | **LangGraph Integration**         | 304-655 (Layer 2)         | 79-95, 255-311             | `src/features/conversation/graph.py`, `src/features/rag/graph.py`     |
 | **Strategy Pattern**              | 1222-1293                 | 255-311 (Polymorphism)     | `src/features/rag/nodes.py` (retrieve_adaptive, rerank_documents)     |
