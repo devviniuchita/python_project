@@ -1,14 +1,16 @@
 <!-- CHUNK: codif-metadata | Lines: 1-89 | Keywords: metadata, quick-navigation-index, search-shortcuts | Tokens: ~700 -->
 <!-- CHUNK: codif-metadata | Lines: 1-89 | Keywords: metadata, quick-navigation-index, search-shortcuts | Tokens: ~700 -->
----
+
+```yaml
 metadata: |
 name: '.github/copilot-rules/project-codification.md'
 description: 'Coding standards, security rules, UI/UX guidelines, API conventions, logging practices, testing strategies, deployment configurations, and documentation requirements for the PYTHON_PROJECT.'
 aiOptimized: true
 alwaysApply: false
 applyManually: true
-syncWith: ['.github\copilot-rules\project-rules.md'](project-rules.md)
----
+```
+
+## syncWith: ['.github\copilot-rules\project-rules.md'](project-rules.md)
 
 **🎯 OBJETIVO**: Garantir padrões de design, arquitetura, engenharia e DNA de codificação do PYTHON_PROJECT estabelecidos e padronizados. Para manter um código limpo, modular, seguro, performático e fácil de manter, evoluir com escalabilidade.
 
@@ -88,11 +90,13 @@ syncWith: ['.github\copilot-rules\project-rules.md'](project-rules.md)
 - **Compliance Details:** [project-rules.md Lines 595-773](project-rules.md#-compliance-lines-595-773)
 
 ---
+
 <!-- END CHUNK: codif-metadata -->
 <!-- CHUNK: codif-layer1-part1 | Lines: 90-195 | Keywords: presentation-layer, cli-interface, command-pattern | Tokens: ~1100 -->
 
 <!-- END CHUNK: codif-metadata -->
 <!-- CHUNK: codif-layer1-part1 | Lines: 90-195 | Keywords: presentation-layer, cli-interface, command-pattern | Tokens: ~1100 -->
+
 ## 🏗️ ARQUITETURA ENTERPRISE HIERÁRQUICA - PADRÕES VALIDADOS
 
 ### ✅ **CAMADA 1: APRESENTAÇÃO (CLI/HTTP Interface)**
@@ -201,6 +205,7 @@ def reset_conversation(user_id: str = "default") -> None:
     """Delegate session reset to Layer 4."""
     conversation_manager.reset_session(user_id)
 ```
+
 <!-- END CHUNK: codif-layer1-part1 -->
 <!-- CHUNK: codif-layer1-part2 | Lines: 196-303 | Keywords: traceable, graph-invoke, handler-pattern | Tokens: ~1100 -->
 
@@ -587,6 +592,7 @@ def run_conversational_query(question: str, user_id: str, config: dict) -> str:
 ```
 
 **Exemplos Reais de Código:**
+
 <!-- END CHUNK: codif-layer2-part2 -->
 <!-- CHUNK: codif-layer2-part3 | Lines: 581-655 | Keywords: graph-patterns, routing-logic | Tokens: ~780 -->
 
@@ -904,6 +910,7 @@ Observability:
 
 <!-- END CHUNK: codif-layer3-part3 -->
 <!-- CHUNK: codif-layer4-part1 | Lines: 888-980 | Keywords: specialized-services, infrastructure, settings | Tokens: ~960 -->
+
 - `tests/unit/test_reranker.py` — valida singleton, top-N, threshold, fallback e conversões de documentos.
 - `tests/unit/test_threshold_filtering.py` — garante estatísticas de corte e distribuição de scores.
 - `tests/unit/test_threshold_performance.py` — mede tempo de reranking e garante cumprimento dos SLAs.
@@ -921,6 +928,7 @@ Observability:
 7. ✅ Fallbacks funcionando (quando reranker desabilitado ou sem documentos).
 
 **Limites e Fronteiras**
+
 <!-- END CHUNK: codif-layer3-part3 -->
 <!-- CHUNK: codif-layer4-part1 | Lines: 888-980 | Keywords: specialized-services, infrastructure, settings | Tokens: ~960 -->
 
@@ -1129,8 +1137,8 @@ Segurança:
 4. ✅ `get_reranker()` suporta primeira carga lenta, demais instantâneas
 5. ✅ `FAISS.load_local` documentado com requisito de índices confiáveis
 6. ✅ Falhas externas (LangSmith, FAISS, Torch) são logadas e retornam fallback seguro
-<!-- END CHUNK: codif-layer4-part2 -->
-<!-- CHUNK: codif-inventory | Lines: 1088-1123 | Keywords: structured-inventory, module-mapping | Tokens: ~370 -->
+   <!-- END CHUNK: codif-layer4-part2 -->
+   <!-- CHUNK: codif-inventory | Lines: 1088-1123 | Keywords: structured-inventory, module-mapping | Tokens: ~370 -->
 
 > 🔐 **Nota:** Caso novos serviços especializados sejam adicionados (cache Redis,
 > webhooks, filas), manter o mesmo contrato: módulo isolado, sem imports para camadas
@@ -1144,8 +1152,8 @@ Segurança:
 - `scripts/chat.py::print_header` — controller de apresentação, inicializa instruções e branding.
 - `scripts/chat.py::print_help` — endpoint de ajuda exposto via `/help`.
 - `src/features/conversation/conversation_graph.py::run_conversational_query` — façade orquestradora chamada pela CLI (entrada/saída de Layer 1).
-<!-- END CHUNK: codif-inventory -->
-<!-- CHUNK: codif-communication | Lines: 1124-1219 | Keywords: universal-language, thread-safety, validation | Tokens: ~1000 -->
+  <!-- END CHUNK: codif-inventory -->
+  <!-- CHUNK: codif-communication | Lines: 1124-1219 | Keywords: universal-language, thread-safety, validation | Tokens: ~1000 -->
 - `src/features/conversation/conversation.py::{analyze_context, expand_question, check_clarification}` — tratadores de entrada responsáveis por preparar o estado antes da Layer 2.
 
 **Services / Business Logic (5+):**
@@ -1169,8 +1177,8 @@ Segurança:
 
 - `src/core/domain/session.py::SessionConfig` — entidade imutável que descreve parâmetros de sessão.
 - `src/core/domain/state.py::RAGState`
-<!-- END CHUNK: codif-inventory -->
-<!-- CHUNK: codif-communication | Lines: 1124-1219 | Keywords: universal-language, thread-safety, validation | Tokens: ~1000 -->
+  <!-- END CHUNK: codif-inventory -->
+  <!-- CHUNK: codif-communication | Lines: 1124-1219 | Keywords: universal-language, thread-safety, validation | Tokens: ~1000 -->
 - `src/core/domain/state.py::ConversationalRAGState`
 - `src/infrastructure/config/settings.py::Settings` — agregado de configuração com validação automática.
 
@@ -1349,6 +1357,7 @@ def rerank_documents(state: RAGState) -> RAGState:
 
 <!-- END CHUNK: codif-strategy-pattern -->
 <!-- CHUNK: codif-dependency-injection | Lines: 1294-1380 | Keywords: di-pattern, sessionconfig, lazy-load | Tokens: ~900 -->
+
 - **Benefícios comprovados:**
   - Testes independentes por estratégia (`tests/unit/test_reranker.py`).
   - Toggle em runtime via `settings.reranker_enabled` sem alterar `graph_rag.py`.
@@ -1440,6 +1449,7 @@ def handle_question(question: str, *, service: RagService = rag_service) -> str:
 
 <!-- END CHUNK: codif-dependency-injection -->
 <!-- CHUNK: codif-exception-hierarchy | Lines: 1381-1470 | Keywords: custom-exceptions, error-handling, retry-logic | Tokens: ~950 -->
+
 - **Benefícios comprovados:**
   - Permite substituir implementações em testes/unit (mocks de retriever e reranker).
   - Evita instanciar recursos pesados repetidamente (CrossEncoder, FAISS).
@@ -1532,11 +1542,11 @@ def handle_cli(question: str, user_id: str = "cli_user") -> None:
 - **Diretrizes:**
   - Logs devem usar `exc_info=True` e campos estruturados (`error_type`, `error_message`, `dependency`).
   - Somente a camada que adiciona contexto loga; camadas superiores reempacotam sem duplicar logs.
-<!-- END CHUNK: codif-exception-hierarchy -->
-<!-- CHUNK: codif-immutable-rules | Lines: 1471-1504 | Keywords: hierarchy-enforcement, no-bypass | Tokens: ~350 -->
+    <!-- END CHUNK: codif-exception-hierarchy -->
+    <!-- CHUNK: codif-immutable-rules | Lines: 1471-1504 | Keywords: hierarchy-enforcement, no-bypass | Tokens: ~350 -->
   - `BaseProjectError` (e derivados) SEMPRE devem ser propagados intactos para preservar o encadeamento.
-<!-- END CHUNK: codif-immutable-rules -->
-<!-- CHUNK: codif-validation | Lines: 1505-1530 | Keywords: architectural-validation, compliance-tests | Tokens: ~270 -->
+    <!-- END CHUNK: codif-immutable-rules -->
+    <!-- CHUNK: codif-validation | Lines: 1505-1530 | Keywords: architectural-validation, compliance-tests | Tokens: ~270 -->
   - Exceções de validação (`ValueError`, `ValidationError`) devem ser convertidas em `BusinessRuleViolation` antes de retornar à Layer 2.
 
 ---
@@ -1624,29 +1634,31 @@ Rule Compliance:
 
 > **Quick Navigation:** Jump between implementations (this doc) and architectural concepts ([project-rules.md](project-rules.md))
 
-| Implementation                    | This Doc (Lines)          | project-rules.md (Lines)   | Files                                                                 |
-| --------------------------------- | ------------------------- | -------------------------- | --------------------------------------------------------------------- |
-| **Clean Architecture (4 Layers)** | 91-1087                   | 79-95                      | Multiple (see below)                                                  |
-| Layer 1: Presentation             | 91-303                    | 79-95                      | `scripts/chat.py`, `src/features/conversation/conversation.py`        |
-| Layer 2: Orchestration            | 304-655                   | 79-95                      | `src/features/conversation/graph.py`, `src/features/rag/graph.py`     |
-| Layer 3: Business Logic           | 656-887                   | 79-95                      | `src/features/rag/nodes.py`, `src/features/reranking/reranker.py`     |
-| Layer 4: Services                 | 888-1087                  | 79-95                      | `src/infrastructure/config/settings.py`, `src/core/services/`         |
-| **RAGState (TypedDict)**          | 91-303, 304-655, 656-887  | 124-171 (Abstraction)      | `src/core/domain/state.py`                                            |
+| Implementation                    | This Doc (Lines)         | project-rules.md (Lines) | Files                                                             |
+| --------------------------------- | ------------------------ | ------------------------ | ----------------------------------------------------------------- |
+| **Clean Architecture (4 Layers)** | 91-1087                  | 79-95                    | Multiple (see below)                                              |
+| Layer 1: Presentation             | 91-303                   | 79-95                    | `scripts/chat.py`, `src/features/conversation/conversation.py`    |
+| Layer 2: Orchestration            | 304-655                  | 79-95                    | `src/features/conversation/graph.py`, `src/features/rag/graph.py` |
+| Layer 3: Business Logic           | 656-887                  | 79-95                    | `src/features/rag/nodes.py`, `src/features/reranking/reranker.py` |
+| Layer 4: Services                 | 888-1087                 | 79-95                    | `src/infrastructure/config/settings.py`, `src/core/services/`     |
+| **RAGState (TypedDict)**          | 91-303, 304-655, 656-887 | 124-171 (Abstraction)    | `src/core/domain/state.py`                                        |
+
 <!-- END CHUNK: codif-cross-reference -->
-| **SessionConfig (Pydantic)**      | 1294-1380 (DI pattern)    | 172-218, 444-594           | `src/core/domain/session.py`                                          |
-| **LangGraph Integration**         | 304-655 (Layer 2)         | 79-95, 255-311             | `src/features/conversation/graph.py`, `src/features/rag/graph.py`     |
-| **Strategy Pattern**              | 1222-1293                 | 255-311 (Polymorphism)     | `src/features/rag/nodes.py` (retrieve_adaptive, rerank_documents)     |
-| **Dependency Injection**          | 1294-1380                 | 444-594 (Composition)      | `src/core/domain/session.py` (SessionConfig composition)              |
-| **Exception Hierarchy**           | 1381-1470                 | Implicit in error handling | Custom exceptions, retry logic                                        |
-| **Communication Patterns**        | 1124-1219                 | Implicit                   | Thread-safety, validation enterprise                                  |
-| **Architectural Rules**           | 1471-1504                 | 595-773 (Compliance)       | Hierarchy enforcement, no bypass, single responsibility               |
-| **Validation & Metrics**          | 1505-1530                 | 595-773 (Compliance)       | Compliance tests, import-linter, coverage metrics                     |
-| **SOLID Principles**              | Applied throughout        | 96-119                     | All implementation files                                              |
-| **Abstraction (TypedDict)**       | 91-303 (RAGState)         | 124-171                    | `src/core/domain/state.py`                                            |
-| **Encapsulation (Pydantic)**      | 1294-1380 (SessionConfig) | 172-218                    | `src/core/domain/session.py`, `src/infrastructure/config/settings.py` |
-| **Inheritance (BaseSettings)**    | 1294-1380 (DI)            | 219-254                    | `src/core/domain/session.py`, `src/infrastructure/config/settings.py` |
-| **Polymorphism (Strategy)**       | 1222-1293                 | 255-311                    | `src/features/rag/nodes.py`                                           |
-| **Composition**                   | 1294-1380 (SessionConfig) | 444-594                    | `src/core/domain/session.py`                                          |
+
+| **SessionConfig (Pydantic)** | 1294-1380 (DI pattern) | 172-218, 444-594 | `src/core/domain/session.py` |
+| **LangGraph Integration** | 304-655 (Layer 2) | 79-95, 255-311 | `src/features/conversation/graph.py`, `src/features/rag/graph.py` |
+| **Strategy Pattern** | 1222-1293 | 255-311 (Polymorphism) | `src/features/rag/nodes.py` (retrieve_adaptive, rerank_documents) |
+| **Dependency Injection** | 1294-1380 | 444-594 (Composition) | `src/core/domain/session.py` (SessionConfig composition) |
+| **Exception Hierarchy** | 1381-1470 | Implicit in error handling | Custom exceptions, retry logic |
+| **Communication Patterns** | 1124-1219 | Implicit | Thread-safety, validation enterprise |
+| **Architectural Rules** | 1471-1504 | 595-773 (Compliance) | Hierarchy enforcement, no bypass, single responsibility |
+| **Validation & Metrics** | 1505-1530 | 595-773 (Compliance) | Compliance tests, import-linter, coverage metrics |
+| **SOLID Principles** | Applied throughout | 96-119 | All implementation files |
+| **Abstraction (TypedDict)** | 91-303 (RAGState) | 124-171 | `src/core/domain/state.py` |
+| **Encapsulation (Pydantic)** | 1294-1380 (SessionConfig) | 172-218 | `src/core/domain/session.py`, `src/infrastructure/config/settings.py` |
+| **Inheritance (BaseSettings)** | 1294-1380 (DI) | 219-254 | `src/core/domain/session.py`, `src/infrastructure/config/settings.py` |
+| **Polymorphism (Strategy)** | 1222-1293 | 255-311 | `src/features/rag/nodes.py` |
+| **Composition** | 1294-1380 (SessionConfig) | 444-594 | `src/core/domain/session.py` |
 
 ## 📚 RELATED DOCUMENTS
 
@@ -1670,4 +1682,5 @@ Rule Compliance:
 ---
 
 _Este padrão arquitetural é **IMUTÁVEL** e deve ser seguido em toda expansão futura do projeto._
+
 <!-- END CHUNK: codif-cross-reference -->

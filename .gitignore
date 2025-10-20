@@ -182,6 +182,7 @@
 .github/memory-system/
 .github/copilot-rules/
 .github/copilot-rules/*.md
+.github/copilot-instructions.md
 
 # -----------------------------------
 # BUILD AND ARTIFACTS - IGNORE
@@ -528,4 +529,3 @@ docs/testsprite_results/test_report_backend.json
 .qoder/rules/byterover-rules.md
 .augment/rules/byterover-rules.md
 docs/TROUBLESHOOT_PRECOMMIT_TLS.md
-.github/copilot-instructions.md

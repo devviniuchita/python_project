@@ -1,13 +1,17 @@
 <!-- CHUNK: rules-metadata | Lines: 1-76 | Keywords: metadata, quick-navigation-index, search-shortcuts | Tokens: ~600 -->
 <!-- CHUNK: rules-metadata | Lines: 1-76 | Keywords: metadata, quick-navigation-index, search-shortcuts | Tokens: ~600 -->
----
+
+```yaml
 metadata: |
 name: '.github/copilot-rules/project-rules.md'
 description: 'Project rules, to define and standardize stacks and versions that should be used, architectural guidelines, engineering, design, approval standards, security rules and deployment procedures for the project PYTHON_PROJECT.'
 aiOptimized: true
 alwaysApply: false
 applyManually: true
-syncWith: ['.github/copilot-rules/project-codification.md'](project-codification.md)
+```
+
+syncWith: [project-codification.md](project-codification.md)
+
 ---
 
 # 🗺️ QUICK NAVIGATION INDEX
@@ -77,7 +81,9 @@ syncWith: ['.github/copilot-rules/project-codification.md'](project-codification
 
 <!-- END CHUNK: rules-metadata -->
 <!-- CHUNK: rules-clean-arch | Lines: 77-95 | Keywords: clean-architecture, 4-layers, dependency-boundaries | Tokens: ~200 -->
+
 ## 🏗️ ARQUITETURA FUNDAMENTAL
+
 <!-- END CHUNK: rules-metadata -->
 <!-- CHUNK: rules-clean-arch | Lines: 77-95 | Keywords: clean-architecture, 4-layers, dependency-boundaries | Tokens: ~200 -->
 
@@ -97,10 +103,11 @@ _Quick Wins (Implementation Tips):_
 - Métrica prática: nenhum módulo deve importar camadas superiores; falhas nessa regra aumentam o acoplamento e devem ser bloqueadas.
 
 <!-- END CHUNK: rules-clean-arch -->
-<!-- CHUNK: rules-solid-overview | Lines: 96-123 | Keywords: solid-principles, srp, ocp, lsp, isp, dip | Tokens: ~300 -->
----
+
+## <!-- CHUNK: rules-solid-overview | Lines: 96-123 | Keywords: solid-principles, srp, ocp, lsp, isp, dip | Tokens: ~300 -->
 
 ## 🎯 SOLID PRINCIPLES - OVERVIEW
+
 <!-- END CHUNK: rules-clean-arch -->
 <!-- CHUNK: rules-solid-overview | Lines: 96-123 | Keywords: solid-principles, srp, ocp, lsp, isp, dip | Tokens: ~300 -->
 
@@ -128,11 +135,13 @@ _Quick Wins (Implementation Tips):_
 
 <!-- END CHUNK: rules-solid-overview -->
 <!-- CHUNK: rules-abstraction | Lines: 124-171 | Keywords: typeddict, ragstate, literal, pep-589 | Tokens: ~500 -->
+
 ## 🏛️ OOP IMPLEMENTATION PATTERNS - DEEP DIVE
 
 Os 4 pilares de Programação Orientada a Objetos aplicados ao Python RAG Project, com exemplos executáveis e integração com SOLID principles.
 
 ### **1. Abstraction - Contratos Tipados que isolam responsabilidades**
+
 <!-- END CHUNK: rules-solid-overview -->
 <!-- CHUNK: rules-abstraction | Lines: 124-171 | Keywords: typeddict, ragstate, literal, pep-589 | Tokens: ~500 -->
 
@@ -178,6 +187,7 @@ class ConversationalRAGState(TypedDict):
 
 <!-- END CHUNK: rules-abstraction -->
 <!-- CHUNK: rules-encapsulation | Lines: 172-218 | Keywords: pydantic, basesettings, field, computed-field | Tokens: ~500 -->
+
 📌 **Como aplicar:** qualquer novo node da Camada 3 deve aceitar `RAGState` e retornar apenas os campos que realmente altera. Isso mantém o fluxo de dados coerente e fácil de testar. Ver [Polymorphism](#4-polymorphism---implementações-intercambiáveis-no-pipeline-rag) para exemplos de nodes plugáveis.
 
 _Quick Wins:_ reutilize `TypedDict` sempre que precisar de contratos leves; `BaseModel` só é indicado quando validação em runtime for indispensável (cuidado com o overhead de ~2.5x).
@@ -185,6 +195,7 @@ _Quick Wins:_ reutilize `TypedDict` sempre que precisar de contratos leves; `Bas
 ---
 
 ### **2. Encapsulation - Validação automática + propriedades calculadas**
+
 <!-- END CHUNK: rules-abstraction -->
 <!-- CHUNK: rules-encapsulation | Lines: 172-218 | Keywords: pydantic, basesettings, field, computed-field | Tokens: ~500 -->
 
@@ -236,6 +247,7 @@ _Quick Wins:_ Em objetos de configuração, use `frozen=True` para forçar imuta
 ---
 
 ### **3. Inheritance - Reuso seguro com classes base Pydantic**
+
 <!-- END CHUNK: rules-encapsulation -->
 <!-- CHUNK: rules-inheritance | Lines: 219-254 | Keywords: sessionconfig, settings, pydantic-inheritance | Tokens: ~400 -->
 
@@ -276,6 +288,7 @@ _Quick Wins:_ Centralize toda configuração sensível em subclasses de `BaseSet
 ---
 
 ### **4. Polymorphism - Implementações intercambiáveis no pipeline RAG**
+
 <!-- END CHUNK: rules-inheritance -->
 <!-- CHUNK: rules-polymorphism | Lines: 255-311 | Keywords: callable, strategy-pattern, adaptive-retrieval | Tokens: ~600 -->
 
@@ -322,8 +335,8 @@ _Quick Wins:_ Concentre-se em manter nodes puros (sem efeitos colaterais) — is
 
 - **Abstraction + Polymorphism**: `TypedDict` contratos permitem nodes intercambiáveis
 - **Encapsulation + Inheritance**: `BaseSettings` herda validação Pydantic encapsulada
-<!-- END CHUNK: rules-polymorphism -->
-<!-- CHUNK: rules-abc-part1 | Lines: 312-380 | Keywords: abstractmethod, metricscollector, abc-protocol | Tokens: ~700 -->
+  <!-- END CHUNK: rules-polymorphism -->
+  <!-- CHUNK: rules-abc-part1 | Lines: 312-380 | Keywords: abstractmethod, metricscollector, abc-protocol | Tokens: ~700 -->
 - **SOLID D + Polymorphism**: Camadas superiores dependem de assinaturas, não implementações
 
 ---
@@ -337,6 +350,7 @@ _Quick Wins (Architectural):_
 ---
 
 ### **5. Abstract Base Classes (ABC) - Contratos Rígidos com Enforcement**
+
 <!-- END CHUNK: rules-polymorphism -->
 <!-- CHUNK: rules-abc-part1 | Lines: 312-380 | Keywords: abstractmethod, metricscollector, abc-protocol | Tokens: ~700 -->
 
@@ -460,6 +474,7 @@ _Quick Wins:_
 
 <!-- END CHUNK: rules-abc-part2 -->
 <!-- CHUNK: rules-composition-part1 | Lines: 444-520 | Keywords: dependency-injection, aggregation, composition | Tokens: ~800 -->
+
 | Critério        | ABC (`abc.ABC`)                       | Protocol (`typing.Protocol`) |
 | --------------- | ------------------------------------- | ---------------------------- |
 | **Enforcement** | Runtime TypeError se não implementado | Type checker warning only    |
@@ -477,6 +492,7 @@ _Quick Wins:_
 ---
 
 ### **6. Composition vs Inheritance - Trade-offs e Decision Framework**
+
 <!-- END CHUNK: rules-abc-part2 -->
 <!-- CHUNK: rules-composition-part1 | Lines: 444-520 | Keywords: dependency-injection, aggregation, composition | Tokens: ~800 -->
 
@@ -636,6 +652,7 @@ class Service:
 ---
 
 ## 🎖️ COMPLIANCE ENFORCEMENT
+
 <!-- END CHUNK: rules-composition-part2 -->
 <!-- CHUNK: rules-compliance-immutable | Lines: 595-632 | Keywords: immutable-rules, approval-criteria, quality-gates | Tokens: ~400 -->
 
@@ -678,6 +695,7 @@ Rule Compliance:
 ```
 
 ### Validation Tools & Methods
+
 <!-- END CHUNK: rules-compliance-immutable -->
 <!-- CHUNK: rules-compliance-tools | Lines: 633-682 | Keywords: validation-tools, pre-commit, sonarqube | Tokens: ~500 -->
 
@@ -732,6 +750,7 @@ echo "✅ All compliance checks passed!"
 ```
 
 ### Git Commit Hook Enforcement
+
 <!-- END CHUNK: rules-compliance-tools -->
 <!-- CHUNK: rules-compliance-git | Lines: 683-738 | Keywords: git-commit-hooks, github-actions, ci-cd | Tokens: ~600 -->
 
@@ -763,6 +782,7 @@ echo "✅ Commit message valid"
 ```
 
 ### GitHub Actions Automation
+
 <!-- END CHUNK: rules-compliance-git -->
 <!-- CHUNK: rules-compliance-checklist | Lines: 739-773 | Keywords: compliance-checklist, verification-steps | Tokens: ~350 -->
 
@@ -792,6 +812,7 @@ jobs:
 ```
 
 ### Compliance Verification Checklist
+
 <!-- END CHUNK: rules-compliance-git -->
 <!-- CHUNK: rules-compliance-checklist | Lines: 739-773 | Keywords: compliance-checklist, verification-steps | Tokens: ~350 -->
 
@@ -800,8 +821,8 @@ jobs:
 - [ ] Type hints added (mypy strict)
 - [ ] SOLID principles respected (<15 cognitive complexity)
 - [ ] Clean Architecture maintained (4 layers)
-<!-- END CHUNK: rules-compliance-checklist -->
-<!-- CHUNK: rules-cross-reference | Lines: 774-811 | Keywords: cross-reference-table, bidirectional-links | Tokens: ~400 -->
+  <!-- END CHUNK: rules-compliance-checklist -->
+  <!-- CHUNK: rules-cross-reference | Lines: 774-811 | Keywords: cross-reference-table, bidirectional-links | Tokens: ~400 -->
 - [ ] Code formatted (Black 88 chars)
 - [ ] Imports organized (isort)
 - [ ] Copyright headers present
@@ -823,31 +844,35 @@ jobs:
 
 > **Quick Navigation:** Jump between architectural concepts (this doc) and their implementations ([project-codification.md](project-codification.md))
 
-| Concept                        | This Doc (Lines) | project-codification.md (Lines)       | Files                                                                 |
-| ------------------------------ | ---------------- | ------------------------------------- | --------------------------------------------------------------------- |
-| **Clean Architecture**         | 79-95            | 91-1087 (4 layers overview)           | Multiple (see layers below)                                           |
-| Layer 1: Presentation          | 79-95            | 91-303                                | `scripts/chat.py`, `src/features/conversation/conversation.py`        |
-| Layer 2: Orchestration         | 79-95            | 304-655                               | `src/features/conversation/graph.py`, `src/features/rag/graph.py`     |
-| Layer 3: Business Logic        | 79-95            | 656-887                               | `src/features/rag/nodes.py`, `src/features/reranking/reranker.py`     |
-| Layer 4: Services              | 79-95            | 888-1087                              | `src/infrastructure/config/settings.py`, `src/core/services/`         |
-| **SOLID Principles**           | 96-119           | Implicit (see patterns)               | Applied throughout codebase                                           |
+| Concept                 | This Doc (Lines) | project-codification.md (Lines) | Files                                                             |
+| ----------------------- | ---------------- | ------------------------------- | ----------------------------------------------------------------- |
+| **Clean Architecture**  | 79-95            | 91-1087 (4 layers overview)     | Multiple (see layers below)                                       |
+| Layer 1: Presentation   | 79-95            | 91-303                          | `scripts/chat.py`, `src/features/conversation/conversation.py`    |
+| Layer 2: Orchestration  | 79-95            | 304-655                         | `src/features/conversation/graph.py`, `src/features/rag/graph.py` |
+| Layer 3: Business Logic | 79-95            | 656-887                         | `src/features/rag/nodes.py`, `src/features/reranking/reranker.py` |
+| Layer 4: Services       | 79-95            | 888-1087                        | `src/infrastructure/config/settings.py`, `src/core/services/`     |
+| **SOLID Principles**    | 96-119           | Implicit (see patterns)         | Applied throughout codebase                                       |
+
 <!-- END CHUNK: rules-compliance-checklist -->
 <!-- CHUNK: rules-cross-reference | Lines: 774-811 | Keywords: cross-reference-table, bidirectional-links | Tokens: ~400 -->
-| Single Responsibility          | 96-119           | 1471-1504 (Rule 3)                    | All modules                                                           |
-| Dependency Inversion           | 96-119           | 1294-1380 (DI pattern)                | `src/core/domain/session.py`                                          |
-| **Abstraction (TypedDict)**    | 124-171          | 91-303 (RAGState examples)            | `src/core/domain/state.py`                                            |
-| **Encapsulation (Pydantic)**   | 172-218          | 1294-1380 (SessionConfig)             | `src/core/domain/session.py`, `src/infrastructure/config/settings.py` |
-| **Inheritance (BaseSettings)** | 219-254          | 1294-1380 (DI pattern)                | `src/core/domain/session.py`, `src/infrastructure/config/settings.py` |
-| **Polymorphism (Strategy)**    | 255-311          | 1222-1293 (Strategy pattern)          | `src/features/rag/nodes.py`                                           |
-| **ABC (Protocols)**            | 312-443          | Implicit in interfaces                | `src/shared/types/protocols.py`                                       |
+
+| Single Responsibility | 96-119 | 1471-1504 (Rule 3) | All modules |
+| Dependency Inversion | 96-119 | 1294-1380 (DI pattern) | `src/core/domain/session.py` |
+| **Abstraction (TypedDict)** | 124-171 | 91-303 (RAGState examples) | `src/core/domain/state.py` |
+| **Encapsulation (Pydantic)** | 172-218 | 1294-1380 (SessionConfig) | `src/core/domain/session.py`, `src/infrastructure/config/settings.py` |
+| **Inheritance (BaseSettings)** | 219-254 | 1294-1380 (DI pattern) | `src/core/domain/session.py`, `src/infrastructure/config/settings.py` |
+| **Polymorphism (Strategy)** | 255-311 | 1222-1293 (Strategy pattern) | `src/features/rag/nodes.py` |
+| **ABC (Protocols)** | 312-443 | Implicit in interfaces | `src/shared/types/protocols.py` |
+
 <!-- END CHUNK: rules-cross-reference -->
-| **Composition**                | 444-594          | 1294-1380 (SessionConfig composition) | `src/core/domain/session.py`                                          |
-| **RAGState**                   | 124-171          | 91-303, 304-655, 656-887              | `src/core/domain/state.py`                                            |
-| **SessionConfig**              | 172-218, 444-594 | 1294-1380                             | `src/core/domain/session.py`                                          |
-| **LangGraph Integration**      | 79-95, 255-311   | 304-655 (Layer 2)                     | `src/features/conversation/graph.py`, `src/features/rag/graph.py`     |
-| **Strategy Pattern**           | 255-311          | 1222-1293                             | `src/features/rag/nodes.py` (retrieve_adaptive, rerank_documents)     |
-| **Dependency Injection**       | 444-594          | 1294-1380                             | `src/core/domain/session.py` (SessionConfig composition)              |
-| **Compliance Enforcement**     | 595-773          | 1531-1554                             | `.pre-commit-config.yaml`, `.githooks/`, `.github/workflows/`         |
+
+| **Composition** | 444-594 | 1294-1380 (SessionConfig composition) | `src/core/domain/session.py` |
+| **RAGState** | 124-171 | 91-303, 304-655, 656-887 | `src/core/domain/state.py` |
+| **SessionConfig** | 172-218, 444-594 | 1294-1380 | `src/core/domain/session.py` |
+| **LangGraph Integration** | 79-95, 255-311 | 304-655 (Layer 2) | `src/features/conversation/graph.py`, `src/features/rag/graph.py` |
+| **Strategy Pattern** | 255-311 | 1222-1293 | `src/features/rag/nodes.py` (retrieve_adaptive, rerank_documents) |
+| **Dependency Injection** | 444-594 | 1294-1380 | `src/core/domain/session.py` (SessionConfig composition) |
+| **Compliance Enforcement** | 595-773 | 1531-1554 | `.pre-commit-config.yaml`, `.githooks/`, `.github/workflows/` |
 
 ## 📚 RELATED DOCUMENTS
 
@@ -872,4 +897,5 @@ jobs:
 ---
 
 _This document defines the development, coding, security and deployment rules for the PROJECT PYTHON PROJECT_
+
 <!-- END CHUNK: rules-cross-reference -->
